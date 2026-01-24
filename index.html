@@ -15,19 +15,12 @@
     --bg-card: #ffffff;
     --accent-dark: #1a1a1a;
     --accent-blue: #254EDB;
-    
-    /* === ОСНОВНІ КОЛЬОРИ === */
-    --color-on: #8DAA91;   /* Базовий зелений */
-    --color-off: #E07A5F;  /* Базовий червоний */
-    
-    /* === КОЛЬОРИ ДЛЯ СПИСКУ (Трохи темніші, на ~10%) === */
+    --color-on: #8DAA91;   
+    --color-off: #E07A5F;
     --color-row-on: #7E9C82; 
     --color-row-off: #CC6A50;
-
-    /* Фони статусів */
     --color-on-bg: #E8F5E9;
     --color-off-bg: #FFF3E0;
-
     --text-main: #111111;
     --text-muted: #888888;
 }
@@ -46,45 +39,22 @@ h1 { font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacin
 .status-time { font-size: 42px; font-weight: 700; line-height: 1; margin-bottom: 10px; font-variant-numeric: tabular-nums; }
 .status-label { font-size: 11px; opacity: 0.7; font-family: 'JetBrains Mono', monospace; }
 
-/* === КАРТКА ДНЯ === */
 .day-container { 
     background: var(--bg-card); 
     border-radius: 12px; 
     padding: 16px 14px; 
     margin-bottom: 12px; 
     box-shadow: 0 1px 3px rgba(0,0,0,0.02); 
-    
-    /* Анімація бордера і тіні */
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    
     cursor: pointer; 
     overflow: hidden;
     position: relative;
-    
-    /* Прозорий бордер за замовчуванням, щоб не стрибало */
     border: 2px solid transparent; 
 }
-
-/* Ефект натискання */
 .day-container:active { transform: scale(0.99); }
-
-/* Стиль СЬОГОДНІ (якщо не розгорнуто) */
-.day-container.today { 
-    border-color: #254EDB; /* Легкий синій */
-    background: linear-gradient(to bottom right, #ffffff, #f8faff);
-}
-
-/* === РОЗГОРНУТИЙ СТАН (СИНЯ РАМКА) === */
-.day-container.expanded {
-    border-color: var(--accent-blue); /* Яскрава синя рамка */
-    box-shadow: 0 10px 30px rgba(37, 78, 219, 0.15); /* Більша тінь */
-    background: #fff;
-    z-index: 10;
-}
-
-/* Ідеальний день */
+.day-container.today { border-color: rgba(37, 78, 219, 0.2); background: linear-gradient(to bottom right, #ffffff, #f8faff); }
+.day-container.expanded { border-color: var(--accent-blue); box-shadow: 0 10px 30px rgba(37, 78, 219, 0.15); z-index: 10; }
 .day-container.perfect { border-color: var(--color-on); }
-.day-container.perfect.expanded { border-color: var(--color-on); } /* Зелена рамка якщо ідеальний */
 
 .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 0 2px; }
 .day-date-group { display: flex; align-items: center; gap: 10px; }
@@ -92,16 +62,13 @@ h1 { font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacin
 .day-name { font-size: 14px; color: var(--text-muted); font-weight: 500; }
 .today-badge { font-size: 10px; font-weight: 800; background: var(--accent-blue); color: #fff; padding: 3px 6px; border-radius: 4px; text-transform: uppercase; line-height: 1; }
 
-/* TIMELINE */
 .timeline { height: 24px; display: flex; border-radius: 6px; overflow: hidden; background: #eef0f2; margin-bottom: 4px; position: relative; }
 .segment { height: 100%; position: relative; cursor: pointer; transition: all 0.2s ease; }
 .segment:hover { filter: brightness(1.1); transform: scaleY(1.05); z-index: 2; }
-
 .on { background: var(--color-on); }
 .off { background: var(--color-off); }
 .future { background: repeating-linear-gradient(45deg, #e0e0e0, #e0e0e0 4px, #f2f2f2 4px, #f2f2f2 8px); opacity: 0.4; cursor: default; pointer-events: none; }
-
-.now-marker { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent-blue); z-index: 20; pointer-events: none; box-shadow: 0 0 4px rgba(37, 78, 219, 0.5); }
+.now-marker { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent-blue); z-index: 20; pointer-events: none; }
 
 .scale { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #aaa; margin-bottom: 12px; padding: 0 2px; }
 .day-summary { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-main); padding-top: 8px; border-top: 1px solid #f0f0f0; }
@@ -110,62 +77,26 @@ h1 { font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacin
 .label-off { color: var(--color-off); font-weight: 800; font-size: 10px; text-transform: uppercase; }
 .day-summary b { color: var(--text-main); font-size: 12px; font-weight: 700; }
 
-/* === АНІМАЦІЯ СПИСКУ === */
 .day-details {
     max-height: 0;
     opacity: 0;
     overflow: hidden;
-    margin-top: 0;
-    
-    /* BOUNCE */
-    transition: 
-        max-height 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-        opacity 0.4s ease,
-        margin-top 0.4s ease;
+    transition: max-height 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease, margin-top 0.4s ease;
 }
-
-.day-container.expanded .day-details {
-    max-height: 600px; 
-    opacity: 1;
-    margin-top: 15px;
-    padding-top: 5px;
-    /* Тут прибрано бордер, бо тепер бордер на самій картці */
-}
-
-/* Рядки списку */
-.detail-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 12px;
-    margin-bottom: 6px;
-    border-radius: 6px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: #fff;
-    font-weight: 500;
-}
-.detail-row:last-child { margin-bottom: 0; }
-
-/* Ті ж кольори, але трохи темніші для контрасту тексту */
+.day-container.expanded .day-details { max-height: 600px; opacity: 1; margin-top: 15px; padding-top: 5px; }
+.detail-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; margin-bottom: 6px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #fff; font-weight: 500; }
 .row-on { background: var(--color-row-on); }
 .row-off { background: var(--color-row-off); }
 
-.chevron {
-    font-size: 10px;
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    color: #ccc;
-    margin-left: 6px;
-    display: inline-block;
-}
+.chevron { font-size: 10px; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); color: #ccc; margin-left: 6px; display: inline-block; }
 .day-container.expanded .chevron { transform: rotate(180deg); color: var(--accent-blue); }
 
 .week-separator { display: flex; align-items: center; color: var(--text-muted); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin: 30px 0 15px; opacity: 0.5; }
 .week-separator::before, .week-separator::after { content: ''; flex: 1; height: 1px; background: #ccc; }
 .week-separator span { padding: 0 10px; }
 
-#tooltip { position: absolute; background: var(--accent-dark); color: #fff; padding: 5px 8px; font-family: 'JetBrains Mono', monospace; font-size: 10px; border-radius: 4px; pointer-events: none; opacity: 0; transform: translateY(4px); transition: 0.1s; z-index: 100; white-space: nowrap; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-#tooltip.visible { opacity: 1; transform: translateY(0); }
+#tooltip { position: absolute; background: var(--accent-dark); color: #fff; padding: 5px 8px; font-family: 'JetBrains Mono', monospace; font-size: 10px; border-radius: 4px; pointer-events: none; opacity: 0; z-index: 100; white-space: nowrap; }
+#tooltip.visible { opacity: 1; }
 footer { margin-top: 40px; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #aaa; }
 </style>
 </head>
@@ -178,7 +109,7 @@ footer { margin-top: 40px; text-align: center; font-family: 'JetBrains Mono', mo
         <div class="sub" id="currentMonth">...</div>
     </header>
     <div id="statusCard" class="status-card">
-        <div class="status-icon" id="statusIcon">...</div>
+        <div class="status-icon" id="statusIcon">Завантаження...</div>
         <div class="status-time" id="statusTimer">00:00</div>
         <div class="status-label" id="statusLabel">...</div>
     </div>
@@ -186,155 +117,48 @@ footer { margin-top: 40px; text-align: center; font-family: 'JetBrains Mono', mo
     <footer id="footerStats"></footer>
 </div>
 
-<script id="data-logs" type="text/plain">
-🌑 13.01.26, 01:25 Світло зникло
------------------------------------------
-🌑 13.01.26, 23:37 Увімкнули світло 
-⏳ Його не було 22 години і 12 хвилин
------------------------------------------
-🌑 14.01.26, 08:00 Світло зникло
-⏳ Воно було 8 годин і 23 хвилини 
------------------------------------------
-🌕 14.01.26, 14:33 Увімкнули світло 
-⏳ Його не було 6 годин і 33 хвилини
------------------------------------------
-🌑 14.01.26, 20:24 Світло зникло
-⏳ Воно було 5 годин і 51 хвилина
------------------------------------------
-🌕 15.01.26, 06:50 Увімкнули світло 
-⏳ Його не було 10 годин і 26 хвилин
------------------------------------------
-🌑 15.01.26, 10:54 Світло зникло
-⏳ Воно було 3 години і 52 хвилини 
------------------------------------------
-🌕 15.01.26, 22:12 Увімкнули світло 
-⏳ Його не було 11 годин і 18 хвилин
------------------------------------------
-🌑 16.01.26, 06:04 Світло зникло
-⏳ Воно було 7 годин і 52 хвилини
------------------------------------------
-🌕 16.01.26, 13:23 Увімкнули світло 
-⏳ Його не було 7 годин і 19 хвилин
------------------------------------------
-🌑 16.01.26, 21:12 Світло зникло
-⏳ Воно було 7 годин і 49 хвилин 
------------------------------------------
-🌕 17.01.26, 10:44 Увімкнули світло 
-⏳ Його не було 13 годин і 32 хвилини
------------------------------------------
-🌑 17.01.26, 16:10 Світло зникло
-⏳ Воно було 5 годин і 26 хвилин
------------------------------------------
-🌕 17.01.26, 23:46 Увімкнули світло 
-⏳ Його не було 7 годин і 36 хвилин
------------------------------------------
-🌑 18.01.26, 12:26 Світло зникло
-⏳ Воно було 12 годин і 39 хвилин
------------------------------------------
-🌕 18.01.26, 21:43 Увімкнули світло 
-⏳ Його не було 9 годин і 17 хвилин
------------------------------------------
-🌑 19.01.26, 14:55 Світло зникло
-⏳ Воно було 16 годин і 56 хвилин
------------------------------------------
-🌕 19.01.26, 22:43 Увімкнули світло 
-⏳ Його не було 7 годин і 48 хвилин
------------------------------------------
-🌑 20.01.26, 06:37 Світло зникло
-⏳ Воно було 7 годин і 54 хвилини
------------------------------------------
-🌕 20.01.26, 18:12 Увімкнули світло 
-⏳ Його не було 11 годин і 35 хвилин
------------------------------------------
-🌑 20.01.26, 19:02 Світло зникло
-⏳ Воно було 50 хвилин
------------------------------------------
-🌕 20.01.26, 21:22 Увімкнули світло 
-⏳ Його не було 2 години і 20 хвилин
------------------------------------------
-🌑 21.01.2026, 00:37 Світло зникло
-⏳ Воно було 3 години, 13 хвилин
------------------------------------------
-🌕 21.01.26, 16:32 Увімкнули світло 
-⏳ Його не було 15 годин і 55 хвилин
------------------------------------------
-🌑 21.01.26, 20:13 Світло зникло
-⏳ Воно було 3 години і 41 хвилина
------------------------------------------
-🌕 22.01.26, 02:15 Увімкнули світло 
-⏳ Його не було 6 годин і 2 хвилини
------------------------------------------
-🌑 22.01.26, 07:07 Світло зникло
-⏳ Воно було 4 години і 52 хвилини
------------------------------------------
-🌕 22.01.26, 14:38 Увімкнули світло 
-⏳ Його не було 7 годин і 31 хвилина
------------------------------------------
-🌑 22.01.26, 19:36 Світло зникло
-⏳ Воно було 4 години і 58 хвилин
------------------------------------------
-🌕 22.01.26, 23:27 Увімкнули світло 
-⏳ Його не було 3 години і 51 хвилина
------------------------------------------
-🌑 23.01.26, 09:26 Світло зникло
-⏳ Воно було 9 годин і 59 хвилин
------------------------------------------
-🌕 23.01.26, 15:22 Увімкнули світло 
-⏳ Його не було 5 годин і 56 хвилин
------------------------------------------
-🌑 23.01.26, 19:30 Світло зникло
-⏳ Воно було 4 години і 8 хвилин
------------------------------------------
-🌕 24.01.26, 01:07 Увімкнули світло 
-⏳ Його не було 5 годин і 37 хвилин
------------------------------------------
-🌑 24.01.26, 09:38 Світло зникло
-⏳ Воно було 8 годин і 31 хвилина
------------------------------------------
-🌕 24.01.26, 11:26 Увімкнули світло 
-⏳ Його не було 1 годину і 48 хвилин
------------------------------------------
- 24.01.26, 15:07 Світло зникло
-⏳ Воно було 3 години і 41 хвилина
------------------------------------------
-</script>
 <script>
-    function parseLogs() {
-        const rawText = document.getElementById('data-logs').textContent;
+    // ФУНКЦІЯ ЗАВАНТАЖЕННЯ ЗОВНІШНЬОГО ФАЙЛУ
+    async function loadLogs() {
+        try {
+            // Додаємо timestamp, щоб GitHub не кешував старий файл
+            const response = await fetch('logs.txt?t=' + Date.now());
+            const text = await response.text();
+            render(text);
+        } catch (error) {
+            document.getElementById('statusIcon').innerText = "Помилка завантаження logs.txt";
+            console.error(error);
+        }
+    }
+
+    function parseLogs(rawText) {
         const lines = rawText.split('\n');
         const events = [];
-
         lines.forEach(line => {
             const isTurnedOn = line.toLowerCase().includes('увімкнули') || line.toLowerCase().includes('світло є');
             const isTurnedOff = line.toLowerCase().includes('зникло') || line.toLowerCase().includes('немає');
             if (!isTurnedOn && !isTurnedOff) return;
-
             const dateMatch = line.match(/(\d{2}\.\d{2}\.\d{2,4})/);
             const timeMatch = line.match(/(\d{2}:\d{2})/);
-
             if (dateMatch && timeMatch) {
                 let dateStr = dateMatch[1];
                 let timeStr = timeMatch[1];
                 const dParts = dateStr.split('.');
                 let year = dParts[2].length === 2 ? '20' + dParts[2] : dParts[2];
-                const dateObj = new Date(`${year}-${dParts[1]}-${dParts[0]}T${timeStr}:00`);
-                
                 events.push({
-                    date: dateObj,
+                    date: new Date(`${year}-${dParts[1]}-${dParts[0]}T${timeStr}:00`),
                     type: isTurnedOn ? 'ON' : 'OFF',
                     rawTime: timeStr
                 });
             }
         });
-        events.sort((a, b) => a.date - b.date);
-        return events;
+        return events.sort((a, b) => a.date - b.date);
     }
 
     function generateDays(events) {
         if (events.length === 0) return [];
         const days = {}; 
         const now = new Date(); 
-
         let currentDate = new Date(events[0].date);
         currentDate.setHours(0,0,0,0);
         let currentState = events[0].type === 'OFF' ? 'ON' : 'OFF';
@@ -347,10 +171,8 @@ footer { margin-top: 40px; text-align: center; font-family: 'JetBrains Mono', mo
             const dayKey = currentDate.toISOString().split('T')[0];
             const dayStart = new Date(currentDate);
             const dayEnd = new Date(currentDate); dayEnd.setHours(23,59,59,999);
-            
             days[dayKey] = { date: new Date(dayStart), segments: [], totalOn: 0, totalOff: 0 };
             let pointer = dayStart.getTime();
-            const endOfDay = dayEnd.getTime();
 
             while (eventIndex < events.length) {
                 const ev = events[eventIndex];
@@ -363,16 +185,14 @@ footer { margin-top: 40px; text-align: center; font-family: 'JetBrains Mono', mo
                 eventIndex++;
             }
 
-            const isToday = dayStart.toDateString() === now.toDateString();
-            if (isToday) {
+            if (dayStart.toDateString() === now.toDateString()) {
                 if (now.getTime() > pointer) {
-                    let activeLabel = currentState === 'ON' ? 'СВІТЛО Є' : 'СВІТЛА НЕМАЄ';
-                    addSegment(days[dayKey], pointer, now.getTime(), currentState, activeLabel);
+                    addSegment(days[dayKey], pointer, now.getTime(), currentState, currentState === 'ON' ? 'СВІТЛО Є' : 'СВІТЛА НЕМАЄ');
                     pointer = now.getTime();
                 }
-                addSegment(days[dayKey], pointer, endOfDay, 'FUTURE');
+                addSegment(days[dayKey], pointer, dayEnd.getTime(), 'FUTURE');
             } else {
-                addSegment(days[dayKey], pointer, endOfDay, currentState);
+                addSegment(days[dayKey], pointer, dayEnd.getTime(), currentState);
             }
             currentDate.setDate(currentDate.getDate() + 1);
         }
@@ -383,216 +203,99 @@ footer { margin-top: 40px; text-align: center; font-family: 'JetBrains Mono', mo
         if (startMs >= endMs) return;
         const diffMs = endMs - startMs;
         const minutes = Math.floor(diffMs / 60000);
-        const width = (minutes / 1440) * 100;
         const startD = new Date(startMs);
         const endD = new Date(endMs);
-        
-        let statusLabel = customStatus;
-        if (!statusLabel) {
-            statusLabel = type === 'ON' ? 'БУЛО' : 'НЕ БУЛО';
-        }
-
-        const percent = Math.round((minutes / 1440) * 100);
-
         dayObj.segments.push({
-            type: type,
-            width: width,
+            type, width: (minutes / 1440) * 100,
             range: formatTime(startD) + ' - ' + formatTime(endD),
             dur: formatDuration(minutes),
-            percentStr: percent > 0 ? `(${percent}%)` : '',
-            statusLabel: statusLabel 
+            percentStr: minutes > 0 ? `(${Math.round((minutes / 1440) * 100)}%)` : '',
+            statusLabel: customStatus || (type === 'ON' ? 'БУЛО' : 'НЕ БУЛО')
         });
-
         if (type === 'ON') dayObj.totalOn += minutes;
         if (type === 'OFF') dayObj.totalOff += minutes;
     }
 
     function updateStatus(events) {
-        if (!events || events.length === 0) return;
+        if (!events.length) return;
         const now = new Date();
-        const lastEvent = events[events.length - 1];
-        
+        const last = events[events.length - 1];
+        const diffMins = Math.floor((now - last.date) / 60000);
         const card = document.getElementById('statusCard');
-        const icon = document.getElementById('statusIcon');
-        const timer = document.getElementById('statusTimer');
-        const label = document.getElementById('statusLabel');
-        
-        const diffMs = now - lastEvent.date;
-        const diffMins = Math.floor(diffMs / 60000);
-        
-        const isLightOn = lastEvent.type === 'ON';
-        const eventDateStr = lastEvent.date.toLocaleDateString('uk-UA', {day:'2-digit', month:'2-digit', year:'numeric'});
-        
-        const h = Math.floor(diffMins / 60);
-        const m = diffMins % 60;
-        const timeString = `${h}г ${m}хв`;
-
-        if (isLightOn) {
-            card.className = 'status-card good';
-            icon.innerText = '● СВІТЛО Є';
-            timer.innerText = timeString;
-            label.innerText = `Увімкнули: ${eventDateStr}, ${lastEvent.rawTime}`;
-        } else {
-            card.className = 'status-card bad';
-            icon.innerText = '● СВІТЛА НЕМАЄ';
-            timer.innerText = timeString;
-            label.innerText = `Зникло: ${eventDateStr}, ${lastEvent.rawTime}`;
-        }
+        card.className = last.type === 'ON' ? 'status-card good' : 'status-card bad';
+        document.getElementById('statusIcon').innerText = last.type === 'ON' ? '● СВІТЛО Є' : '● СВІТЛА НЕМАЄ';
+        document.getElementById('statusTimer').innerText = `${Math.floor(diffMins/60)}г ${diffMins%60}хв`;
+        document.getElementById('statusLabel').innerText = `${last.type === 'ON' ? 'Увімкнули' : 'Зникло'}: ${last.date.toLocaleDateString('uk-UA')}, ${last.rawTime}`;
     }
 
     function toggleDay(element) {
-        const allDays = document.querySelectorAll('.day-container');
-        const isAlreadyExpanded = element.classList.contains('expanded');
-        allDays.forEach(day => {
-            day.classList.remove('expanded');
-        });
-        if (!isAlreadyExpanded) {
-            element.classList.add('expanded');
-        }
+        const isExp = element.classList.contains('expanded');
+        document.querySelectorAll('.day-container').forEach(d => d.classList.remove('expanded'));
+        if (!isExp) element.classList.add('expanded');
     }
 
-    function render() {
-        const events = parseLogs();
+    function render(rawText) {
+        const events = parseLogs(rawText);
         let dayData = generateDays(events);
         dayData.reverse();
-
-        const wrapper = document.getElementById('daysWrapper');
         const now = new Date();
-        const monthNames = ["СІЧЕНЬ", "ЛЮТИЙ", "БЕРЕЗЕНЬ", "КВІТЕНЬ", "ТРАВЕНЬ", "ЧЕРВЕНЬ", "ЛИПЕНЬ", "СЕРПЕНЬ", "ВЕРЕСЕНЬ", "ЖОВТЕНЬ", "ЛИСТОПАД", "ГРУДЕНЬ"];
-        document.getElementById('currentMonth').innerText = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
-
+        document.getElementById('currentMonth').innerText = `${["СІЧЕНЬ", "ЛЮТИЙ", "БЕРЕЗЕНЬ", "КВІТЕНЬ", "ТРАВЕНЬ", "ЧЕРВЕНЬ", "ЛИПЕНЬ", "СЕРПЕНЬ", "ВЕРЕСЕНЬ", "ЖОВТЕНЬ", "ЛИСТОПАД", "ГРУДЕНЬ"][now.getMonth()]} ${now.getFullYear()}`;
         updateStatus(events);
-        if (window.statusInterval) clearInterval(window.statusInterval);
-        window.statusInterval = setInterval(() => updateStatus(events), 60000);
 
         let html = '';
         const dayNames = ["Неділя", "Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота"];
 
         dayData.forEach((day, index) => {
             const isToday = day.date.toDateString() === now.toDateString();
+            if (day.date.getDay() === 0 && index !== 0) html += '<div class="week-separator"><span>Минулий тиждень</span></div>';
             
-            if (day.date.getDay() === 0 && index !== 0) {
-                 html += '<div class="week-separator"><span>Минулий тиждень</span></div>';
-            }
-
-            const dateStr = formatDDMM(day.date);
-            const dayName = dayNames[day.date.getDay()];
-            
-            let containerClass = 'day-container';
-            if (isToday) containerClass += ' today';
-            else containerClass += ' past';
-            
-            if (day.totalOff === 0) containerClass += ' perfect';
-
-            let todayBadgeHtml = isToday ? '<span class="today-badge">СЬОГОДНІ</span>' : '';
-            let chevronHtml = '<span class="chevron">▼</span>';
-
             let segmentsHtml = '';
             let detailsHtml = '<div class="day-details">';
+            if (isToday) segmentsHtml += `<div class="now-marker" style="left:${(now.getHours()*60+now.getMinutes())/14.4}%;"></div>`;
 
-            if (isToday) {
-                const nowMinutes = now.getHours() * 60 + now.getMinutes();
-                const nowPercent = (nowMinutes / 1440) * 100;
-                segmentsHtml += `<div class="now-marker" style="left:${nowPercent}%;"></div>`;
-            }
-            
             day.segments.forEach(seg => {
-                let colorClass = 'future';
-                let dataAttrs = '';
-                
-                if (seg.type === 'ON') { 
-                    colorClass = 'on'; 
-                    dataAttrs = `data-status="${seg.statusLabel}" data-range="${seg.range}" data-dur="${seg.dur}"`;
-                    detailsHtml += `<div class="detail-row row-on"><span>${seg.range}</span><span>${seg.dur} ${seg.percentStr}</span></div>`;
-                } else if (seg.type === 'OFF') {
-                    colorClass = 'off';
-                    dataAttrs = `data-status="${seg.statusLabel}" data-range="${seg.range}" data-dur="${seg.dur}"`;
-                    detailsHtml += `<div class="detail-row row-off"><span>${seg.range}</span><span>${seg.dur} ${seg.percentStr}</span></div>`;
-                }
-                
-                segmentsHtml += `<div class="segment ${colorClass}" style="width:${seg.width}%;" ${dataAttrs}></div>`;
+                const isFut = seg.type === 'FUTURE';
+                segmentsHtml += `<div class="segment ${seg.type.toLowerCase()}" style="width:${seg.width}%;" ${isFut ? '' : `data-status="${seg.statusLabel}" data-range="${seg.range}" data-dur="${seg.dur}"`}></div>`;
+                if (!isFut) detailsHtml += `<div class="detail-row row-${seg.type.toLowerCase()}"><span>${seg.range}</span><span>${seg.dur} ${seg.percentStr}</span></div>`;
             });
-            
-            detailsHtml += '</div>';
 
             html += `
-            <div class="${containerClass}" onclick="toggleDay(this)">
-                <div class="day-header">
-                    <div class="day-date-group">
-                        <div class="day-date">${dateStr}</div>
-                        ${todayBadgeHtml}
-                    </div>
-                    <div class="day-name">${dayName} ${chevronHtml}</div>
-                </div>
-                
-                <div class="timeline">
-                    ${segmentsHtml}
-                </div>
-                
+            <div class="day-container ${isToday ? 'today' : 'past'} ${day.totalOff === 0 ? 'perfect' : ''}" onclick="toggleDay(this)">
+                <div class="day-header"><div class="day-date-group"><div class="day-date">${formatDDMM(day.date)}</div>${isToday ? '<span class="today-badge">СЬОГОДНІ</span>' : ''}</div><div class="day-name">${dayNames[day.date.getDay()]} <span class="chevron">▼</span></div></div>
+                <div class="timeline">${segmentsHtml}</div>
                 <div class="scale"><span>00:00</span><span>12:00</span><span>24:00</span></div>
-                
-                <div class="day-summary">
-                    <div class="sum-item"><span class="label-on">БУЛО:</span> <b>${day.totalOn > 0 ? formatShort(day.totalOn) : '-'}</b></div>
-                    <div class="sum-item"><span class="label-off">НЕ БУЛО:</span> <b>${day.totalOff > 0 ? formatShort(day.totalOff) : '-'}</b></div>
-                </div>
-
-                ${detailsHtml}
-            </div>
-            `;
+                <div class="day-summary"><div class="sum-item"><span class="label-on">БУЛО:</span> <b>${day.totalOn ? formatShort(day.totalOn) : '-'}</b></div><div class="sum-item"><span class="label-off">НЕ БУЛО:</span> <b>${day.totalOff ? formatShort(day.totalOff) : '-'}</b></div></div>
+                ${detailsHtml}</div></div>`;
         });
-
-        wrapper.innerHTML = html;
-        const nowStr = formatDDMM(now) + ' ' + formatTime(now);
-        document.getElementById('footerStats').innerHTML = `Оновлено: ${nowStr}`;
+        document.getElementById('daysWrapper').innerHTML = html;
+        document.getElementById('footerStats').innerText = `Оновлено: ${formatDDMM(now)} ${formatTime(now)}`;
         attachTooltips();
     }
 
-    function formatTime(date) { return date.toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'}); }
-    function formatDDMM(date) { return `${String(date.getDate()).padStart(2,'0')}.${String(date.getMonth()+1).padStart(2,'0')}`; }
-    function formatDuration(m) {
-        const h = Math.floor(m / 60);
-        const mins = m % 60;
-        return h === 0 ? `${mins}хв` : `${h}г ${mins}хв`;
-    }
-    function formatShort(m) {
-        const h = Math.floor(m / 60);
-        const mins = m % 60;
-        if (h===0) return `${mins}хв`;
-        return `${h}г ${mins}хв`;
-    }
+    function formatTime(d) { return d.toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'}); }
+    function formatDDMM(d) { return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}`; }
+    function formatDuration(m) { return m < 60 ? `${m}хв` : `${Math.floor(m/60)}г ${m%60}хв`; }
+    function formatShort(m) { return m < 60 ? `${m}хв` : `${Math.floor(m/60)}г ${m%60}хв`; }
 
     function attachTooltips() {
-        const segments = document.querySelectorAll('.segment');
-        const tooltip = document.getElementById('tooltip');
-        const page = document.querySelector('.page');
-        let timeout;
-
-        segments.forEach(seg => {
-            if (seg.classList.contains('future')) return;
-            seg.addEventListener('click', (e) => {
-                e.stopPropagation(); 
-                const status = seg.getAttribute('data-status');
-                const range = seg.getAttribute('data-range');
-                const dur = seg.getAttribute('data-dur');
-                tooltip.innerHTML = `<strong>${status}</strong><br>${range}<br>${dur}`;
-                const rect = seg.getBoundingClientRect();
-                const pageRect = page.getBoundingClientRect();
-                let left = (rect.left + rect.width / 2) - pageRect.left;
-                let top = (rect.top - pageRect.top) - 45;
-                if (left < 60) left = 60; 
-                if (left > pageRect.width - 60) left = pageRect.width - 60;
-                tooltip.style.left = left + 'px';
-                tooltip.style.top = top + 'px';
-                tooltip.style.transform = 'translate(-50%, 0)';
-                tooltip.classList.add('visible');
-                clearTimeout(timeout);
-                timeout = setTimeout(() => { tooltip.classList.remove('visible'); }, 3000);
+        const tip = document.getElementById('tooltip');
+        document.querySelectorAll('.segment').forEach(s => {
+            if (s.classList.contains('future')) return;
+            s.addEventListener('click', (e) => {
+                e.stopPropagation();
+                tip.innerHTML = `<strong>${s.dataset.status}</strong><br>${s.dataset.range}<br>${s.dataset.dur}`;
+                const rect = s.getBoundingClientRect();
+                tip.style.left = `${Math.max(60, Math.min(window.innerWidth-60, rect.left + rect.width/2))}px`;
+                tip.style.top = `${rect.top - 45 + window.scrollY}px`;
+                tip.style.transform = 'translate(-50%, 0)';
+                tip.classList.add('visible');
             });
         });
     }
-    document.addEventListener('click', () => { const t = document.getElementById('tooltip'); if(t) t.classList.remove('visible'); });
+    document.addEventListener('click', () => document.getElementById('tooltip').classList.remove('visible'));
 
-    render();
+    // ЗАПУСК
+    loadLogs();
 </script>
 </body>
 </html>
