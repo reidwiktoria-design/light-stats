@@ -163,7 +163,19 @@ h1 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; co
 }
 .attack-badge.massive svg { fill: var(--attack-massive-text) !important; }
 
-.impact-badge { margin-top: 4px; font-size: 10px; color: #d32f2f; font-weight: 800; text-transform: uppercase; margin-left: 10px; background: #ffebee; padding: 2px 6px; border-radius: 4px; }
+.impact-badge {
+    display: inline-block;        /* щоб працював vertical-align */
+    vertical-align: middle;       /* центрує значок з текстом */
+    font-size: 10px;
+    color: #d32f2f;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-left: 10px;            /* тільки відступ зліва */
+    background: #ffebee;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 0;                /* прибираємо верхній відступ */
+}
 
 /* TIMELINE */
 .timeline { height: 24px; display: flex; border-radius: 8px; overflow: hidden; background: #EDEFF2; position: relative; margin-bottom: 12px; }
