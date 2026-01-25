@@ -26,17 +26,19 @@
     --radius-s: 8px;
 }
 
-/* ВИПРАВЛЕННЯ ФОНУ: Задаємо фон для HTML, щоб покрити все */
+/* ВИПРАВЛЕННЯ ФОНУ */
 html {
     height: 100%;
-    background: var(--bg-gradient);
-    background-attachment: fixed;
-    background-size: cover;
+    /* Забороняємо "гумовий" скрол, щоб не було білих полів */
+    overscroll-behavior: none;
 }
 
 body { 
     font-family: 'Space Grotesk', sans-serif; 
-    background: transparent; /* Прозорий body */
+    /* Переносимо фон сюди, щоб він заповнював все відразу */
+    background: var(--bg-gradient);
+    background-attachment: fixed;
+    background-size: cover;
     margin: 0; 
     padding: 0;
     color: var(--text-main); 
@@ -45,13 +47,14 @@ body {
     /* Додаємо підтримку для вирізів екрану (safe area) */
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
+    overscroll-behavior: none;
 }
 
 .page { 
     max-width: 600px; 
     width: 100%;
     margin: 0 auto; 
-    /* Відступ зверху = висота шапки + відступ + safe area */
+    /* Відступ зверху = висота шапки + відступ */
     padding: 90px 12px 60px 12px; 
     box-sizing: border-box;
 }
