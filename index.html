@@ -128,9 +128,9 @@ h1 { font-size: 20px; font-weight: 800; text-transform: uppercase; margin: 0; co
 .on { background: var(--color-on); }
 .off { background: var(--color-off); }
 .future { background: repeating-linear-gradient(45deg, #eee, #eee 4px, #f9f9f9 4px, #f9f9f9 8px); }
-.now-marker { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent); z-index: 5; box-shadow: 0 0 8px rgba(37,78,219,0.6); }
+.now-marker { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent); z-index: 5; box-shadow: 0 0 8px rgba(37,78,219,0.6); transition: left 1s linear; }
 
-/* STATS GRID (NEW) */
+/* STATS GRID */
 .day-stats-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -222,6 +222,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
 <script>
     let allEvents = [];
     let currentView = 'list';
+    let lastKnownEvent = null; // Для живого таймера
     
     function getKyivDate() {
         const now = new Date();
@@ -239,7 +240,35 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
             allEvents = parseLogs(text);
             updateStatus(allEvents);
             render();
+            startLiveTimer(); // Запуск живого таймера
         } catch (e) { console.error(e); }
+    }
+
+    // Оновлення логів раз на хвилину
+    setInterval(init, 60000);
+
+    function startLiveTimer() {
+        // Оновлюємо UI кожну секунду (без запитів до мережі)
+        setInterval(() => {
+            if (lastKnownEvent) {
+                const nowKyiv = getKyivDate();
+                const diffMs = nowKyiv - lastKnownEvent.date;
+                const diffMins = Math.max(0, Math.floor(diffMs / 60000));
+                
+                // Оновлюємо текст таймера
+                const timerEl = document.getElementById('statusTimer');
+                if (timerEl) timerEl.innerText = formatDur(diffMins);
+            }
+            
+            // Рухаємо маркер часу "Зараз"
+            const markers = document.querySelectorAll('.now-marker');
+            if (markers.length > 0) {
+                const nowKyiv = getKyivDate();
+                const minsToday = nowKyiv.getHours() * 60 + nowKyiv.getMinutes();
+                const pos = minsToday / 14.4;
+                markers.forEach(m => m.style.left = pos + '%');
+            }
+        }, 1000);
     }
 
     function parseLogs(rawText) {
@@ -313,8 +342,6 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
     function addSeg(day, start, end, type, label) {
         const mins = Math.floor((end - start) / 60000);
         if (mins <= 0) return;
-        
-        // Статистика
         if (type === 'OFF') day.outageCount++;
         if (type === 'ON') {
              day.totalOn += mins;
@@ -353,8 +380,6 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
             
             const isToday = day.date.toDateString() === nowKyiv.toDateString();
             const dayId = `day-${day.date.getDate()}`;
-            
-            // Розрахунок відсотка світла
             const totalTracked = day.totalOn + day.totalOff;
             const percentOn = totalTracked > 0 ? Math.round((day.totalOn / totalTracked) * 100) : 0;
 
@@ -370,7 +395,6 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
                 if (!isFut) dets += `<div class="detail-row" style="background:${s.type === 'ON' ? 'var(--color-row-on)' : 'var(--color-row-off)'}"><span>${s.range}</span><span>${s.dur}</span></div>`;
             });
 
-            // HTML БЛОК З НОВОЮ СТАТИСТИКОЮ
             html += `<div id="${dayId}" class="day-container ${isToday?'today':''} ${day.totalOff===0?'perfect':''}" onclick="this.classList.toggle('expanded')">
                 <div class="day-header">
                     <div class="day-date-group">
@@ -379,28 +403,13 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
                     </div>
                     <div class="day-name">${names[day.date.getDay()]} <span class="chevron">▼</span></div>
                 </div>
-                
                 <div class="timeline">${segs}</div>
-                
                 <div class="day-stats-grid">
-                    <div class="stat-box">
-                        <div class="stat-label">СВІТЛО БУЛО</div>
-                        <div class="stat-value green">${formatDur(day.totalOn)} (${percentOn}%)</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">СВІТЛА НЕ БУЛО</div>
-                        <div class="stat-value red">${formatDur(day.totalOff)}</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">ВІДКЛЮЧЕНЬ</div>
-                        <div class="stat-value">${day.outageCount}</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">МАКС. СВІТЛО</div>
-                        <div class="stat-value">${formatDur(day.maxOn)}</div>
-                    </div>
+                    <div class="stat-box"><div class="stat-label">СВІТЛО БУЛО</div><div class="stat-value green">${formatDur(day.totalOn)} (${percentOn}%)</div></div>
+                    <div class="stat-box"><div class="stat-label">СВІТЛА НЕ БУЛО</div><div class="stat-value red">${formatDur(day.totalOff)}</div></div>
+                    <div class="stat-box"><div class="stat-label">ВІДКЛЮЧЕНЬ</div><div class="stat-value">${day.outageCount}</div></div>
+                    <div class="stat-box"><div class="stat-label">МАКС. СВІТЛО</div><div class="stat-value">${formatDur(day.maxOn)}</div></div>
                 </div>
-
                 ${dets}</div></div>`;
         });
         document.getElementById('listView').innerHTML = html || '<div style="text-align:center; padding:50px; opacity:0.3;">Немає даних</div>';
@@ -423,17 +432,13 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         for (let i = 1; i <= last.getDate(); i++) {
             const data = dayMap[i];
             const isToday = (nowKyiv.getDate() === i && nowKyiv.getMonth() === viewDate.getMonth() && nowKyiv.getFullYear() === viewDate.getFullYear());
-            
             let bgStyle = 'background: #fff';
             if (data && (data.totalOn || data.totalOff)) {
                 const total = 1440;
                 const offDeg = (data.totalOff / total) * 360;
                 bgStyle = `background: conic-gradient(var(--color-off) ${offDeg}deg, var(--color-on) 0deg)`;
             }
-
-            html += `<div class="cal-day ${isToday?'cal-today':''}" style="${bgStyle}" onclick="goToDay(${i})">
-                <div class="cal-inner">${i}</div>
-            </div>`;
+            html += `<div class="cal-day ${isToday?'cal-today':''}" style="${bgStyle}" onclick="goToDay(${i})"><div class="cal-inner">${i}</div></div>`;
         }
         document.getElementById('calendarView').innerHTML = html + '</div>';
     }
@@ -453,6 +458,8 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         if (!events.length) return;
         const nowKyiv = getKyivDate();
         const last = events[events.length - 1];
+        lastKnownEvent = last; // Зберігаємо для живого таймера
+        
         const diff = Math.max(0, Math.floor((nowKyiv - last.date) / 60000));
         
         const card = document.getElementById('statusCard');
