@@ -536,7 +536,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
                 // FIX: Check for "масован" to apply red style
                 const isMassive = day.attack.desc.toLowerCase().includes('масован');
                 attackHtml = `<div class="attack-badge ${isMassive ? 'massive' : ''}">${blastSvg} <span>${day.attack.desc} (${day.attack.duration}г)</span>`;
-                if (day.impactDetected) attackHtml += `<span class="impact-badge">⚠️ВПЛИВ</span>`;
+                if (day.impactDetected) attackHtml += `<span class="impact-badge">⚠️</span>`;
                 attackHtml += `</div>`;
             }
 
