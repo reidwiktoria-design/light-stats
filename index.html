@@ -26,17 +26,13 @@
     --radius-s: 8px;
 }
 
-/* ВИПРАВЛЕННЯ ФОНУ */
-html {
-    min-height: 100%;
-}
+html { min-height: 100%; }
 body { 
     font-family: 'Space Grotesk', sans-serif; 
     background: var(--bg-gradient); 
-    background-attachment: fixed; /* Фон фіксований, не їздить */
-    background-size: cover;
+    background-attachment: fixed;
     margin: 0; 
-    padding: 0; /* Прибираємо падінги body, додамо їх в .page */
+    padding: 0;
     color: var(--text-main); 
     -webkit-font-smoothing: antialiased; 
     min-height: 100vh;
@@ -46,16 +42,22 @@ body {
     max-width: 600px; 
     width: 100%;
     margin: 0 auto; 
-    padding: 15px 12px 60px 12px; /* Відступи тут */
+    /* Додаємо відступ зверху, бо шапка тепер фіксована і перекриває контент */
+    padding: 85px 12px 60px 12px; 
     box-sizing: border-box;
 }
 
-/* === STICKY HEADER (LIQUID GLASS) === */
-.sticky-header {
-    position: sticky;
+/* === STICKY HEADER (FIXED) === */
+.sticky-container {
+    position: fixed;
     top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 600px; /* Щоб не розтягувалась на весь екран на ПК */
+    padding: 0 12px;
+    box-sizing: border-box;
     z-index: 1000;
-    margin-bottom: 20px;
 }
 
 .glass-bar {
@@ -64,29 +66,28 @@ body {
     align-items: center; 
     
     /* Ефект скла */
-    background: rgba(255, 255, 255, 0.75); 
+    background: rgba(255, 255, 255, 0.85); 
     backdrop-filter: blur(20px); 
     -webkit-backdrop-filter: blur(20px);
     
-    padding: 8px 8px 8px 16px; 
-    border-radius: 100px; /* Капсула */
-    border: 1px solid rgba(255, 255, 255, 0.8);
+    padding: 8px 8px 8px 20px; 
+    border-radius: 100px; 
+    border: 1px solid rgba(255, 255, 255, 0.9);
     box-shadow: 
-        0 10px 30px rgba(37, 78, 219, 0.1),
+        0 10px 30px rgba(37, 78, 219, 0.15),
         inset 0 0 0 1px rgba(255,255,255,0.5);
-    transition: all 0.3s ease;
 }
 
 h1 { 
-    font-size: 16px; 
+    font-size: 14px; 
     font-weight: 800; 
     text-transform: uppercase; 
     margin: 0; 
     color: var(--accent); 
-    letter-spacing: -0.5px; 
+    letter-spacing: 0.5px; 
 }
 
-/* SWITCHER INSIDE STICKY HEADER */
+/* SWITCHER */
 .view-switcher { 
     display: flex; 
     background: rgba(0, 0, 0, 0.05); 
@@ -103,7 +104,7 @@ h1 {
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-/* MONTH NAV (Scrolls away) */
+/* MONTH NAV */
 .month-nav { 
     display: flex; justify-content: space-between; align-items: center; 
     background: rgba(255, 255, 255, 0.6); 
@@ -214,6 +215,9 @@ h1 {
 
 #tooltip { position: absolute; background: var(--accent); color: #fff; padding: 6px 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; border-radius: 6px; pointer-events: none; opacity: 0; z-index: 100; box-shadow: 0 4px 15px rgba(37,78,219,0.3); }
 #tooltip.visible { opacity: 1; }
+.week-separator { display: flex; align-items: center; color: var(--accent); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin: 30px 0 15px; opacity: 0.4; }
+.week-separator::before, .week-separator::after { content: ''; flex: 1; height: 1px; background: var(--accent); opacity: 0.3; }
+.week-separator span { padding: 0 10px; }
 
 footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; font-family: 'JetBrains Mono', monospace; }
 </style>
@@ -223,9 +227,9 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
 <div class="page">
     <div id="tooltip"></div>
     
-    <div class="sticky-header">
+    <div class="sticky-container">
         <div class="glass-bar">
-            <h1>Light Stats</h1>
+            <h1>Моніторинг Світла</h1>
             <div class="view-switcher">
                 <button id="btn-list" class="view-btn active" onclick="switchView('list')">СПИСОК</button>
                 <button id="btn-calendar" class="view-btn" onclick="switchView('calendar')">КАЛЕНДАР</button>
