@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Моніторинг Світла</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,38 +26,49 @@
     --radius-s: 8px;
 }
 
-html { min-height: 100%; }
+/* ВИПРАВЛЕННЯ ФОНУ: Задаємо фон для HTML, щоб покрити все */
+html {
+    height: 100%;
+    background: var(--bg-gradient);
+    background-attachment: fixed;
+    background-size: cover;
+}
+
 body { 
     font-family: 'Space Grotesk', sans-serif; 
-    background: var(--bg-gradient); 
-    background-attachment: fixed;
+    background: transparent; /* Прозорий body */
     margin: 0; 
     padding: 0;
     color: var(--text-main); 
     -webkit-font-smoothing: antialiased; 
-    min-height: 100vh;
+    min-height: 100%;
+    /* Додаємо підтримку для вирізів екрану (safe area) */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
 .page { 
     max-width: 600px; 
     width: 100%;
     margin: 0 auto; 
-    /* Додаємо відступ зверху, бо шапка тепер фіксована і перекриває контент */
-    padding: 85px 12px 60px 12px; 
+    /* Відступ зверху = висота шапки + відступ + safe area */
+    padding: 90px 12px 60px 12px; 
     box-sizing: border-box;
 }
 
-/* === STICKY HEADER (FIXED) === */
+/* === STICKY HEADER (LIQUID GLASS - ПОТУЖНИЙ БЛЮР) === */
 .sticky-container {
     position: fixed;
-    top: 10px;
+    top: 0; /* Притискаємо до самого верху */
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
-    max-width: 600px; /* Щоб не розтягувалась на весь екран на ПК */
-    padding: 0 12px;
+    max-width: 600px;
+    padding: 15px 12px 0 12px; /* Відступ від верху екрану */
     box-sizing: border-box;
     z-index: 1000;
+    /* Враховуємо safe area для телефонів з чубчиком */
+    padding-top: calc(15px + env(safe-area-inset-top));
 }
 
 .glass-bar {
@@ -65,17 +76,19 @@ body {
     justify-content: space-between; 
     align-items: center; 
     
-    /* Ефект скла */
-    background: rgba(255, 255, 255, 0.85); 
-    backdrop-filter: blur(20px); 
-    -webkit-backdrop-filter: blur(20px);
+    /* Більш прозорий фон для сильнішого ефекту скла */
+    background: rgba(255, 255, 255, 0.6); 
+    
+    /* ПОТУЖНИЙ БЛЮР (як в iOS Library) */
+    backdrop-filter: blur(50px) saturate(180%); 
+    -webkit-backdrop-filter: blur(50px) saturate(180%);
     
     padding: 8px 8px 8px 20px; 
     border-radius: 100px; 
-    border: 1px solid rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.6);
     box-shadow: 
-        0 10px 30px rgba(37, 78, 219, 0.15),
-        inset 0 0 0 1px rgba(255,255,255,0.5);
+        0 15px 40px rgba(37, 78, 219, 0.12), /* Більша тінь */
+        inset 0 1px 1px rgba(255,255,255,0.8);
 }
 
 h1 { 
@@ -101,15 +114,17 @@ h1 {
 }
 .view-btn.active { 
     background: #FFFFFF; color: var(--accent); 
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 /* MONTH NAV */
 .month-nav { 
     display: flex; justify-content: space-between; align-items: center; 
-    background: rgba(255, 255, 255, 0.6); 
+    background: rgba(255, 255, 255, 0.7); 
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     padding: 12px 20px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.6);
     margin-bottom: 25px; margin-top: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.03);
 }
 .nav-btn { 
     background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.5);
