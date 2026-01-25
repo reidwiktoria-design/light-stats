@@ -67,15 +67,16 @@ body {
     padding-right: 12px;
 }
 
-/* STATUS BAR FIX для iOS 26 */
+/* Фікс під статус-бар */
 .status-bar-fix {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: env(safe-area-inset-top); /* висота статус-бару */
-    background-color: #eef2f9;       /* колір фонового градієнту */
-    z-index: 2000;                   /* поверх всього, крім модалок якщо треба */
+    height: env(safe-area-inset-top);
+    background-color: #eef2f9; /* будь-який суцільний колір */
+    z-index: 9999; /* поверх всього */
+    pointer-events: none; /* не блокує кліки */
 }
 
 /* === STICKY HEADER === */
@@ -103,7 +104,7 @@ body {
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
-    background: rgba(255, 255, 255, 0.65); 
+    background-color: #eef2f9;
     backdrop-filter: blur(50px) saturate(180%); 
     -webkit-backdrop-filter: blur(50px) saturate(180%);
     padding: 8px 8px 8px 20px; 
