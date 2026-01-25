@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#eef2f9">
-<title>Моніторинг Світла</title>
+<meta name="theme-color" content="#eef2f9"> 
+<title>Моніторинг Світла v3.3</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,193 +23,167 @@
     
     --radius-l: 24px;
     --radius-m: 16px;
-    --radius-s: 8px;
+    
+    --attack-color: #2c3e50;
+    --attack-massive-bg: #ffebee;
+    --attack-massive-text: #c62828;
+    --attack-massive-border: #ef9a9a;
 }
 
 /* === АРХІТЕКТУРА === */
 html {
-    background: radial-gradient(
-        circle at 50% 0%,
-        #eef2f9 0%,
-        #dce4f2 100%
-    );
-
-    min-height: 100%;
-    height: 100%;
-
-    /* критично для статус-бара */
+    background-color: #eef2f9; 
+    background-image: radial-gradient(circle at 50% 0%, #eef2f9 0%, #dce4f2 100%);
+    background-attachment: fixed; 
+    background-size: cover;
+    background-repeat: no-repeat;
+    min-height: 100%; 
     padding-top: env(safe-area-inset-top);
-
     -webkit-font-smoothing: antialiased;
 }
 
 body {
-    margin: 0;
-    padding: 0;
-
+    margin: 0; padding: 0;
     min-height: 100svh;
     background: transparent;
-
     font-family: 'Space Grotesk', sans-serif;
     color: var(--text-main);
 }
 
 .page { 
-    max-width: 600px; 
-    width: 100%;
-    margin: 0 auto; 
-    box-sizing: border-box;
-    
-    /* Відступи з урахуванням Safe Area */
-    padding-top: calc(90px + env(safe-area-inset-top));
+    max-width: 600px; width: 100%; margin: 0 auto; box-sizing: border-box;
+    padding-top: calc(70px + env(safe-area-inset-top));
     padding-bottom: calc(60px + env(safe-area-inset-bottom));
-    padding-left: 12px;
-    padding-right: 12px;
+    padding-left: 12px; padding-right: 12px;
 }
 
-/* Фікс під статус-бар */
-.status-bar-fix {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: env(safe-area-inset-top);
-    background-color: #eef2f9; /* будь-який суцільний колір */
-    z-index: 9999; /* поверх всього */
-    pointer-events: none; /* не блокує кліки */
-}
-
-/* === STICKY HEADER === */
+/* === HEADER & NAV === */
 .sticky-container {
-    position: fixed;
-    top: 0; 
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 600px;
-    box-sizing: border-box;
-    z-index: 1000;
-    
-    padding: 10px 12px 0 12px;
-    padding-top: calc(10px + env(safe-area-inset-top));
-
-    /* Пропускаємо кліки крізь контейнер */
+    position: fixed; top: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 600px; box-sizing: border-box; z-index: 1000;
+    padding: 10px 12px 0 12px; padding-top: calc(10px + env(safe-area-inset-top));
     pointer-events: none;
 }
 
 .glass-bar {
-    /* Ловимо кліки на плашці */
     pointer-events: auto;
-    
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    background: rgba(255,255,255,0.65);
-    backdrop-filter: blur(50px);
-    backdrop-filter: blur(50px) saturate(180%); 
-    -webkit-backdrop-filter: blur(50px) saturate(180%);
-    padding: 8px 8px 8px 20px; 
-    border-radius: 100px; 
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow: 0 10px 30px rgba(37, 78, 219, 0.1), inset 0 1px 1px rgba(255,255,255,0.8);
+    display: flex; justify-content: space-between; align-items: center; 
+    background: rgba(255,255,255,0.6); 
+    backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
+    padding: 8px 8px 8px 20px; border-radius: 100px; 
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 10px 20px rgba(37, 78, 219, 0.05);
 }
 
-h1 { 
-    font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; 
-    color: var(--accent); letter-spacing: 0.5px; 
-}
+h1 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; color: var(--accent); letter-spacing: 0.5px; }
 
-/* SWITCHER */
 .view-switcher { display: flex; background: rgba(0, 0, 0, 0.05); padding: 3px; border-radius: 100px; }
 .view-btn { 
     border: none; background: transparent; padding: 8px 14px; 
     font-family: inherit; font-size: 11px; font-weight: 700; cursor: pointer; 
     border-radius: 100px; color: #666; transition: 0.3s;
 }
-.view-btn.active { 
-    background: #FFFFFF; color: var(--accent); 
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
+.view-btn.active { background: #FFFFFF; color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 
-/* MONTH NAV */
 .month-nav { 
     display: flex; justify-content: space-between; align-items: center; 
-    background: rgba(255, 255, 255, 0.7); 
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    padding: 12px 20px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.6);
-    margin-bottom: 25px; margin-top: 10px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    padding: 10px 15px; margin-bottom: 20px; 
 }
 .nav-btn { 
-    background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.5);
-    width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    font-size: 18px; cursor: pointer; color: var(--accent); font-weight: 700; 
-    box-shadow: 0 2px 8px rgba(0,0,0,0.03); transition: 0.2s;
+    background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--accent); opacity: 0.7;
 }
-.nav-btn:active { transform: scale(0.9); background: #fff; }
-#currentMonthDisplay { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 800; text-transform: uppercase; color: var(--text-main); letter-spacing: 1px; }
+#currentMonthDisplay { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; text-transform: uppercase; color: var(--text-main); }
 
-/* STATUS CARD */
+/* === STATS CARDS (TOP) === */
+.stats-overview {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+    margin-bottom: 20px;
+}
+.stat-card-mini {
+    background: #fff; padding: 15px; border-radius: var(--radius-m);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid rgba(255,255,255,1);
+    display: flex; flex-direction: column; justify-content: space-between;
+}
+.stat-card-mini.full-width { grid-column: span 2; flex-direction: row; align-items: center; }
+.scm-label { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
+.scm-value { font-size: 14px; font-weight: 700; color: var(--text-main); font-family: 'JetBrains Mono', monospace; }
+.scm-sub { font-size: 10px; margin-top: 4px; font-weight: 600; }
+.trend-up { color: var(--color-on); }
+.trend-down { color: var(--color-off); }
+
+/* MAIN STATUS */
 .status-card { 
     background: #fff; border: 2px solid var(--accent); border-radius: var(--radius-l); 
     padding: 24px; margin-bottom: 30px; 
     box-shadow: 0 12px 30px rgba(37, 78, 219, 0.12);
     display: flex; flex-direction: column; align-items: center; text-align: center; 
-    transition: 0.3s;
 }
-.status-card.good { background: #fff; border-color: var(--color-on); box-shadow: 0 12px 30px rgba(141, 170, 145, 0.25); }
-.status-card.bad { background: #fff; border-color: var(--color-off); box-shadow: 0 12px 30px rgba(224, 122, 95, 0.25); }
+.status-card.good { border-color: var(--color-on); box-shadow: 0 12px 30px rgba(141, 170, 145, 0.25); }
+.status-card.bad { border-color: var(--color-off); box-shadow: 0 12px 30px rgba(224, 122, 95, 0.25); }
 
 .status-icon { font-size: 12px; font-weight: 800; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; margin-bottom: 8px; color: var(--text-muted); letter-spacing: 1px; }
 .status-time { font-size: 56px; font-weight: 700; line-height: 1; margin: 10px 0; font-variant-numeric: tabular-nums; letter-spacing: -2px; color: var(--accent); }
 .status-label { font-size: 11px; opacity: 0.6; font-family: 'JetBrains Mono', monospace; }
 
-/* DAY CONTAINER */
+/* LIST ITEMS */
 .day-container { 
     background: #fff; border-radius: var(--radius-m); padding: 18px; margin-bottom: 12px; 
     border: 1px solid rgba(255,255,255,1);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: 0.3s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: 0.2s;
     cursor: pointer; position: relative; overflow: hidden;
 }
-.day-container:active { transform: scale(0.98); }
-.day-container.today { border: 2px solid var(--accent); background: linear-gradient(135deg, #fff 0%, #f0f4ff 100%); }
+.day-container:active { transform: scale(0.99); }
+.day-container.today { border: 2px solid var(--accent); background: linear-gradient(180deg, #fff 0%, #f4f7ff 100%); }
 .day-container.expanded { 
-    border-color: var(--accent); box-shadow: 0 20px 50px rgba(37, 78, 219, 0.15); 
-    z-index: 10; transform: translateY(-2px);
+    border-color: var(--accent); box-shadow: 0 15px 40px rgba(37, 78, 219, 0.1); 
+    z-index: 10;
 }
-.day-container.perfect { border-color: var(--color-on); }
 
 .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.day-date-group { display: flex; align-items: center; gap: 8px; }
 .day-date { font-size: 18px; font-weight: 700; color: var(--accent); }
-.day-name { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: capitalize; }
-.today-badge { font-size: 10px; font-weight: 800; background: var(--accent); color: #fff; padding: 3px 8px; border-radius: 10px; text-transform: uppercase; }
+.day-name { font-size: 13px; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.chevron { font-size: 10px; transition: transform 0.3s; opacity: 0.5; }
+.expanded .chevron { transform: rotate(180deg); opacity: 1; color: var(--accent); }
+.today-badge { font-size: 10px; font-weight: 800; background: var(--accent); color: #fff; padding: 3px 8px; border-radius: 10px; text-transform: uppercase; margin-left: 8px; }
+
+/* ATTACKS */
+.attack-badge {
+    margin-top: 5px; font-size: 11px; font-weight: 700; color: #333; 
+    background: #f4f4f4; padding: 6px 10px; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px;
+    border-left: 3px solid #333; margin-bottom: 10px;
+    transition: 0.2s;
+}
+/* Червоний стиль для масованих */
+.attack-badge.massive {
+    background: var(--attack-massive-bg);
+    color: var(--attack-massive-text);
+    border-left-color: var(--attack-massive-text);
+}
+.attack-badge.massive svg { fill: var(--attack-massive-text) !important; }
+
+.impact-badge { margin-top: 4px; font-size: 10px; color: #d32f2f; font-weight: 800; text-transform: uppercase; margin-left: 10px; background: #ffebee; padding: 2px 6px; border-radius: 4px; }
 
 /* TIMELINE */
 .timeline { height: 24px; display: flex; border-radius: 8px; overflow: hidden; background: #EDEFF2; position: relative; margin-bottom: 12px; }
-.segment { height: 100%; position: relative; transition: 0.2s; }
+.segment { height: 100%; position: relative; }
 .on { background: var(--color-on); }
 .off { background: var(--color-off); }
-.future { background: repeating-linear-gradient(45deg, #eee, #eee 4px, #f9f9f9 4px, #f9f9f9 8px); }
-.now-marker { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent); z-index: 5; box-shadow: 0 0 8px rgba(37,78,219,0.6); transition: left 1s linear; }
+.future { background: repeating-linear-gradient(45deg, #eee, #eee 4px, #fafafa 4px, #fafafa 8px); }
+.now-marker { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent); z-index: 5; box-shadow: 0 0 8px rgba(37,78,219,0.8); }
 
 /* STATS GRID */
 .day-stats-grid {
     display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-    margin-top: 10px; padding-top: 10px; border-top: 1px solid #f0f0f0;
+    margin-top: 15px; padding-top: 10px; border-top: 1px solid #f0f0f0;
 }
-.stat-box { display: flex; flex-direction: column; background: #f8f9fb; border-radius: 10px; padding: 8px 12px; }
-.stat-label { font-size: 10px; color: #888; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
+.stat-box { display: flex; flex-direction: column; background: #f8f9fb; border-radius: 10px; padding: 10px 12px; }
+.stat-label { font-size: 10px; color: #888; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
 .stat-value { font-size: 13px; color: #111; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
-.stat-value.green { color: var(--color-row-on); }
-.stat-value.red { color: var(--color-row-off); }
 
 /* DETAILS */
-.day-details { max-height: 0; opacity: 0; overflow: hidden; transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); }
-.expanded .day-details { max-height: 800px; opacity: 1; margin-top: 15px; padding-top: 5px; border-top: 1px dashed #ddd; }
-.detail-row { display: flex; justify-content: space-between; padding: 10px 14px; margin-bottom: 6px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #fff; font-weight: 600; }
-.row-on { background: var(--color-row-on); }
-.row-off { background: var(--color-row-off); }
+.day-details { max-height: 0; opacity: 0; overflow: hidden; transition: 0.4s ease; }
+.expanded .day-details { max-height: 500px; opacity: 1; margin-top: 15px; padding-top: 5px; border-top: 1px dashed #ddd; }
+.detail-row { display: flex; justify-content: space-between; padding: 8px 12px; margin-bottom: 4px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #fff; font-weight: 600; }
 
 /* CALENDAR */
 #calendarGrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-top: 10px; }
@@ -221,15 +195,24 @@ h1 {
     box-shadow: 0 2px 5px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.03);
 }
 .cal-day:active { transform: scale(0.9); }
+.cal-day.empty-data { cursor: default; opacity: 0.4; background: #f9f9f9; box-shadow: none; border: none; }
 .cal-day.empty { background: transparent; cursor: default; box-shadow: none; border: none; }
+
 .cal-inner {
-    width: 80%; height: 80%; background: #fff; border-radius: 50%;
+    width: 76%; height: 76%; background: #fff; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-size: 12px; font-weight: 700; color: var(--text-main); z-index: 2;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
 }
-.cal-today .cal-inner { color: var(--accent); font-weight: 800; }
-.cal-today { box-shadow: 0 0 15px rgba(37,78,219,0.3); }
+.cal-today .cal-inner { color: var(--accent); font-weight: 800; background: #fff; }
+.cal-today { box-shadow: 0 0 0 2px var(--accent); }
+
+.cal-attack-dot {
+    position: absolute; top: 0; right: 0;
+    width: 14px; height: 14px; background: #fff; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.cal-attack-svg { width: 10px; height: 10px; fill: #d32f2f; }
 
 /* TOOLTIP */
 #tooltip { 
@@ -241,21 +224,16 @@ h1 {
 }
 #tooltip.visible { opacity: 1; }
 
-.week-separator { display: flex; align-items: center; color: var(--accent); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin: 30px 0 15px; opacity: 0.4; }
-.week-separator::before, .week-separator::after { content: ''; flex: 1; height: 1px; background: var(--accent); opacity: 0.3; }
-.week-separator span { padding: 0 10px; }
-
 footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; font-family: 'JetBrains Mono', monospace; }
 </style>
 </head>
 <body>
-<div class="status-bar-fix"></div>
+
 <div class="page">
     <div id="tooltip"></div>
-    
     <div class="sticky-container">
         <div class="glass-bar">
-            <h1>Моніторинг Світла</h1>
+            <h1>Моніторинг</h1>
             <div class="view-switcher">
                 <button id="btn-list" class="view-btn active" onclick="switchView('list')">СПИСОК</button>
                 <button id="btn-calendar" class="view-btn" onclick="switchView('calendar')">КАЛЕНДАР</button>
@@ -269,6 +247,8 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         <button class="nav-btn" onclick="changeMonth(1)">→</button>
     </div>
 
+    <div id="statsOverview" class="stats-overview"></div>
+
     <div id="statusCard" class="status-card">
         <div id="statusIcon">...</div>
         <div id="statusTimer" class="status-time">--:--</div>
@@ -281,13 +261,27 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
     <footer id="footerStats"></footer>
 </div>
 
+<svg style="display:none;">
+    <symbol id="icon-blast" viewBox="0 0 24 24">
+        <path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6-4.8-6 4.8 2.4-7.2-6-4.8h7.6z" />
+    </symbol>
+    <symbol id="icon-warn" viewBox="0 0 24 24">
+        <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+    </symbol>
+</svg>
+
 <script>
     let allEvents = [];
+    let attacks = [];
     let currentView = 'list';
     let lastKnownEvent = null;
     let tipTimeout = null;
-    let isLiveTimerRunning = false; // Прапор для запобігання множенню таймерів
+    let isLiveTimerRunning = false;
     
+    // SVG Templates
+    const blastSvg = `<svg style="width:14px;height:14px;fill:#333;vertical-align:middle;" viewBox="0 0 24 24"><path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6-4.8-6 4.8 2.4-7.2-6-4.8h7.6z" /></svg>`;
+    const warnSvg = `<svg style="width:10px;height:10px;fill:#d32f2f;" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>`;
+
     function getKyivDate() {
         const now = new Date();
         const kyivTimeStr = now.toLocaleString("en-US", {timeZone: "Europe/Kyiv"});
@@ -299,27 +293,33 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
 
     async function init() {
         try {
-            const response = await fetch('logs.txt?t=' + Date.now());
-            const text = await response.text();
-            allEvents = parseLogs(text);
+            const [logsRes, attacksRes] = await Promise.all([
+                fetch('logs.txt?t=' + Date.now()),
+                fetch('attacks.txt?t=' + Date.now()).catch(() => ({ ok: false })) 
+            ]);
+
+            if(logsRes.ok) {
+                const logText = await logsRes.text();
+                allEvents = parseLogs(logText);
+            }
+            
+            if(attacksRes.ok) {
+                const attackText = await attacksRes.text();
+                attacks = parseAttacks(attackText);
+            }
+
             updateStatus(allEvents);
             render();
-            // startLiveTimer() більше не тут!
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Init Error:", e); }
     }
 
-    // Запускаємо один раз при старті сторінки
     startLiveTimer();
-    // Ініціалізація даних
     init();
-    // Полінг даних раз на хвилину
     setInterval(init, 60000);
 
-    // FIX 1: ЗАХИСТ ВІД МНОЖЕННЯ ТАЙМЕРІВ
     function startLiveTimer() {
         if (isLiveTimerRunning) return;
         isLiveTimerRunning = true;
-
         setInterval(() => {
             if (lastKnownEvent) {
                 const nowKyiv = getKyivDate();
@@ -348,10 +348,6 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
             if ((isOn || isOff) && dM && tM) {
                 const p = dM[1].split('.');
                 const y = p[2].length === 2 ? '20'+p[2] : p[2];
-                
-                // FIX 2: TIMEZONE
-                // Прибираємо +02:00. Тепер це ISO формат без зони.
-                // Браузер сам розпарсить це як локальний час (Kyiv).
                 const dateStr = `${y}-${p[1]}-${p[0]}T${tM[1]}:00`;
                 events.push({ date: new Date(dateStr), type: isOn ? 'ON' : 'OFF', raw: tM[1] });
             }
@@ -359,24 +355,21 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         return events.sort((a, b) => a.date - b.date);
     }
 
-    function changeMonth(delta) {
-        viewDate.setMonth(viewDate.getMonth() + delta);
-        render();
-    }
-
-    function switchView(view) {
-        currentView = view;
-        document.getElementById('btn-list').classList.toggle('active', view === 'list');
-        document.getElementById('btn-calendar').classList.toggle('active', view === 'calendar');
-        document.getElementById('listView').style.display = view === 'list' ? 'block' : 'none';
-        document.getElementById('calendarView').style.display = view === 'calendar' ? 'block' : 'none';
-        render();
-    }
-
-    function toggleDay(element) {
-        const isAlreadyOpen = element.classList.contains('expanded');
-        document.querySelectorAll('.day-container.expanded').forEach(el => el.classList.remove('expanded'));
-        if (!isAlreadyOpen) element.classList.add('expanded');
+    function parseAttacks(rawText) {
+        if (!rawText) return [];
+        const res = [];
+        rawText.split('\n').forEach(line => {
+            const p = line.split('|').map(s => s.trim());
+            if (p.length >= 3) {
+                res.push({
+                    date: p[0],
+                    time: p[1],
+                    duration: parseInt(p[2]) || 2,
+                    desc: p[3] || 'Атака'
+                });
+            }
+        });
+        return res;
     }
 
     function generateDays(events) {
@@ -387,66 +380,84 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         let pointerDate = new Date(events[0].date);
         pointerDate.setHours(0,0,0,0);
         
-        // FIX 3: LOGIC OF FIRST DAY
-        // Якщо це перший день в історії, ми не повинні припускати, що було до першої події.
-        // Але щоб не ламати UI, ми поки що використовуємо інверсію,
-        // проте це місце потенційно неточне.
         let currentState = events[0].type === 'OFF' ? 'ON' : 'OFF';
-        
         let eventIdx = 0;
         const endLimit = new Date(); endLimit.setHours(23,59,59);
 
-        // Знаходимо індекс найпершої події
-        const firstEventTime = events[0].date.getTime();
-
         while (pointerDate <= endLimit) {
-            const k = pointerDate.toISOString().split('T')[0];
+            const k = `${pointerDate.getFullYear()}-${String(pointerDate.getMonth()+1).padStart(2,'0')}-${String(pointerDate.getDate()).padStart(2,'0')}`;
             const dStart = new Date(pointerDate);
             const dEnd = new Date(pointerDate); dEnd.setHours(23,59,59);
-            days[k] = { date: dStart, segments: [], totalOn: 0, totalOff: 0, outageCount: 0, maxOn: 0 };
+            const attackData = attacks.find(a => a.date === k);
+
+            days[k] = { 
+                date: dStart, segments: [], totalOn: 0, totalOff: 0, 
+                attack: attackData, hasData: false, outageCount: 0, maxOn: 0 
+            };
+            
             let pTime = dStart.getTime();
 
-            // Якщо це найперший день, починаємо малювати не з 00:00, а з першої події?
-            // User: "Або явно вважати перший день неповним".
-            // Тимчасове рішення: якщо pTime менше першої події, ми "пропускаємо" цей час візуально
-            // шляхом синхронізації pTime з першою подією, якщо вона в цьому дні.
-            if (pTime < firstEventTime && dEnd.getTime() >= firstEventTime) {
-                 // Тут можна було б додати логіку "Unknown", але це вимагає CSS змін.
-                 // Поки залишаємо як є для цілісності дизайну.
-            }
-
-            while (eventIdx < events.length && events[eventIdx].date <= dEnd) {
-                const ev = events[eventIdx];
-                if (ev.date.getTime() > pTime) addSeg(days[k], pTime, ev.date.getTime(), currentState);
-                currentState = ev.type;
-                pTime = ev.date.getTime();
-                eventIdx++;
-            }
-
-            const isToday = dStart.toDateString() === nowKyiv.toDateString();
-            if (isToday) {
-                if (nowKyiv.getTime() > pTime) addSeg(days[k], pTime, nowKyiv.getTime(), currentState, currentState === 'ON' ? 'СВІТЛО Є' : 'СВІТЛА НЕМАЄ');
-                addSeg(days[k], nowKyiv.getTime(), dEnd.getTime(), 'FUTURE');
-            } else {
-                addSeg(days[k], pTime, dEnd.getTime(), currentState);
+            if (dEnd.getTime() >= events[0].date.getTime()) {
+                days[k].hasData = true;
+                while (eventIdx < events.length && events[eventIdx].date <= dEnd) {
+                    const ev = events[eventIdx];
+                    if (ev.date.getTime() > pTime) addSeg(days[k], pTime, ev.date.getTime(), currentState);
+                    currentState = ev.type;
+                    pTime = ev.date.getTime();
+                    eventIdx++;
+                }
+                const isToday = dStart.toDateString() === nowKyiv.toDateString();
+                if (isToday) {
+                    if (nowKyiv.getTime() > pTime) addSeg(days[k], pTime, nowKyiv.getTime(), currentState);
+                    addSeg(days[k], nowKyiv.getTime(), dEnd.getTime(), 'FUTURE');
+                } else {
+                    addSeg(days[k], pTime, dEnd.getTime(), currentState);
+                }
             }
             pointerDate.setDate(pointerDate.getDate() + 1);
         }
-        return Object.values(days).reverse();
+        
+        const dayArray = Object.values(days).reverse();
+        
+        // --- NEW IMPACT LOGIC ---
+        // Порівнюємо середнє світло ДО атаки з конкретним днем атаки
+        dayArray.forEach((day, idx) => {
+            if (day.attack && day.hasData) {
+                // Беремо 3 дні ДО атаки (у масиві dayArray вони йдуть ПІСЛЯ поточного індексу, бо reverse)
+                const beforeDays = dayArray.slice(idx + 1, idx + 4).filter(d => d && d.hasData);
+                
+                if (beforeDays.length > 0) {
+                    const avgOnBefore = beforeDays.reduce((s, d) => s + d.totalOn, 0) / beforeDays.length;
+                    
+                    // Якщо в день атаки (або на наступний) світла менше на 30% ніж було "до"
+                    const isTodayBad = day.totalOn < (avgOnBefore * 0.7);
+                    
+                    // Перевіримо і наступний день після атаки (індекс idx - 1)
+                    const nextDay = idx > 0 ? dayArray[idx - 1] : null;
+                    const isNextBad = nextDay && nextDay.hasData && (nextDay.totalOn < (avgOnBefore * 0.7));
+
+                    if (isTodayBad || isNextBad) {
+                        day.impactDetected = true;
+                    }
+                }
+            }
+        });
+
+        return dayArray;
     }
 
-    function addSeg(day, start, end, type, label) {
+    function addSeg(day, start, end, type) {
         const mins = Math.floor((end - start) / 60000);
         if (mins <= 0) return;
-        if (type === 'OFF') day.outageCount++;
+        
         if (type === 'ON') { day.totalOn += mins; if (mins > day.maxOn) day.maxOn = mins; }
-        if (type === 'OFF') day.totalOff += mins;
+        if (type === 'OFF') { day.totalOff += mins; day.outageCount++; }
 
         day.segments.push({
             type, width: mins / 14.4,
             range: `${new Date(start).getHours()}:${String(new Date(start).getMinutes()).padStart(2,'0')} - ${new Date(end).getHours()}:${String(new Date(end).getMinutes()).padStart(2,'0')}`,
-            dur: mins < 60 ? `${mins}хв` : `${Math.floor(mins/60)}г ${mins%60}хв`,
-            status: label || (type === 'ON' ? 'СВІТЛО БУЛО' : 'СВІТЛА НЕ БУЛО')
+            dur: formatDur(mins),
+            status: (type === 'ON' ? 'СВІТЛО БУЛО' : 'СВІТЛА НЕ БУЛО')
         });
     }
 
@@ -454,13 +465,44 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         const months = ["СІЧЕНЬ", "ЛЮТИЙ", "БЕРЕЗЕНЬ", "КВІТЕНЬ", "ТРАВЕНЬ", "ЧЕРВЕНЬ", "ЛИПЕНЬ", "СЕРПЕНЬ", "ВЕРЕСЕНЬ", "ЖОВТЕНЬ", "ЛИСТОПАД", "ГРУДЕНЬ"];
         document.getElementById('currentMonthDisplay').innerText = `${months[viewDate.getMonth()]} ${viewDate.getFullYear()}`;
         
-        const days = generateDays(allEvents).filter(d => d.date.getMonth() === viewDate.getMonth() && d.date.getFullYear() === viewDate.getFullYear());
+        const allDays = generateDays(allEvents);
+        renderStatsOverview(allDays);
         
-        renderList(days);
-        renderCalendar(days);
+        const daysInMonth = allDays.filter(d => d.date.getMonth() === viewDate.getMonth() && d.date.getFullYear() === viewDate.getFullYear());
+        
+        renderList(daysInMonth);
+        renderCalendar(daysInMonth);
         
         const updateTime = getKyivDate();
         document.getElementById('footerStats').innerText = `Оновлено: ${updateTime.toLocaleDateString()} ${updateTime.toLocaleTimeString()}`;
+    }
+
+    function renderStatsOverview(days) {
+        if (days.length < 14) { document.getElementById('statsOverview').innerHTML = ''; return; }
+        const validDays = days.filter(d => d.hasData && d.segments.every(s => s.type !== 'FUTURE'));
+        let sum1 = 0, sum2 = 0;
+        const group1 = validDays.slice(0, 7); const group2 = validDays.slice(7, 14);
+        group1.forEach(d => sum1 += d.totalOn); group2.forEach(d => sum2 += d.totalOn);
+        if (group1.length === 0 || group2.length === 0) return;
+        const avg1 = sum1 / group1.length; const avg2 = sum2 / group2.length;
+        const trend = avg2 ? ((avg1 - avg2) / avg2) * 100 : 0;
+        const trendIcon = trend > 0 ? '↗' : '↘'; const trendClass = trend > 0 ? 'trend-up' : 'trend-down';
+        const trendText = trend > 0 ? 'Покращення' : 'Погіршення';
+        const monthDays = days.filter(d => d.date.getMonth() === viewDate.getMonth());
+        const best = monthDays.reduce((p,c) => (c.totalOn > (p?.totalOn||0)) ? c : p, null);
+        const worst = monthDays.reduce((p,c) => (c.totalOn < (p?.totalOn||Infinity) && c.hasData) ? c : p, null);
+
+        document.getElementById('statsOverview').innerHTML = `
+            <div class="stat-card-mini full-width">
+                <div>
+                    <div class="scm-label">ТЕНДЕНЦІЯ (ТИЖДЕНЬ)</div>
+                    <div class="scm-value ${trendClass}">${trendText} ${Math.abs(trend).toFixed(1)}% ${trendIcon}</div>
+                    <div class="scm-sub" style="color:#888">vs попередній тиждень</div>
+                </div>
+            </div>
+            ${best ? `<div class="stat-card-mini"><div class="scm-label">КРАЩИЙ ДЕНЬ</div><div class="scm-value" style="color:var(--color-on)">${formatDur(best.totalOn)}</div><div class="scm-sub">${best.date.getDate()}.${String(best.date.getMonth()+1).padStart(2,'0')}</div></div>` : ''}
+            ${worst ? `<div class="stat-card-mini"><div class="scm-label">ГІРШИЙ ДЕНЬ</div><div class="scm-value" style="color:var(--color-off)">${formatDur(worst.totalOff)}</div><div class="scm-sub">${worst.date.getDate()}.${String(worst.date.getMonth()+1).padStart(2,'0')}</div></div>` : ''}
+        `;
     }
 
     function renderList(days) {
@@ -469,12 +511,10 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         const names = ["Неділя", "Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота"];
 
         days.forEach((day, idx) => {
-            if (day.date.getDay() === 0 && idx !== 0) html += '<div class="week-separator"><span>Минулий тиждень</span></div>';
-            
+            if (day.date.getDay() === 0 && idx !== 0) html += '<div style="margin:20px 0 10px; border-bottom:1px solid #ddd; opacity:0.3"></div>';
             const isToday = day.date.toDateString() === nowKyiv.toDateString();
             const dayId = `day-${day.date.getDate()}`;
-            const totalTracked = day.totalOn + day.totalOff;
-            const percentOn = totalTracked > 0 ? Math.round((day.totalOn / totalTracked) * 100) : 0;
+            if (!day.hasData) return;
 
             let segs = '', dets = '<div class="day-details">';
             if (isToday) {
@@ -484,26 +524,40 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
 
             day.segments.forEach(s => {
                 const isFut = s.type === 'FUTURE';
+                // FIX: Added onclick back for tooltips
                 segs += `<div class="segment ${s.type.toLowerCase()}" style="width:${s.width}%" ${isFut ? '' : `onclick="showTip(event,'${s.status}','${s.range}','${s.dur}')"`}></div>`;
                 if (!isFut) dets += `<div class="detail-row" style="background:${s.type === 'ON' ? 'var(--color-row-on)' : 'var(--color-row-off)'}"><span>${s.range}</span><span>${s.dur}</span></div>`;
             });
 
-            html += `<div id="${dayId}" class="day-container ${isToday?'today':''} ${day.totalOff===0?'perfect':''}" onclick="toggleDay(this)">
+            let attackHtml = '';
+            if (day.attack) {
+                // FIX: Check for "масован" to apply red style
+                const isMassive = day.attack.desc.toLowerCase().includes('масован');
+                attackHtml = `<div class="attack-badge ${isMassive ? 'massive' : ''}">${blastSvg} <span>${day.attack.desc} (${day.attack.duration}г)</span>`;
+                if (day.impactDetected) attackHtml += `<span class="impact-badge">⚠️ВПЛИВ</span>`;
+                attackHtml += `</div>`;
+            }
+
+            dets += '</div>';
+            const total = 1440; const pct = Math.round((day.totalOn / total) * 100);
+
+            html += `<div id="${dayId}" class="day-container ${isToday?'today':''}" onclick="toggleDay(this)">
                 <div class="day-header">
-                    <div class="day-date-group">
-                        <div class="day-date">${day.date.getDate()}.${String(day.date.getMonth()+1).padStart(2,'0')}</div>
+                    <div style="display:flex; align-items:center;">
+                        <span class="day-date">${day.date.getDate()}.${String(day.date.getMonth()+1).padStart(2,'0')}</span>
                         ${isToday ? '<span class="today-badge">СЬОГОДНІ</span>' : ''}
                     </div>
                     <div class="day-name">${names[day.date.getDay()]} <span class="chevron">▼</span></div>
                 </div>
-                <div class="timeline">${segs}</div>
+                ${attackHtml}
+                <div class="timeline" style="margin-top:8px;">${segs}</div>
                 <div class="day-stats-grid">
-                    <div class="stat-box"><div class="stat-label">СВІТЛО БУЛО</div><div class="stat-value green">${formatDur(day.totalOn)} (${percentOn}%)</div></div>
-                    <div class="stat-box"><div class="stat-label">СВІТЛА НЕ БУЛО</div><div class="stat-value red">${formatDur(day.totalOff)}</div></div>
+                    <div class="stat-box"><div class="stat-label">СВІТЛО БУЛО</div><div class="stat-value" style="color:var(--color-on)">${formatDur(day.totalOn)} (${pct}%)</div></div>
+                    <div class="stat-box"><div class="stat-label">СВІТЛА НЕМАЄ</div><div class="stat-value" style="color:var(--color-off)">${formatDur(day.totalOff)}</div></div>
                     <div class="stat-box"><div class="stat-label">ВІДКЛЮЧЕНЬ</div><div class="stat-value">${day.outageCount}</div></div>
                     <div class="stat-box"><div class="stat-label">МАКС. СВІТЛО</div><div class="stat-value">${formatDur(day.maxOn)}</div></div>
                 </div>
-                ${dets}</div></div>`;
+                ${dets}</div>`;
         });
         document.getElementById('listView').innerHTML = html || '<div style="text-align:center; padding:50px; opacity:0.3;">Немає даних</div>';
     }
@@ -513,7 +567,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         const last = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0);
         let offset = first.getDay(); if (offset === 0) offset = 7; offset--;
         
-        let html = '<div class="cal-header" style="display:grid; grid-template-columns:repeat(7,1fr); gap:10px; margin-bottom:5px;">';
+        let html = '<div style="display:grid; grid-template-columns:repeat(7,1fr); gap:10px; margin-bottom:5px;">';
         ["ПН","ВТ","СР","ЧТ","ПТ","СБ","НД"].forEach(d => html += `<div class="cal-weekday">${d}</div>`);
         html += '</div><div id="calendarGrid">';
         
@@ -525,91 +579,69 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         for (let i = 1; i <= last.getDate(); i++) {
             const data = dayMap[i];
             const isToday = (nowKyiv.getDate() === i && nowKyiv.getMonth() === viewDate.getMonth() && nowKyiv.getFullYear() === viewDate.getFullYear());
-            let bgStyle = 'background: #fff';
-            if (data && (data.totalOn || data.totalOff)) {
-                const total = 1440;
-                const offDeg = (data.totalOff / total) * 360;
-                bgStyle = `background: conic-gradient(var(--color-off) ${offDeg}deg, var(--color-on) 0deg)`;
+            if (!data || !data.hasData) {
+                html += `<div class="cal-day empty-data"><div class="cal-inner" style="background:transparent; color:#ccc;">${i}</div></div>`;
+                continue;
             }
-            html += `<div class="cal-day ${isToday?'cal-today':''}" style="${bgStyle}" onclick="goToDay(${i})"><div class="cal-inner">${i}</div></div>`;
+            const total = 1440; const onPercent = (data.totalOn / total) * 100;
+            const bgStyle = `background: conic-gradient(var(--color-on) 0% ${onPercent}%, var(--color-off) ${onPercent}% 100%)`;
+            let dot = ''; if (data.attack) dot = `<div class="cal-attack-dot">${warnSvg}</div>`;
+
+            html += `<div class="cal-day ${isToday?'cal-today':''}" style="${bgStyle}" onclick="goToDay(${i})"><div class="cal-inner">${i}</div>${dot}</div>`;
         }
         document.getElementById('calendarView').innerHTML = html + '</div>';
     }
 
+    function switchView(view) {
+        currentView = view;
+        document.getElementById('btn-list').classList.toggle('active', view === 'list');
+        document.getElementById('btn-calendar').classList.toggle('active', view === 'calendar');
+        document.getElementById('listView').style.display = view === 'list' ? 'block' : 'none';
+        document.getElementById('calendarView').style.display = view === 'calendar' ? 'block' : 'none';
+    }
+
+    function changeMonth(delta) { viewDate.setMonth(viewDate.getMonth() + delta); render(); }
+    function toggleDay(element) {
+        const isAlreadyOpen = element.classList.contains('expanded');
+        document.querySelectorAll('.day-container.expanded').forEach(el => el.classList.remove('expanded'));
+        if (!isAlreadyOpen) element.classList.add('expanded');
+    }
+
     function goToDay(dayNum) {
-        switchView('list');
-        setTimeout(() => {
-            const el = document.getElementById(`day-${dayNum}`);
-            if (el) {
-                el.scrollIntoView({behavior: 'smooth', block: 'center'});
-                toggleDay(el);
-            }
-        }, 100);
+        const el = document.getElementById(`day-${dayNum}`);
+        if (el) {
+            switchView('list');
+            setTimeout(() => { el.scrollIntoView({behavior: 'smooth', block: 'center'}); toggleDay(el); }, 100);
+        }
     }
 
     function updateStatus(events) {
         if (!events.length) return;
-        const nowKyiv = getKyivDate();
-        const last = events[events.length - 1];
-        lastKnownEvent = last;
+        const nowKyiv = getKyivDate(); const last = events[events.length - 1]; lastKnownEvent = last;
         const diff = Math.max(0, Math.floor((nowKyiv - last.date) / 60000));
-        
-        const card = document.getElementById('statusCard');
-        const icon = document.getElementById('statusIcon');
-        const timer = document.getElementById('statusTimer');
-        
-        if (last.type === 'ON') {
-            card.className = 'status-card good';
-            icon.innerText = '● СВІТЛО Є';
-            icon.style.color = 'var(--color-on)';
-            timer.style.color = 'var(--color-on)';
-        } else {
-            card.className = 'status-card bad';
-            icon.innerText = '● СВІТЛА НЕМАЄ';
-            icon.style.color = 'var(--color-off)';
-            timer.style.color = 'var(--color-off)';
-        }
-
-        timer.innerText = formatDur(diff);
-        document.getElementById('statusLabel').innerText = `ЗМІНА: ${last.date.toLocaleDateString()} ${last.raw}`;
+        const card = document.getElementById('statusCard'); const icon = document.getElementById('statusIcon'); const timer = document.getElementById('statusTimer');
+        if (last.type === 'ON') { card.className = 'status-card good'; icon.innerText = '● СВІТЛО Є'; icon.style.color = 'var(--color-on)'; timer.style.color = 'var(--color-on)'; }
+        else { card.className = 'status-card bad'; icon.innerText = '● СВІТЛА НЕМАЄ'; icon.style.color = 'var(--color-off)'; timer.style.color = 'var(--color-off)'; }
+        timer.innerText = formatDur(diff); document.getElementById('statusLabel').innerText = `ЗМІНА: ${last.date.toLocaleDateString()} ${last.raw}`;
     }
 
     function formatDur(m) { return m < 60 ? `${m}хв` : `${Math.floor(m/60)}г ${m%60}хв`; }
 
+    // Tooltip Function
     function showTip(e, s, r, d) {
         e.stopPropagation();
-        
         if (tipTimeout) clearTimeout(tipTimeout);
-
         const tip = document.getElementById('tooltip');
         tip.innerHTML = `<strong>${s}</strong><br>${r}<br>${d}`;
         tip.classList.add('visible');
-
         const screenWidth = window.innerWidth;
-        const x = e.pageX;
-        const y = e.pageY;
-        
-        if (x > screenWidth / 2) {
-            tip.style.left = 'auto';
-            tip.style.right = (screenWidth - x + 10) + 'px';
-            tip.style.transform = 'translate(0, -100%)';
-        } else {
-            tip.style.left = (x + 10) + 'px';
-            tip.style.right = 'auto';
-            tip.style.transform = 'translate(0, -100%)';
-        }
-        
+        const x = e.pageX; const y = e.pageY;
+        if (x > screenWidth / 2) { tip.style.left = 'auto'; tip.style.right = (screenWidth - x + 10) + 'px'; tip.style.transform = 'translate(0, -100%)'; }
+        else { tip.style.left = (x + 10) + 'px'; tip.style.right = 'auto'; tip.style.transform = 'translate(0, -100%)'; }
         tip.style.top = (y - 15) + 'px';
-
-        tipTimeout = setTimeout(() => {
-            tip.classList.remove('visible');
-        }, 2500);
+        tipTimeout = setTimeout(() => { tip.classList.remove('visible'); }, 2500);
     }
-    
-    document.addEventListener('click', () => {
-        document.getElementById('tooltip').classList.remove('visible');
-        if (tipTimeout) clearTimeout(tipTimeout);
-    });
+    document.addEventListener('click', () => { document.getElementById('tooltip').classList.remove('visible'); if (tipTimeout) clearTimeout(tipTimeout); });
 </script>
 </body>
 </html>
