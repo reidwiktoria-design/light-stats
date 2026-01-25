@@ -27,26 +27,16 @@
     --radius-s: 8px;
 }
 
-html {
-    min-height: 100%;
-    /* ПОВЕРНУЛИ СКРОЛ ДЛЯ ОНОВЛЕННЯ */
-    /* overscroll-behavior-y: none; <- Цей рядок вбивав свайп */
-}
-
-body { 
-    margin: 0; 
-    padding: 0;
-    min-height: 100%;
-    width: 100%;
+html, body {
+    margin: 0; padding: 0;
+    height: 100%; width: 100%;
+    /* Дозволяємо стандартний скрол (pull-to-refresh) */
     -webkit-font-smoothing: antialiased; 
     font-family: 'Space Grotesk', sans-serif; 
     color: var(--text-main);
-    
-    /* Додаємо базовий колір фону, щоб при "відтягуванні" не було білого */
-    background-color: #eef2f9; 
 }
 
-/* ЗАЛІЗОБЕТОННИЙ ФОН: Фіксований градієнт позаду */
+/* ФОН */
 body::before {
     content: "";
     position: fixed;
@@ -78,9 +68,15 @@ body::before {
     box-sizing: border-box;
     z-index: 1000;
     padding-top: calc(10px + env(safe-area-inset-top));
+    
+    /* МАГІЯ: Пропускаємо кліки крізь порожні місця шапки */
+    pointer-events: none;
 }
 
 .glass-bar {
+    /* Вмикаємо кліки тільки для самої панелі */
+    pointer-events: auto;
+    
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
@@ -210,8 +206,24 @@ h1 {
 .cal-today .cal-inner { color: var(--accent); font-weight: 800; }
 .cal-today { box-shadow: 0 0 15px rgba(37,78,219,0.3); }
 
-#tooltip { position: absolute; background: var(--accent); color: #fff; padding: 6px 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; border-radius: 6px; pointer-events: none; opacity: 0; z-index: 100; box-shadow: 0 4px 15px rgba(37,78,219,0.3); }
+/* TOOLTIP FIXES */
+#tooltip { 
+    position: absolute; 
+    background: var(--accent); 
+    color: #fff; 
+    padding: 8px 12px; 
+    font-family: 'JetBrains Mono', monospace; 
+    font-size: 11px; 
+    border-radius: 8px; 
+    pointer-events: none; 
+    opacity: 0; 
+    z-index: 2000; /* Вищий Z-index щоб не ховався */
+    box-shadow: 0 5px 20px rgba(37,78,219,0.4); 
+    white-space: nowrap; /* Не переносимо текст */
+    transition: opacity 0.2s, transform 0.2s;
+}
 #tooltip.visible { opacity: 1; }
+
 .week-separator { display: flex; align-items: center; color: var(--accent); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin: 30px 0 15px; opacity: 0.4; }
 .week-separator::before, .week-separator::after { content: ''; flex: 1; height: 1px; background: var(--accent); opacity: 0.3; }
 .week-separator span { padding: 0 10px; }
@@ -256,6 +268,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
     let allEvents = [];
     let currentView = 'list';
     let lastKnownEvent = null;
+    let tipTimeout = null; // Для контролю часу тултіпа
     
     function getKyivDate() {
         const now = new Date();
@@ -512,17 +525,48 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
 
     function formatDur(m) { return m < 60 ? `${m}хв` : `${Math.floor(m/60)}г ${m%60}хв`; }
 
+    // ОНОВЛЕНИЙ TOOLTIP
     function showTip(e, s, r, d) {
         e.stopPropagation();
+        
+        // 1. Очищуємо старий таймер, щоб він не закрив нове вікно
+        if (tipTimeout) clearTimeout(tipTimeout);
+
         const tip = document.getElementById('tooltip');
         tip.innerHTML = `<strong>${s}</strong><br>${r}<br>${d}`;
-        tip.style.left = `${Math.max(60, Math.min(window.innerWidth-60, e.pageX))}px`;
-        tip.style.top = `${e.pageY - 50}px`;
-        tip.style.transform = 'translate(-50%, 0)';
         tip.classList.add('visible');
-        setTimeout(() => tip.classList.remove('visible'), 3000);
+
+        // 2. Логіка позиціонування
+        const screenWidth = window.innerWidth;
+        const x = e.pageX;
+        const y = e.pageY;
+        
+        // Якщо клік у правій половині екрана - показуємо тултіп ЗЛІВА від курсора
+        // Якщо у лівій - СПРАВА
+        if (x > screenWidth / 2) {
+            tip.style.left = 'auto';
+            tip.style.right = (screenWidth - x + 15) + 'px'; // 15px відступ
+            tip.style.transform = 'translate(0, -100%)';
+        } else {
+            tip.style.left = (x + 15) + 'px';
+            tip.style.right = 'auto';
+            tip.style.transform = 'translate(0, -100%)';
+        }
+        
+        tip.style.top = (y - 10) + 'px';
+
+        // 3. Новий таймер на закриття
+        tipTimeout = setTimeout(() => {
+            tip.classList.remove('visible');
+        }, 2500);
     }
-    document.addEventListener('click', () => document.getElementById('tooltip').classList.remove('visible'));
+    
+    // Закриваємо при кліку будь-де
+    document.addEventListener('click', () => {
+        document.getElementById('tooltip').classList.remove('visible');
+        if (tipTimeout) clearTimeout(tipTimeout);
+    });
+
     init();
 </script>
 </body>
