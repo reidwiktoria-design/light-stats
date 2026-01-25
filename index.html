@@ -28,15 +28,17 @@
 
 /* === АРХІТЕКТУРА === */
 html {
-    /* Фон на рівні HTML (заходить під статус-бар) */
     background: radial-gradient(
         circle at 50% 0%,
         #eef2f9 0%,
         #dce4f2 100%
     );
 
-    /* стабільна висота на iOS */
-    min-height: 100svh;
+    min-height: 100%;
+    height: 100%;
+
+    /* критично для статус-бара */
+    padding-top: env(safe-area-inset-top);
 
     -webkit-font-smoothing: antialiased;
 }
@@ -45,15 +47,8 @@ body {
     margin: 0;
     padding: 0;
 
-    /* КЛЮЧОВЕ — без цього Safari малює біле */
+    min-height: 100svh;
     background: transparent;
-
-    /* щоб body точно не був меншим за html */
-    min-height: 100%;
-
-    /* safe area */
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
 
     font-family: 'Space Grotesk', sans-serif;
     color: var(--text-main);
