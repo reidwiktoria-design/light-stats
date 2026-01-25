@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#eef2f9">
 <title>Моніторинг Світла</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,90 +27,74 @@
     --radius-s: 8px;
 }
 
-/* ВИПРАВЛЕННЯ ФОНУ */
-html {
-    height: 100%;
-    /* Забороняємо "гумовий" скрол, щоб не було білих полів */
-    overscroll-behavior: none;
-}
-
-body { 
-    font-family: 'Space Grotesk', sans-serif; 
-    /* Переносимо фон сюди, щоб він заповнював все відразу */
-    background: var(--bg-gradient);
-    background-attachment: fixed;
-    background-size: cover;
+html, body {
     margin: 0; 
     padding: 0;
-    color: var(--text-main); 
+    height: 100%;
+    width: 100%;
+    /* Запобігаємо білим смугам при скролі */
+    overscroll-behavior-y: none;
     -webkit-font-smoothing: antialiased; 
-    min-height: 100%;
-    /* Додаємо підтримку для вирізів екрану (safe area) */
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    overscroll-behavior: none;
+    font-family: 'Space Grotesk', sans-serif; 
+    color: var(--text-main);
+}
+
+/* ЗАЛІЗОБЕТОННИЙ ФОН: Окремий шар, який завжди на весь екран */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--bg-gradient);
+    background-size: cover;
+    z-index: -1; /* Позаду всього */
 }
 
 .page { 
     max-width: 600px; 
     width: 100%;
     margin: 0 auto; 
-    /* Відступ зверху = висота шапки + відступ */
+    /* Відступ зверху для контенту, щоб не ліз під шапку */
     padding: 90px 12px 60px 12px; 
     box-sizing: border-box;
+    /* Враховуємо "чубчик" */
+    padding-top: calc(90px + env(safe-area-inset-top));
+    padding-bottom: calc(60px + env(safe-area-inset-bottom));
 }
 
-/* === STICKY HEADER (LIQUID GLASS - ПОТУЖНИЙ БЛЮР) === */
+/* === STICKY HEADER === */
 .sticky-container {
     position: fixed;
-    top: 0; /* Притискаємо до самого верху */
+    top: 0; 
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
     max-width: 600px;
-    padding: 15px 12px 0 12px; /* Відступ від верху екрану */
+    padding: 10px 12px 0 12px;
     box-sizing: border-box;
     z-index: 1000;
-    /* Враховуємо safe area для телефонів з чубчиком */
-    padding-top: calc(15px + env(safe-area-inset-top));
+    padding-top: calc(10px + env(safe-area-inset-top));
 }
 
 .glass-bar {
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
-    
-    /* Більш прозорий фон для сильнішого ефекту скла */
-    background: rgba(255, 255, 255, 0.6); 
-    
-    /* ПОТУЖНИЙ БЛЮР (як в iOS Library) */
+    background: rgba(255, 255, 255, 0.65); 
     backdrop-filter: blur(50px) saturate(180%); 
     -webkit-backdrop-filter: blur(50px) saturate(180%);
-    
     padding: 8px 8px 8px 20px; 
     border-radius: 100px; 
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 
-        0 15px 40px rgba(37, 78, 219, 0.12), /* Більша тінь */
-        inset 0 1px 1px rgba(255,255,255,0.8);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 10px 30px rgba(37, 78, 219, 0.1), inset 0 1px 1px rgba(255,255,255,0.8);
 }
 
 h1 { 
-    font-size: 14px; 
-    font-weight: 800; 
-    text-transform: uppercase; 
-    margin: 0; 
-    color: var(--accent); 
-    letter-spacing: 0.5px; 
+    font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; 
+    color: var(--accent); letter-spacing: 0.5px; 
 }
 
 /* SWITCHER */
-.view-switcher { 
-    display: flex; 
-    background: rgba(0, 0, 0, 0.05); 
-    padding: 3px; 
-    border-radius: 100px; 
-}
+.view-switcher { display: flex; background: rgba(0, 0, 0, 0.05); padding: 3px; border-radius: 100px; }
 .view-btn { 
     border: none; background: transparent; padding: 8px 14px; 
     font-family: inherit; font-size: 11px; font-weight: 700; cursor: pointer; 
@@ -184,20 +169,10 @@ h1 {
 
 /* STATS GRID */
 .day-stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid #f0f0f0;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    margin-top: 10px; padding-top: 10px; border-top: 1px solid #f0f0f0;
 }
-.stat-box {
-    display: flex;
-    flex-direction: column;
-    background: #f8f9fb;
-    border-radius: 10px;
-    padding: 8px 12px;
-}
+.stat-box { display: flex; flex-direction: column; background: #f8f9fb; border-radius: 10px; padding: 8px 12px; }
 .stat-label { font-size: 10px; color: #888; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
 .stat-value { font-size: 13px; color: #111; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
 .stat-value.green { color: var(--color-row-on); }
@@ -213,7 +188,6 @@ h1 {
 /* CALENDAR */
 #calendarGrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-top: 10px; }
 .cal-weekday { text-align: center; font-size: 10px; font-weight: 800; color: #ccc; margin-bottom: 5px; }
-
 .cal-day { 
     aspect-ratio: 1; border-radius: 50%; position: relative; cursor: pointer; 
     display: flex; align-items: center; justify-content: center;
@@ -349,6 +323,17 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         render();
     }
 
+    // НОВА ФУНКЦІЯ: ЗАКРИВАЄ ІНШІ ДНІ ПРИ ВІДКРИТТІ ОДНОГО
+    function toggleDay(element) {
+        const isAlreadyOpen = element.classList.contains('expanded');
+        // Спочатку закриваємо всі відкриті
+        document.querySelectorAll('.day-container.expanded').forEach(el => el.classList.remove('expanded'));
+        // Якщо клікнутий день не був відкритий - відкриваємо його
+        if (!isAlreadyOpen) {
+            element.classList.add('expanded');
+        }
+    }
+
     function generateDays(events) {
         if (!events.length) return [];
         const days = {};
@@ -439,7 +424,8 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
                 if (!isFut) dets += `<div class="detail-row" style="background:${s.type === 'ON' ? 'var(--color-row-on)' : 'var(--color-row-off)'}"><span>${s.range}</span><span>${s.dur}</span></div>`;
             });
 
-            html += `<div id="${dayId}" class="day-container ${isToday?'today':''} ${day.totalOff===0?'perfect':''}" onclick="this.classList.toggle('expanded')">
+            // ТУТ ЗМІНЕНО ONCLICK НА toggleDay
+            html += `<div id="${dayId}" class="day-container ${isToday?'today':''} ${day.totalOff===0?'perfect':''}" onclick="toggleDay(this)">
                 <div class="day-header">
                     <div class="day-date-group">
                         <div class="day-date">${day.date.getDate()}.${String(day.date.getMonth()+1).padStart(2,'0')}</div>
@@ -493,7 +479,8 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
             const el = document.getElementById(`day-${dayNum}`);
             if (el) {
                 el.scrollIntoView({behavior: 'smooth', block: 'center'});
-                el.classList.add('expanded');
+                // Використовуємо нову функцію відкриття
+                toggleDay(el);
             }
         }, 100);
     }
