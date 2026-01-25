@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Моніторинг Світла</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,93 +11,181 @@
 
 <style>
 :root {
-    --bg-page: #eef0f2;
-    --bg-card: #ffffff;
-    --accent-dark: #1a1a1a;
-    --accent-blue: #254EDB;
+    --bg-page: radial-gradient(circle at 50% 0%, #eef2f9 0%, #e0e6f0 100%);
+    --bg-card: #FFFFFF;
+    --accent: #254EDB; 
     --color-on: #8DAA91;   
     --color-off: #E07A5F;
     --color-row-on: #7E9C82; 
     --color-row-off: #CC6A50;
-    --color-on-bg: #E8F5E9;
-    --color-off-bg: #FFF3E0;
     --text-main: #111111;
     --text-muted: #888888;
+    
+    --radius-l: 24px;
+    --radius-m: 16px;
+    --radius-s: 8px;
 }
 
-body { font-family: 'Space Grotesk', sans-serif; background: var(--bg-page); margin: 0; padding: 20px 10px; color: var(--text-main); }
-.page { max-width: 500px; margin: 0 auto; padding-bottom: 40px; }
+body { 
+    font-family: 'Space Grotesk', sans-serif; 
+    background: var(--bg-page); 
+    background-attachment: fixed;
+    margin: 0; 
+    padding: 20px 12px; 
+    color: var(--text-main); 
+    -webkit-font-smoothing: antialiased; 
+    min-height: 100vh;
+}
 
-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 4px; }
-h1 { font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacing: -0.5px; margin: 0; }
-.sub { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; background: #fff; padding: 4px 8px; border-radius: 6px; border: 1px solid #ddd; color: var(--accent-blue); text-transform: uppercase; }
+.page { 
+    max-width: 600px; 
+    width: 100%;
+    margin: 0 auto; 
+    padding-bottom: 60px; 
+}
 
-.status-card { background: #fff; border: 2px solid var(--accent-dark); border-radius: 16px; padding: 20px; margin-bottom: 35px; box-shadow: 4px 4px 0px var(--accent-dark); display: flex; flex-direction: column; align-items: center; text-align: center; transition: all 0.3s; }
-.status-card.good { background: var(--color-on-bg); border-color: var(--color-on); box-shadow: 4px 4px 0px var(--color-on); }
-.status-card.bad { background: var(--color-off-bg); border-color: var(--color-off); box-shadow: 4px 4px 0px var(--color-off); }
-.status-icon { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; }
-.status-time { font-size: 42px; font-weight: 700; line-height: 1; margin-bottom: 10px; font-variant-numeric: tabular-nums; }
-.status-label { font-size: 11px; opacity: 0.7; font-family: 'JetBrains Mono', monospace; }
+/* HEADER */
+header { margin-bottom: 25px; }
+.header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+h1 { font-size: 20px; font-weight: 800; text-transform: uppercase; margin: 0; color: var(--accent); letter-spacing: -0.5px; text-shadow: 0 2px 10px rgba(37, 78, 219, 0.1); }
 
+/* SWITCHER */
+.view-switcher { 
+    display: flex; 
+    background: rgba(255, 255, 255, 0.35); 
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    padding: 4px; border-radius: 100px; 
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02), 0 4px 15px rgba(0,0,0,0.03);
+}
+.view-btn { 
+    border: none; background: transparent; padding: 8px 18px; 
+    font-family: inherit; font-size: 11px; font-weight: 700; cursor: pointer; 
+    border-radius: 100px; color: #666; transition: 0.3s;
+}
+.view-btn.active { 
+    background: #FFFFFF; color: var(--accent); 
+    box-shadow: 0 4px 12px rgba(37, 78, 219, 0.15), 0 0 0 1px rgba(255,255,255,0.8);
+    transform: scale(1.02);
+}
+
+/* MONTH NAV */
+.month-nav { 
+    display: flex; justify-content: space-between; align-items: center; 
+    background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    padding: 14px 20px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 10px 40px rgba(37, 78, 219, 0.08), inset 0 0 0 1px rgba(255,255,255,0.5);
+    margin-bottom: 25px; transition: 0.3s;
+}
+.nav-btn { 
+    background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.5);
+    width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; cursor: pointer; color: var(--accent); font-weight: 700; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03); transition: 0.2s;
+}
+.nav-btn:active { transform: scale(0.9); background: #fff; }
+#currentMonthDisplay { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 800; text-transform: uppercase; color: var(--text-main); letter-spacing: 1px; }
+
+/* STATUS CARD */
+.status-card { 
+    background: #fff; border: 2px solid var(--accent); border-radius: var(--radius-l); 
+    padding: 24px; margin-bottom: 30px; 
+    box-shadow: 0 12px 30px rgba(37, 78, 219, 0.12);
+    display: flex; flex-direction: column; align-items: center; text-align: center; 
+    transition: 0.3s;
+}
+.status-card.good { background: #fff; border-color: var(--color-on); box-shadow: 0 12px 30px rgba(141, 170, 145, 0.25); }
+.status-card.bad { background: #fff; border-color: var(--color-off); box-shadow: 0 12px 30px rgba(224, 122, 95, 0.25); }
+
+.status-icon { font-size: 12px; font-weight: 800; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; margin-bottom: 8px; color: var(--text-muted); letter-spacing: 1px; }
+.status-time { font-size: 56px; font-weight: 700; line-height: 1; margin: 10px 0; font-variant-numeric: tabular-nums; letter-spacing: -2px; color: var(--accent); }
+.status-label { font-size: 11px; opacity: 0.6; font-family: 'JetBrains Mono', monospace; }
+
+/* DAY CONTAINER */
 .day-container { 
-    background: var(--bg-card); 
-    border-radius: 12px; 
-    padding: 16px 14px; 
-    margin-bottom: 12px; 
-    box-shadow: 0 1px 3px rgba(0,0,0,0.02); 
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    cursor: pointer; 
-    overflow: hidden;
-    position: relative;
-    border: 2px solid transparent; 
+    background: #fff; border-radius: var(--radius-m); padding: 18px; margin-bottom: 12px; 
+    border: 1px solid rgba(255,255,255,1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: 0.3s;
+    cursor: pointer; position: relative; overflow: hidden;
 }
-.day-container:active { transform: scale(0.99); }
-.day-container.today { border-color: #254EDB; background: linear-gradient(to bottom right, #ffffff, #f8faff); }
-.day-container.expanded { border-color: var(--accent-blue); box-shadow: 0 10px 30px rgba(37, 78, 219, 0.15); z-index: 10; }
+.day-container:active { transform: scale(0.98); }
+.day-container.today { border: 2px solid var(--accent); background: linear-gradient(135deg, #fff 0%, #f0f4ff 100%); }
+.day-container.expanded { 
+    border-color: var(--accent); box-shadow: 0 20px 50px rgba(37, 78, 219, 0.15); 
+    z-index: 10; transform: translateY(-2px);
+}
 .day-container.perfect { border-color: var(--color-on); }
 
-.day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 0 2px; }
-.day-date-group { display: flex; align-items: center; gap: 10px; }
-.day-date { font-size: 17px; font-weight: 700; color: var(--accent-blue); }
-.day-name { font-size: 14px; color: var(--text-muted); font-weight: 500; }
-.today-badge { font-size: 10px; font-weight: 800; background: var(--accent-blue); color: #fff; padding: 3px 6px; border-radius: 4px; text-transform: uppercase; line-height: 1; }
+.day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.day-date-group { display: flex; align-items: center; gap: 8px; }
+.day-date { font-size: 18px; font-weight: 700; color: var(--accent); }
+.day-name { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: capitalize; }
+.today-badge { font-size: 10px; font-weight: 800; background: var(--accent); color: #fff; padding: 3px 8px; border-radius: 10px; text-transform: uppercase; }
 
-.timeline { height: 24px; display: flex; border-radius: 6px; overflow: hidden; background: #eef0f2; margin-bottom: 4px; position: relative; }
-.segment { height: 100%; position: relative; cursor: pointer; transition: all 0.2s ease; }
-.segment:hover { filter: brightness(1.1); transform: scaleY(1.05); z-index: 2; }
+/* TIMELINE */
+.timeline { height: 24px; display: flex; border-radius: 8px; overflow: hidden; background: #EDEFF2; position: relative; margin-bottom: 12px; }
+.segment { height: 100%; position: relative; transition: 0.2s; }
 .on { background: var(--color-on); }
 .off { background: var(--color-off); }
-.future { background: repeating-linear-gradient(45deg, #e0e0e0, #e0e0e0 4px, #f2f2f2 4px, #f2f2f2 8px); opacity: 0.4; cursor: default; pointer-events: none; }
-.now-marker { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent-blue); z-index: 20; pointer-events: none; }
+.future { background: repeating-linear-gradient(45deg, #eee, #eee 4px, #f9f9f9 4px, #f9f9f9 8px); }
+.now-marker { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent); z-index: 5; box-shadow: 0 0 8px rgba(37,78,219,0.6); }
 
-.scale { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #aaa; margin-bottom: 12px; padding: 0 2px; }
-.day-summary { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-main); padding-top: 8px; border-top: 1px solid #f0f0f0; }
-.sum-item { display: flex; align-items: baseline; gap: 6px; }
-.label-on { color: var(--color-on); font-weight: 800; font-size: 10px; text-transform: uppercase; }
-.label-off { color: var(--color-off); font-weight: 800; font-size: 10px; text-transform: uppercase; }
-.day-summary b { color: var(--text-main); font-size: 12px; font-weight: 700; }
-
-.day-details {
-    max-height: 0;
-    opacity: 0;
-    overflow: hidden;
-    transition: max-height 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease, margin-top 0.4s ease;
+/* STATS GRID (NEW) */
+.day-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #f0f0f0;
 }
-.day-container.expanded .day-details { max-height: 600px; opacity: 1; margin-top: 15px; padding-top: 5px; }
-.detail-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; margin-bottom: 6px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #fff; font-weight: 500; }
+.stat-box {
+    display: flex;
+    flex-direction: column;
+    background: #f8f9fb;
+    border-radius: 10px;
+    padding: 8px 12px;
+}
+.stat-label { font-size: 10px; color: #888; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
+.stat-value { font-size: 13px; color: #111; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.stat-value.green { color: var(--color-row-on); }
+.stat-value.red { color: var(--color-row-off); }
+
+/* DETAILS */
+.day-details { max-height: 0; opacity: 0; overflow: hidden; transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); }
+.expanded .day-details { max-height: 800px; opacity: 1; margin-top: 15px; padding-top: 5px; border-top: 1px dashed #ddd; }
+.detail-row { display: flex; justify-content: space-between; padding: 10px 14px; margin-bottom: 6px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #fff; font-weight: 600; }
 .row-on { background: var(--color-row-on); }
 .row-off { background: var(--color-row-off); }
 
-.chevron { font-size: 10px; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); color: #ccc; margin-left: 6px; display: inline-block; }
-.day-container.expanded .chevron { transform: rotate(180deg); color: var(--accent-blue); }
+/* CALENDAR */
+#calendarGrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-top: 10px; }
+.cal-weekday { text-align: center; font-size: 10px; font-weight: 800; color: #ccc; margin-bottom: 5px; }
 
-.week-separator { display: flex; align-items: center; color: var(--text-muted); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin: 30px 0 15px; opacity: 0.5; }
-.week-separator::before, .week-separator::after { content: ''; flex: 1; height: 1px; background: #ccc; }
+.cal-day { 
+    aspect-ratio: 1; border-radius: 50%; position: relative; cursor: pointer; 
+    display: flex; align-items: center; justify-content: center;
+    background: #fff; transition: transform 0.2s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.03);
+}
+.cal-day:active { transform: scale(0.9); }
+.cal-day.empty { background: transparent; cursor: default; box-shadow: none; border: none; }
+.cal-inner {
+    width: 80%; height: 80%; background: #fff; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--text-main); z-index: 2;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
+}
+.cal-today .cal-inner { color: var(--accent); font-weight: 800; }
+.cal-today { box-shadow: 0 0 15px rgba(37,78,219,0.3); }
+
+#tooltip { position: absolute; background: var(--accent); color: #fff; padding: 6px 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; border-radius: 6px; pointer-events: none; opacity: 0; z-index: 100; box-shadow: 0 4px 15px rgba(37,78,219,0.3); }
+#tooltip.visible { opacity: 1; }
+.week-separator { display: flex; align-items: center; color: var(--accent); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin: 30px 0 15px; opacity: 0.4; }
+.week-separator::before, .week-separator::after { content: ''; flex: 1; height: 1px; background: var(--accent); opacity: 0.3; }
 .week-separator span { padding: 0 10px; }
 
-#tooltip { position: absolute; background: var(--accent-dark); color: #fff; padding: 5px 8px; font-family: 'JetBrains Mono', monospace; font-size: 10px; border-radius: 4px; pointer-events: none; opacity: 0; z-index: 100; white-space: nowrap; }
-#tooltip.visible { opacity: 1; }
-footer { margin-top: 40px; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #aaa; }
+footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; font-family: 'JetBrains Mono', monospace; }
 </style>
 </head>
 <body>
@@ -105,197 +193,302 @@ footer { margin-top: 40px; text-align: center; font-family: 'JetBrains Mono', mo
 <div class="page">
     <div id="tooltip"></div>
     <header>
-        <h1>МОНІТОРИНГ СВІТЛА</h1>
-        <div class="sub" id="currentMonth">...</div>
+        <div class="header-row">
+            <h1>Моніторинг Світла</h1>
+            <div class="view-switcher">
+                <button id="btn-list" class="view-btn active" onclick="switchView('list')">СПИСОК</button>
+                <button id="btn-calendar" class="view-btn" onclick="switchView('calendar')">КАЛЕНДАР</button>
+            </div>
+        </div>
+        <div class="month-nav">
+            <button class="nav-btn" onclick="changeMonth(-1)">←</button>
+            <div id="currentMonthDisplay">...</div>
+            <button class="nav-btn" onclick="changeMonth(1)">→</button>
+        </div>
     </header>
+
     <div id="statusCard" class="status-card">
-        <div class="status-icon" id="statusIcon">Завантаження...</div>
-        <div class="status-time" id="statusTimer">00:00</div>
-        <div class="status-label" id="statusLabel">...</div>
+        <div id="statusIcon">...</div>
+        <div id="statusTimer" class="status-time">--:--</div>
+        <div id="statusLabel" class="status-label"></div>
     </div>
-    <div id="daysWrapper"></div>
+
+    <div id="listView"></div>
+    <div id="calendarView" style="display:none;"></div>
+
     <footer id="footerStats"></footer>
 </div>
 
 <script>
-    // ФУНКЦІЯ ЗАВАНТАЖЕННЯ ЗОВНІШНЬОГО ФАЙЛУ
-    async function loadLogs() {
+    let allEvents = [];
+    let currentView = 'list';
+    
+    function getKyivDate() {
+        const now = new Date();
+        const kyivTimeStr = now.toLocaleString("en-US", {timeZone: "Europe/Kyiv"});
+        return new Date(kyivTimeStr);
+    }
+
+    let viewDate = getKyivDate();
+    viewDate.setHours(0,0,0,0);
+
+    async function init() {
         try {
-            // Додаємо timestamp, щоб GitHub не кешував старий файл
             const response = await fetch('logs.txt?t=' + Date.now());
             const text = await response.text();
-            render(text);
-        } catch (error) {
-            document.getElementById('statusIcon').innerText = "Помилка завантаження logs.txt";
-            console.error(error);
-        }
+            allEvents = parseLogs(text);
+            updateStatus(allEvents);
+            render();
+        } catch (e) { console.error(e); }
     }
 
     function parseLogs(rawText) {
         const lines = rawText.split('\n');
         const events = [];
         lines.forEach(line => {
-            const isTurnedOn = line.toLowerCase().includes('увімкнули') || line.toLowerCase().includes('світло є');
-            const isTurnedOff = line.toLowerCase().includes('зникло') || line.toLowerCase().includes('немає');
-            if (!isTurnedOn && !isTurnedOff) return;
-            const dateMatch = line.match(/(\d{2}\.\d{2}\.\d{2,4})/);
-            const timeMatch = line.match(/(\d{2}:\d{2})/);
-            if (dateMatch && timeMatch) {
-                let dateStr = dateMatch[1];
-                let timeStr = timeMatch[1];
-                const dParts = dateStr.split('.');
-                let year = dParts[2].length === 2 ? '20' + dParts[2] : dParts[2];
-                events.push({
-                    date: new Date(`${year}-${dParts[1]}-${dParts[0]}T${timeStr}:00`),
-                    type: isTurnedOn ? 'ON' : 'OFF',
-                    rawTime: timeStr
-                });
+            const isOn = line.includes('Увімкнули') || line.includes('світло є');
+            const isOff = line.includes('зникло') || line.includes('немає');
+            const dM = line.match(/(\d{2}\.\d{2}\.\d{2,4})/);
+            const tM = line.match(/(\d{2}:\d{2})/);
+            if ((isOn || isOff) && dM && tM) {
+                const p = dM[1].split('.');
+                const y = p[2].length === 2 ? '20'+p[2] : p[2];
+                events.push({ date: new Date(`${y}-${p[1]}-${p[0]}T${tM[1]}:00+02:00`), type: isOn ? 'ON' : 'OFF', raw: tM[1] });
             }
         });
         return events.sort((a, b) => a.date - b.date);
     }
 
-    function generateDays(events) {
-        if (events.length === 0) return [];
-        const days = {}; 
-        const now = new Date(); 
-        let currentDate = new Date(events[0].date);
-        currentDate.setHours(0,0,0,0);
-        let currentState = events[0].type === 'OFF' ? 'ON' : 'OFF';
-        let eventIndex = 0;
-        
-        const endLoopDate = new Date();
-        endLoopDate.setHours(23,59,59,999);
-
-        while (currentDate <= endLoopDate) {
-            const dayKey = currentDate.toISOString().split('T')[0];
-            const dayStart = new Date(currentDate);
-            const dayEnd = new Date(currentDate); dayEnd.setHours(23,59,59,999);
-            days[dayKey] = { date: new Date(dayStart), segments: [], totalOn: 0, totalOff: 0 };
-            let pointer = dayStart.getTime();
-
-            while (eventIndex < events.length) {
-                const ev = events[eventIndex];
-                if (ev.date >= dayEnd) break; 
-                if (ev.date.getTime() > pointer) {
-                    addSegment(days[dayKey], pointer, ev.date.getTime(), currentState);
-                }
-                currentState = ev.type;
-                pointer = ev.date.getTime();
-                eventIndex++;
-            }
-
-            if (dayStart.toDateString() === now.toDateString()) {
-                if (now.getTime() > pointer) {
-                    addSegment(days[dayKey], pointer, now.getTime(), currentState, currentState === 'ON' ? 'СВІТЛО Є' : 'СВІТЛА НЕМАЄ');
-                    pointer = now.getTime();
-                }
-                addSegment(days[dayKey], pointer, dayEnd.getTime(), 'FUTURE');
-            } else {
-                addSegment(days[dayKey], pointer, dayEnd.getTime(), currentState);
-            }
-            currentDate.setDate(currentDate.getDate() + 1);
-        }
-        return Object.values(days);
+    function changeMonth(delta) {
+        viewDate.setMonth(viewDate.getMonth() + delta);
+        render();
     }
 
-    function addSegment(dayObj, startMs, endMs, type, customStatus = null) {
-        if (startMs >= endMs) return;
-        const diffMs = endMs - startMs;
-        const minutes = Math.floor(diffMs / 60000);
-        const startD = new Date(startMs);
-        const endD = new Date(endMs);
-        dayObj.segments.push({
-            type, width: (minutes / 1440) * 100,
-            range: formatTime(startD) + ' - ' + formatTime(endD),
-            dur: formatDuration(minutes),
-            percentStr: minutes > 0 ? `(${Math.round((minutes / 1440) * 100)}%)` : '',
-            statusLabel: customStatus || (type === 'ON' ? 'БУЛО' : 'НЕ БУЛО')
+    function switchView(view) {
+        currentView = view;
+        document.getElementById('btn-list').classList.toggle('active', view === 'list');
+        document.getElementById('btn-calendar').classList.toggle('active', view === 'calendar');
+        document.getElementById('listView').style.display = view === 'list' ? 'block' : 'none';
+        document.getElementById('calendarView').style.display = view === 'calendar' ? 'block' : 'none';
+        render();
+    }
+
+    function generateDays(events) {
+        if (!events.length) return [];
+        const days = {};
+        const nowKyiv = getKyivDate();
+        let pointerDate = new Date(events[0].date);
+        pointerDate.setHours(0,0,0,0);
+        let currentState = events[0].type === 'OFF' ? 'ON' : 'OFF';
+        let eventIdx = 0;
+        const endLimit = new Date(); endLimit.setHours(23,59,59);
+
+        while (pointerDate <= endLimit) {
+            const k = pointerDate.toISOString().split('T')[0];
+            const dStart = new Date(pointerDate);
+            const dEnd = new Date(pointerDate); dEnd.setHours(23,59,59);
+            days[k] = { date: dStart, segments: [], totalOn: 0, totalOff: 0, outageCount: 0, maxOn: 0 };
+            let pTime = dStart.getTime();
+
+            while (eventIdx < events.length && events[eventIdx].date <= dEnd) {
+                const ev = events[eventIdx];
+                if (ev.date.getTime() > pTime) addSeg(days[k], pTime, ev.date.getTime(), currentState);
+                currentState = ev.type;
+                pTime = ev.date.getTime();
+                eventIdx++;
+            }
+
+            const isToday = dStart.toDateString() === nowKyiv.toDateString();
+            if (isToday) {
+                if (nowKyiv.getTime() > pTime) addSeg(days[k], pTime, nowKyiv.getTime(), currentState, currentState === 'ON' ? 'СВІТЛО Є' : 'СВІТЛА НЕМАЄ');
+                addSeg(days[k], nowKyiv.getTime(), dEnd.getTime(), 'FUTURE');
+            } else {
+                addSeg(days[k], pTime, dEnd.getTime(), currentState);
+            }
+            pointerDate.setDate(pointerDate.getDate() + 1);
+        }
+        return Object.values(days).reverse();
+    }
+
+    function addSeg(day, start, end, type, label) {
+        const mins = Math.floor((end - start) / 60000);
+        if (mins <= 0) return;
+        
+        // Статистика
+        if (type === 'OFF') day.outageCount++;
+        if (type === 'ON') {
+             day.totalOn += mins;
+             if (mins > day.maxOn) day.maxOn = mins;
+        }
+        if (type === 'OFF') day.totalOff += mins;
+
+        day.segments.push({
+            type, width: mins / 14.4,
+            range: `${new Date(start).getHours()}:${String(new Date(start).getMinutes()).padStart(2,'0')} - ${new Date(end).getHours()}:${String(new Date(end).getMinutes()).padStart(2,'0')}`,
+            dur: mins < 60 ? `${mins}хв` : `${Math.floor(mins/60)}г ${mins%60}хв`,
+            status: label || (type === 'ON' ? 'СВІТЛО БУЛО' : 'СВІТЛА НЕ БУЛО')
         });
-        if (type === 'ON') dayObj.totalOn += minutes;
-        if (type === 'OFF') dayObj.totalOff += minutes;
+    }
+
+    function render() {
+        const months = ["СІЧЕНЬ", "ЛЮТИЙ", "БЕРЕЗЕНЬ", "КВІТЕНЬ", "ТРАВЕНЬ", "ЧЕРВЕНЬ", "ЛИПЕНЬ", "СЕРПЕНЬ", "ВЕРЕСЕНЬ", "ЖОВТЕНЬ", "ЛИСТОПАД", "ГРУДЕНЬ"];
+        document.getElementById('currentMonthDisplay').innerText = `${months[viewDate.getMonth()]} ${viewDate.getFullYear()}`;
+        
+        const days = generateDays(allEvents).filter(d => d.date.getMonth() === viewDate.getMonth() && d.date.getFullYear() === viewDate.getFullYear());
+        
+        renderList(days);
+        renderCalendar(days);
+        
+        const updateTime = getKyivDate();
+        document.getElementById('footerStats').innerText = `Оновлено: ${updateTime.toLocaleDateString()} ${updateTime.toLocaleTimeString()}`;
+    }
+
+    function renderList(days) {
+        let html = '';
+        const nowKyiv = getKyivDate();
+        const names = ["Неділя", "Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота"];
+
+        days.forEach((day, idx) => {
+            if (day.date.getDay() === 0 && idx !== 0) html += '<div class="week-separator"><span>Минулий тиждень</span></div>';
+            
+            const isToday = day.date.toDateString() === nowKyiv.toDateString();
+            const dayId = `day-${day.date.getDate()}`;
+            
+            // Розрахунок відсотка світла
+            const totalTracked = day.totalOn + day.totalOff;
+            const percentOn = totalTracked > 0 ? Math.round((day.totalOn / totalTracked) * 100) : 0;
+
+            let segs = '', dets = '<div class="day-details">';
+            if (isToday) {
+                const minsToday = nowKyiv.getHours() * 60 + nowKyiv.getMinutes();
+                segs += `<div class="now-marker" style="left:${minsToday/14.4}%"></div>`;
+            }
+
+            day.segments.forEach(s => {
+                const isFut = s.type === 'FUTURE';
+                segs += `<div class="segment ${s.type.toLowerCase()}" style="width:${s.width}%" ${isFut ? '' : `onclick="showTip(event,'${s.status}','${s.range}','${s.dur}')"`}></div>`;
+                if (!isFut) dets += `<div class="detail-row" style="background:${s.type === 'ON' ? 'var(--color-row-on)' : 'var(--color-row-off)'}"><span>${s.range}</span><span>${s.dur}</span></div>`;
+            });
+
+            // HTML БЛОК З НОВОЮ СТАТИСТИКОЮ
+            html += `<div id="${dayId}" class="day-container ${isToday?'today':''} ${day.totalOff===0?'perfect':''}" onclick="this.classList.toggle('expanded')">
+                <div class="day-header">
+                    <div class="day-date-group">
+                        <div class="day-date">${day.date.getDate()}.${String(day.date.getMonth()+1).padStart(2,'0')}</div>
+                        ${isToday ? '<span class="today-badge">СЬОГОДНІ</span>' : ''}
+                    </div>
+                    <div class="day-name">${names[day.date.getDay()]} <span class="chevron">▼</span></div>
+                </div>
+                
+                <div class="timeline">${segs}</div>
+                
+                <div class="day-stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-label">СВІТЛО БУЛО</div>
+                        <div class="stat-value green">${formatDur(day.totalOn)} (${percentOn}%)</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">СВІТЛА НЕ БУЛО</div>
+                        <div class="stat-value red">${formatDur(day.totalOff)}</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">ВІДКЛЮЧЕНЬ</div>
+                        <div class="stat-value">${day.outageCount}</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">МАКС. СВІТЛО</div>
+                        <div class="stat-value">${formatDur(day.maxOn)}</div>
+                    </div>
+                </div>
+
+                ${dets}</div></div>`;
+        });
+        document.getElementById('listView').innerHTML = html || '<div style="text-align:center; padding:50px; opacity:0.3;">Немає даних</div>';
+    }
+
+    function renderCalendar(days) {
+        const first = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
+        const last = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0);
+        let offset = first.getDay(); if (offset === 0) offset = 7; offset--;
+        
+        let html = '<div class="cal-header" style="display:grid; grid-template-columns:repeat(7,1fr); gap:10px; margin-bottom:5px;">';
+        ["ПН","ВТ","СР","ЧТ","ПТ","СБ","НД"].forEach(d => html += `<div class="cal-weekday">${d}</div>`);
+        html += '</div><div id="calendarGrid">';
+        
+        for (let i = 0; i < offset; i++) html += '<div class="cal-day empty"></div>';
+
+        const dayMap = {}; days.forEach(d => dayMap[d.date.getDate()] = d);
+        const nowKyiv = getKyivDate();
+
+        for (let i = 1; i <= last.getDate(); i++) {
+            const data = dayMap[i];
+            const isToday = (nowKyiv.getDate() === i && nowKyiv.getMonth() === viewDate.getMonth() && nowKyiv.getFullYear() === viewDate.getFullYear());
+            
+            let bgStyle = 'background: #fff';
+            if (data && (data.totalOn || data.totalOff)) {
+                const total = 1440;
+                const offDeg = (data.totalOff / total) * 360;
+                bgStyle = `background: conic-gradient(var(--color-off) ${offDeg}deg, var(--color-on) 0deg)`;
+            }
+
+            html += `<div class="cal-day ${isToday?'cal-today':''}" style="${bgStyle}" onclick="goToDay(${i})">
+                <div class="cal-inner">${i}</div>
+            </div>`;
+        }
+        document.getElementById('calendarView').innerHTML = html + '</div>';
+    }
+
+    function goToDay(dayNum) {
+        switchView('list');
+        setTimeout(() => {
+            const el = document.getElementById(`day-${dayNum}`);
+            if (el) {
+                el.scrollIntoView({behavior: 'smooth', block: 'center'});
+                el.classList.add('expanded');
+            }
+        }, 100);
     }
 
     function updateStatus(events) {
         if (!events.length) return;
-        const now = new Date();
+        const nowKyiv = getKyivDate();
         const last = events[events.length - 1];
-        const diffMins = Math.floor((now - last.date) / 60000);
+        const diff = Math.max(0, Math.floor((nowKyiv - last.date) / 60000));
+        
         const card = document.getElementById('statusCard');
-        card.className = last.type === 'ON' ? 'status-card good' : 'status-card bad';
-        document.getElementById('statusIcon').innerText = last.type === 'ON' ? '● СВІТЛО Є' : '● СВІТЛА НЕМАЄ';
-        document.getElementById('statusTimer').innerText = `${Math.floor(diffMins/60)}г ${diffMins%60}хв`;
-        document.getElementById('statusLabel').innerText = `${last.type === 'ON' ? 'Увімкнули' : 'Зникло'}: ${last.date.toLocaleDateString('uk-UA')}, ${last.rawTime}`;
+        const icon = document.getElementById('statusIcon');
+        const timer = document.getElementById('statusTimer');
+        
+        if (last.type === 'ON') {
+            card.className = 'status-card good';
+            icon.innerText = '● СВІТЛО Є';
+            icon.style.color = 'var(--color-on)';
+            timer.style.color = 'var(--color-on)';
+        } else {
+            card.className = 'status-card bad';
+            icon.innerText = '● СВІТЛА НЕМАЄ';
+            icon.style.color = 'var(--color-off)';
+            timer.style.color = 'var(--color-off)';
+        }
+
+        timer.innerText = formatDur(diff);
+        document.getElementById('statusLabel').innerText = `ЗМІНА: ${last.date.toLocaleDateString()} ${last.raw}`;
     }
 
-    function toggleDay(element) {
-        const isExp = element.classList.contains('expanded');
-        document.querySelectorAll('.day-container').forEach(d => d.classList.remove('expanded'));
-        if (!isExp) element.classList.add('expanded');
-    }
+    function formatDur(m) { return m < 60 ? `${m}хв` : `${Math.floor(m/60)}г ${m%60}хв`; }
 
-    function render(rawText) {
-        const events = parseLogs(rawText);
-        let dayData = generateDays(events);
-        dayData.reverse();
-        const now = new Date();
-        document.getElementById('currentMonth').innerText = `${["СІЧЕНЬ", "ЛЮТИЙ", "БЕРЕЗЕНЬ", "КВІТЕНЬ", "ТРАВЕНЬ", "ЧЕРВЕНЬ", "ЛИПЕНЬ", "СЕРПЕНЬ", "ВЕРЕСЕНЬ", "ЖОВТЕНЬ", "ЛИСТОПАД", "ГРУДЕНЬ"][now.getMonth()]} ${now.getFullYear()}`;
-        updateStatus(events);
-
-        let html = '';
-        const dayNames = ["Неділя", "Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота"];
-
-        dayData.forEach((day, index) => {
-            const isToday = day.date.toDateString() === now.toDateString();
-            if (day.date.getDay() === 0 && index !== 0) html += '<div class="week-separator"><span>Минулий тиждень</span></div>';
-            
-            let segmentsHtml = '';
-            let detailsHtml = '<div class="day-details">';
-            if (isToday) segmentsHtml += `<div class="now-marker" style="left:${(now.getHours()*60+now.getMinutes())/14.4}%;"></div>`;
-
-            day.segments.forEach(seg => {
-                const isFut = seg.type === 'FUTURE';
-                segmentsHtml += `<div class="segment ${seg.type.toLowerCase()}" style="width:${seg.width}%;" ${isFut ? '' : `data-status="${seg.statusLabel}" data-range="${seg.range}" data-dur="${seg.dur}"`}></div>`;
-                if (!isFut) detailsHtml += `<div class="detail-row row-${seg.type.toLowerCase()}"><span>${seg.range}</span><span>${seg.dur} ${seg.percentStr}</span></div>`;
-            });
-
-            html += `
-            <div class="day-container ${isToday ? 'today' : 'past'} ${day.totalOff === 0 ? 'perfect' : ''}" onclick="toggleDay(this)">
-                <div class="day-header"><div class="day-date-group"><div class="day-date">${formatDDMM(day.date)}</div>${isToday ? '<span class="today-badge">СЬОГОДНІ</span>' : ''}</div><div class="day-name">${dayNames[day.date.getDay()]} <span class="chevron">▼</span></div></div>
-                <div class="timeline">${segmentsHtml}</div>
-                <div class="scale"><span>00:00</span><span>12:00</span><span>24:00</span></div>
-                <div class="day-summary"><div class="sum-item"><span class="label-on">БУЛО:</span> <b>${day.totalOn ? formatShort(day.totalOn) : '-'}</b></div><div class="sum-item"><span class="label-off">НЕ БУЛО:</span> <b>${day.totalOff ? formatShort(day.totalOff) : '-'}</b></div></div>
-                ${detailsHtml}</div></div>`;
-        });
-        document.getElementById('daysWrapper').innerHTML = html;
-        document.getElementById('footerStats').innerText = `Оновлено: ${formatDDMM(now)} ${formatTime(now)}`;
-        attachTooltips();
-    }
-
-    function formatTime(d) { return d.toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'}); }
-    function formatDDMM(d) { return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}`; }
-    function formatDuration(m) { return m < 60 ? `${m}хв` : `${Math.floor(m/60)}г ${m%60}хв`; }
-    function formatShort(m) { return m < 60 ? `${m}хв` : `${Math.floor(m/60)}г ${m%60}хв`; }
-
-    function attachTooltips() {
+    function showTip(e, s, r, d) {
+        e.stopPropagation();
         const tip = document.getElementById('tooltip');
-        document.querySelectorAll('.segment').forEach(s => {
-            if (s.classList.contains('future')) return;
-            s.addEventListener('click', (e) => {
-                e.stopPropagation();
-                tip.innerHTML = `<strong>${s.dataset.status}</strong><br>${s.dataset.range}<br>${s.dataset.dur}`;
-                const rect = s.getBoundingClientRect();
-                tip.style.left = `${Math.max(60, Math.min(window.innerWidth-60, rect.left + rect.width/2))}px`;
-                tip.style.top = `${rect.top - 45 + window.scrollY}px`;
-                tip.style.transform = 'translate(-50%, 0)';
-                tip.classList.add('visible');
-            });
-        });
+        tip.innerHTML = `<strong>${s}</strong><br>${r}<br>${d}`;
+        tip.style.left = `${Math.max(60, Math.min(window.innerWidth-60, e.pageX))}px`;
+        tip.style.top = `${e.pageY - 50}px`;
+        tip.style.transform = 'translate(-50%, 0)';
+        tip.classList.add('visible');
+        setTimeout(() => tip.classList.remove('visible'), 3000);
     }
     document.addEventListener('click', () => document.getElementById('tooltip').classList.remove('visible'));
-
-    // ЗАПУСК
-    loadLogs();
+    init();
 </script>
 </body>
 </html>
