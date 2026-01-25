@@ -11,7 +11,7 @@
 
 <style>
 :root {
-    --bg-page: radial-gradient(circle at 50% 0%, #eef2f9 0%, #e0e6f0 100%);
+    --bg-gradient: radial-gradient(circle at 50% 0%, #eef2f9 0%, #dce4f2 100%);
     --bg-card: #FFFFFF;
     --accent: #254EDB; 
     --color-on: #8DAA91;   
@@ -26,12 +26,17 @@
     --radius-s: 8px;
 }
 
+/* ВИПРАВЛЕННЯ ФОНУ */
+html {
+    min-height: 100%;
+}
 body { 
     font-family: 'Space Grotesk', sans-serif; 
-    background: var(--bg-page); 
-    background-attachment: fixed;
+    background: var(--bg-gradient); 
+    background-attachment: fixed; /* Фон фіксований, не їздить */
+    background-size: cover;
     margin: 0; 
-    padding: 20px 12px; 
+    padding: 0; /* Прибираємо падінги body, додамо їх в .page */
     color: var(--text-main); 
     -webkit-font-smoothing: antialiased; 
     min-height: 100vh;
@@ -41,41 +46,69 @@ body {
     max-width: 600px; 
     width: 100%;
     margin: 0 auto; 
-    padding-bottom: 60px; 
+    padding: 15px 12px 60px 12px; /* Відступи тут */
+    box-sizing: border-box;
 }
 
-/* HEADER */
-header { margin-bottom: 25px; }
-.header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-h1 { font-size: 20px; font-weight: 800; text-transform: uppercase; margin: 0; color: var(--accent); letter-spacing: -0.5px; text-shadow: 0 2px 10px rgba(37, 78, 219, 0.1); }
+/* === STICKY HEADER (LIQUID GLASS) === */
+.sticky-header {
+    position: sticky;
+    top: 10px;
+    z-index: 1000;
+    margin-bottom: 20px;
+}
 
-/* SWITCHER */
+.glass-bar {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    
+    /* Ефект скла */
+    background: rgba(255, 255, 255, 0.75); 
+    backdrop-filter: blur(20px); 
+    -webkit-backdrop-filter: blur(20px);
+    
+    padding: 8px 8px 8px 16px; 
+    border-radius: 100px; /* Капсула */
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 
+        0 10px 30px rgba(37, 78, 219, 0.1),
+        inset 0 0 0 1px rgba(255,255,255,0.5);
+    transition: all 0.3s ease;
+}
+
+h1 { 
+    font-size: 16px; 
+    font-weight: 800; 
+    text-transform: uppercase; 
+    margin: 0; 
+    color: var(--accent); 
+    letter-spacing: -0.5px; 
+}
+
+/* SWITCHER INSIDE STICKY HEADER */
 .view-switcher { 
     display: flex; 
-    background: rgba(255, 255, 255, 0.35); 
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    padding: 4px; border-radius: 100px; 
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02), 0 4px 15px rgba(0,0,0,0.03);
+    background: rgba(0, 0, 0, 0.05); 
+    padding: 3px; 
+    border-radius: 100px; 
 }
 .view-btn { 
-    border: none; background: transparent; padding: 8px 18px; 
+    border: none; background: transparent; padding: 8px 14px; 
     font-family: inherit; font-size: 11px; font-weight: 700; cursor: pointer; 
     border-radius: 100px; color: #666; transition: 0.3s;
 }
 .view-btn.active { 
     background: #FFFFFF; color: var(--accent); 
-    box-shadow: 0 4px 12px rgba(37, 78, 219, 0.15), 0 0 0 1px rgba(255,255,255,0.8);
-    transform: scale(1.02);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-/* MONTH NAV */
+/* MONTH NAV (Scrolls away) */
 .month-nav { 
     display: flex; justify-content: space-between; align-items: center; 
-    background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    padding: 14px 20px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 0 10px 40px rgba(37, 78, 219, 0.08), inset 0 0 0 1px rgba(255,255,255,0.5);
-    margin-bottom: 25px; transition: 0.3s;
+    background: rgba(255, 255, 255, 0.6); 
+    padding: 12px 20px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.6);
+    margin-bottom: 25px; margin-top: 10px;
 }
 .nav-btn { 
     background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.5);
@@ -181,9 +214,6 @@ h1 { font-size: 20px; font-weight: 800; text-transform: uppercase; margin: 0; co
 
 #tooltip { position: absolute; background: var(--accent); color: #fff; padding: 6px 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; border-radius: 6px; pointer-events: none; opacity: 0; z-index: 100; box-shadow: 0 4px 15px rgba(37,78,219,0.3); }
 #tooltip.visible { opacity: 1; }
-.week-separator { display: flex; align-items: center; color: var(--accent); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin: 30px 0 15px; opacity: 0.4; }
-.week-separator::before, .week-separator::after { content: ''; flex: 1; height: 1px; background: var(--accent); opacity: 0.3; }
-.week-separator span { padding: 0 10px; }
 
 footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; font-family: 'JetBrains Mono', monospace; }
 </style>
@@ -192,20 +222,22 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
 
 <div class="page">
     <div id="tooltip"></div>
-    <header>
-        <div class="header-row">
-            <h1>Моніторинг Світла</h1>
+    
+    <div class="sticky-header">
+        <div class="glass-bar">
+            <h1>Light Stats</h1>
             <div class="view-switcher">
                 <button id="btn-list" class="view-btn active" onclick="switchView('list')">СПИСОК</button>
                 <button id="btn-calendar" class="view-btn" onclick="switchView('calendar')">КАЛЕНДАР</button>
             </div>
         </div>
-        <div class="month-nav">
-            <button class="nav-btn" onclick="changeMonth(-1)">←</button>
-            <div id="currentMonthDisplay">...</div>
-            <button class="nav-btn" onclick="changeMonth(1)">→</button>
-        </div>
-    </header>
+    </div>
+
+    <div class="month-nav">
+        <button class="nav-btn" onclick="changeMonth(-1)">←</button>
+        <div id="currentMonthDisplay">...</div>
+        <button class="nav-btn" onclick="changeMonth(1)">→</button>
+    </div>
 
     <div id="statusCard" class="status-card">
         <div id="statusIcon">...</div>
@@ -222,7 +254,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
 <script>
     let allEvents = [];
     let currentView = 'list';
-    let lastKnownEvent = null; // Для живого таймера
+    let lastKnownEvent = null;
     
     function getKyivDate() {
         const now = new Date();
@@ -240,33 +272,26 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
             allEvents = parseLogs(text);
             updateStatus(allEvents);
             render();
-            startLiveTimer(); // Запуск живого таймера
+            startLiveTimer();
         } catch (e) { console.error(e); }
     }
 
-    // Оновлення логів раз на хвилину
     setInterval(init, 60000);
 
     function startLiveTimer() {
-        // Оновлюємо UI кожну секунду (без запитів до мережі)
         setInterval(() => {
             if (lastKnownEvent) {
                 const nowKyiv = getKyivDate();
                 const diffMs = nowKyiv - lastKnownEvent.date;
                 const diffMins = Math.max(0, Math.floor(diffMs / 60000));
-                
-                // Оновлюємо текст таймера
                 const timerEl = document.getElementById('statusTimer');
                 if (timerEl) timerEl.innerText = formatDur(diffMins);
             }
-            
-            // Рухаємо маркер часу "Зараз"
             const markers = document.querySelectorAll('.now-marker');
             if (markers.length > 0) {
                 const nowKyiv = getKyivDate();
                 const minsToday = nowKyiv.getHours() * 60 + nowKyiv.getMinutes();
-                const pos = minsToday / 14.4;
-                markers.forEach(m => m.style.left = pos + '%');
+                markers.forEach(m => m.style.left = (minsToday / 14.4) + '%');
             }
         }, 1000);
     }
@@ -343,10 +368,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         const mins = Math.floor((end - start) / 60000);
         if (mins <= 0) return;
         if (type === 'OFF') day.outageCount++;
-        if (type === 'ON') {
-             day.totalOn += mins;
-             if (mins > day.maxOn) day.maxOn = mins;
-        }
+        if (type === 'ON') { day.totalOn += mins; if (mins > day.maxOn) day.maxOn = mins; }
         if (type === 'OFF') day.totalOff += mins;
 
         day.segments.push({
@@ -458,8 +480,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         if (!events.length) return;
         const nowKyiv = getKyivDate();
         const last = events[events.length - 1];
-        lastKnownEvent = last; // Зберігаємо для живого таймера
-        
+        lastKnownEvent = last;
         const diff = Math.max(0, Math.floor((nowKyiv - last.date) / 60000));
         
         const card = document.getElementById('statusCard');
