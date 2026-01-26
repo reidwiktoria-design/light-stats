@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#eef2f9"> 
-<title>Моніторинг Світла v3.3</title>
+<title>Моніторинг Світла v5.1 (Semantic Fix)</title>
 
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.PNG">
@@ -18,6 +18,8 @@
     --accent: #254EDB; 
     --color-on: #8DAA91;   
     --color-off: #E07A5F;
+    --color-future: #E5E7EB;
+    --color-neutral: #94a3b8; 
     --color-row-on: #7E9C82; 
     --color-row-off: #CC6A50;
     --text-main: #111111;
@@ -26,31 +28,19 @@
     --radius-l: 24px;
     --radius-m: 16px;
     
-    --attack-color: #2c3e50;
     --attack-massive-bg: #ffebee;
     --attack-massive-text: #c62828;
-    --attack-massive-border: #ef9a9a;
 }
 
-/* === АРХІТЕКТУРА === */
 html {
     background-color: #eef2f9; 
     background-image: radial-gradient(circle at 50% 0%, #eef2f9 0%, #dce4f2 100%);
-    background-attachment: fixed; 
-    background-size: cover;
-    background-repeat: no-repeat;
-    min-height: 100%; 
-    padding-top: env(safe-area-inset-top);
+    background-attachment: fixed; background-size: cover;
+    min-height: 100%; padding-top: env(safe-area-inset-top);
     -webkit-font-smoothing: antialiased;
 }
 
-body {
-    margin: 0; padding: 0;
-    min-height: 100svh;
-    background: transparent;
-    font-family: 'Space Grotesk', sans-serif;
-    color: var(--text-main);
-}
+body { margin: 0; padding: 0; min-height: 100svh; font-family: 'Space Grotesk', sans-serif; color: var(--text-main); }
 
 .page { 
     max-width: 600px; width: 100%; margin: 0 auto; box-sizing: border-box;
@@ -59,21 +49,17 @@ body {
     padding-left: 12px; padding-right: 12px;
 }
 
-/* === HEADER & NAV === */
 .sticky-container {
     position: fixed; top: 0; left: 50%; transform: translateX(-50%);
-    width: 100%; max-width: 600px; box-sizing: border-box; z-index: 1000;
+    width: 100%; max-width: 600px; z-index: 1000;
     padding: 10px 12px 0 12px; padding-top: calc(10px + env(safe-area-inset-top));
     pointer-events: none;
 }
 
 .glass-bar {
-    pointer-events: auto;
-    display: flex; justify-content: space-between; align-items: center; 
-    background: rgba(255,255,255,0.6); 
-    backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
-    padding: 8px 8px 8px 20px; border-radius: 100px; 
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    pointer-events: auto; display: flex; justify-content: space-between; align-items: center; 
+    background: rgba(255,255,255,0.6); backdrop-filter: blur(20px);
+    padding: 8px 8px 8px 20px; border-radius: 100px; border: 1px solid rgba(255,255,255,0.6);
     box-shadow: 0 10px 20px rgba(37, 78, 219, 0.05);
 }
 
@@ -82,25 +68,15 @@ h1 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; co
 .view-switcher { display: flex; background: rgba(0, 0, 0, 0.05); padding: 3px; border-radius: 100px; }
 .view-btn { 
     border: none; background: transparent; padding: 8px 14px; 
-    font-family: inherit; font-size: 11px; font-weight: 700; cursor: pointer; 
-    border-radius: 100px; color: #666; transition: 0.3s;
+    font-size: 11px; font-weight: 700; cursor: pointer; border-radius: 100px; color: #666; transition: 0.3s;
 }
 .view-btn.active { background: #FFFFFF; color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 
-.month-nav { 
-    display: flex; justify-content: space-between; align-items: center; 
-    padding: 10px 15px; margin-bottom: 20px; 
-}
-.nav-btn { 
-    background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--accent); opacity: 0.7;
-}
-#currentMonthDisplay { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; text-transform: uppercase; color: var(--text-main); }
+.month-nav { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; margin-bottom: 20px; }
+.nav-btn { background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--accent); opacity: 0.7; }
+#currentMonthDisplay { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; text-transform: uppercase; }
 
-/* === STATS CARDS (TOP) === */
-.stats-overview {
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
-    margin-bottom: 20px;
-}
+.stats-overview { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
 .stat-card-mini {
     background: #fff; padding: 15px; border-radius: var(--radius-m);
     box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid rgba(255,255,255,1);
@@ -112,34 +88,27 @@ h1 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; co
 .scm-sub { font-size: 10px; margin-top: 4px; font-weight: 600; }
 .trend-up { color: var(--color-on); }
 .trend-down { color: var(--color-off); }
+.trend-neutral { color: var(--color-neutral); }
 
-/* MAIN STATUS */
 .status-card { 
     background: #fff; border: 2px solid var(--accent); border-radius: var(--radius-l); 
-    padding: 24px; margin-bottom: 30px; 
-    box-shadow: 0 12px 30px rgba(37, 78, 219, 0.12);
+    padding: 24px; margin-bottom: 30px; box-shadow: 0 12px 30px rgba(37, 78, 219, 0.12);
     display: flex; flex-direction: column; align-items: center; text-align: center; 
 }
 .status-card.good { border-color: var(--color-on); box-shadow: 0 12px 30px rgba(141, 170, 145, 0.25); }
 .status-card.bad { border-color: var(--color-off); box-shadow: 0 12px 30px rgba(224, 122, 95, 0.25); }
-
 .status-icon { font-size: 12px; font-weight: 800; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; margin-bottom: 8px; color: var(--text-muted); letter-spacing: 1px; }
 .status-time { font-size: 56px; font-weight: 700; line-height: 1; margin: 10px 0; font-variant-numeric: tabular-nums; letter-spacing: -2px; color: var(--accent); }
 .status-label { font-size: 11px; opacity: 0.6; font-family: 'JetBrains Mono', monospace; }
 
-/* LIST ITEMS */
 .day-container { 
     background: #fff; border-radius: var(--radius-m); padding: 18px; margin-bottom: 12px; 
-    border: 1px solid rgba(255,255,255,1);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: 0.2s;
+    border: 1px solid rgba(255,255,255,1); box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: 0.2s;
     cursor: pointer; position: relative; overflow: hidden;
 }
 .day-container:active { transform: scale(0.99); }
 .day-container.today { border: 2px solid var(--accent); background: linear-gradient(180deg, #fff 0%, #f4f7ff 100%); }
-.day-container.expanded { 
-    border-color: var(--accent); box-shadow: 0 15px 40px rgba(37, 78, 219, 0.1); 
-    z-index: 10;
-}
+.day-container.expanded { border-color: var(--accent); box-shadow: 0 15px 40px rgba(37, 78, 219, 0.1); z-index: 10; }
 
 .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .day-date { font-size: 18px; font-weight: 700; color: var(--accent); }
@@ -148,36 +117,15 @@ h1 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; co
 .expanded .chevron { transform: rotate(180deg); opacity: 1; color: var(--accent); }
 .today-badge { font-size: 10px; font-weight: 800; background: var(--accent); color: #fff; padding: 3px 8px; border-radius: 10px; text-transform: uppercase; margin-left: 8px; }
 
-/* ATTACKS */
 .attack-badge {
     margin-top: 5px; font-size: 11px; font-weight: 700; color: #333; 
     background: #f4f4f4; padding: 6px 10px; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px;
     border-left: 3px solid #333; margin-bottom: 10px;
-    transition: 0.2s;
 }
-/* Червоний стиль для масованих */
-.attack-badge.massive {
-    background: var(--attack-massive-bg);
-    color: var(--attack-massive-text);
-    border-left-color: var(--attack-massive-text);
-}
+.attack-badge.massive { background: var(--attack-massive-bg); color: var(--attack-massive-text); border-left-color: var(--attack-massive-text); }
 .attack-badge.massive svg { fill: var(--attack-massive-text) !important; }
+.impact-badge { display: inline-block; vertical-align: middle; font-size: 10px; color: #d32f2f; font-weight: 800; margin-left: 10px; background: #ffebee; padding: 2px 6px; border-radius: 4px; }
 
-.impact-badge {
-    display: inline-block;        /* щоб працював vertical-align */
-    vertical-align: middle;       /* центрує значок з текстом */
-    font-size: 10px;
-    color: #d32f2f;
-    font-weight: 800;
-    text-transform: uppercase;
-    margin-left: 10px;            /* тільки відступ зліва */
-    background: #ffebee;
-    padding: 2px 6px;
-    border-radius: 4px;
-    margin-top: 0;                /* прибираємо верхній відступ */
-}
-
-/* TIMELINE */
 .timeline { height: 24px; display: flex; border-radius: 8px; overflow: hidden; background: #EDEFF2; position: relative; margin-bottom: 12px; }
 .segment { height: 100%; position: relative; }
 .on { background: var(--color-on); }
@@ -185,21 +133,15 @@ h1 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; co
 .future { background: repeating-linear-gradient(45deg, #eee, #eee 4px, #fafafa 4px, #fafafa 8px); }
 .now-marker { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent); z-index: 5; box-shadow: 0 0 8px rgba(37,78,219,0.8); }
 
-/* STATS GRID */
-.day-stats-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-    margin-top: 15px; padding-top: 10px; border-top: 1px solid #f0f0f0;
-}
+.day-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; padding-top: 10px; border-top: 1px solid #f0f0f0; }
 .stat-box { display: flex; flex-direction: column; background: #f8f9fb; border-radius: 10px; padding: 10px 12px; }
 .stat-label { font-size: 10px; color: #888; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
 .stat-value { font-size: 13px; color: #111; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
 
-/* DETAILS */
 .day-details { max-height: 0; opacity: 0; overflow: hidden; transition: 0.4s ease; }
 .expanded .day-details { max-height: 500px; opacity: 1; margin-top: 15px; padding-top: 5px; border-top: 1px dashed #ddd; }
 .detail-row { display: flex; justify-content: space-between; padding: 8px 12px; margin-bottom: 4px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #fff; font-weight: 600; }
 
-/* CALENDAR */
 #calendarGrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-top: 10px; }
 .cal-weekday { text-align: center; font-size: 10px; font-weight: 800; color: #ccc; margin-bottom: 5px; }
 .cal-day { 
@@ -211,33 +153,19 @@ h1 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; co
 .cal-day:active { transform: scale(0.9); }
 .cal-day.empty-data { cursor: default; opacity: 0.4; background: #f9f9f9; box-shadow: none; border: none; }
 .cal-day.empty { background: transparent; cursor: default; box-shadow: none; border: none; }
-
-.cal-inner {
-    width: 76%; height: 76%; background: #fff; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 700; color: var(--text-main); z-index: 2;
-}
+.cal-inner { width: 76%; height: 76%; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--text-main); z-index: 2; }
 .cal-today .cal-inner { color: var(--accent); font-weight: 800; background: #fff; }
 .cal-today { box-shadow: 0 0 0 2px var(--accent); }
-
-.cal-attack-dot {
-    position: absolute; top: 0; right: 0;
-    width: 14px; height: 14px; background: #fff; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+.cal-attack-dot { position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 .cal-attack-svg { width: 10px; height: 10px; fill: #d32f2f; }
 
-/* TOOLTIP */
 #tooltip { 
     position: absolute; background: var(--accent); color: #fff; 
     padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; 
     border-radius: 8px; pointer-events: none; opacity: 0; z-index: 2000; 
-    box-shadow: 0 5px 20px rgba(37,78,219,0.4); 
-    white-space: nowrap; transition: opacity 0.2s, transform 0.2s;
+    box-shadow: 0 5px 20px rgba(37,78,219,0.4); white-space: nowrap; transition: opacity 0.2s, transform 0.2s;
 }
 #tooltip.visible { opacity: 1; }
-
 footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; font-family: 'JetBrains Mono', monospace; }
 </style>
 </head>
@@ -276,12 +204,8 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
 </div>
 
 <svg style="display:none;">
-    <symbol id="icon-blast" viewBox="0 0 24 24">
-        <path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6-4.8-6 4.8 2.4-7.2-6-4.8h7.6z" />
-    </symbol>
-    <symbol id="icon-warn" viewBox="0 0 24 24">
-        <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
-    </symbol>
+    <symbol id="icon-blast" viewBox="0 0 24 24"><path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6-4.8-6 4.8 2.4-7.2-6-4.8h7.6z" /></symbol>
+    <symbol id="icon-warn" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></symbol>
 </svg>
 
 <script>
@@ -292,15 +216,11 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
     let tipTimeout = null;
     let isLiveTimerRunning = false;
     
-    // SVG Templates
+    // SVG
     const blastSvg = `<svg style="width:14px;height:14px;fill:#333;vertical-align:middle;" viewBox="0 0 24 24"><path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6-4.8-6 4.8 2.4-7.2-6-4.8h7.6z" /></svg>`;
     const warnSvg = `<svg style="width:10px;height:10px;fill:#d32f2f;" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>`;
 
-    function getKyivDate() {
-        const now = new Date();
-        const kyivTimeStr = now.toLocaleString("en-US", {timeZone: "Europe/Kyiv"});
-        return new Date(kyivTimeStr);
-    }
+    function getKyivDate() { return new Date(); }
 
     let viewDate = getKyivDate();
     viewDate.setHours(0,0,0,0);
@@ -316,7 +236,6 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
                 const logText = await logsRes.text();
                 allEvents = parseLogs(logText);
             }
-            
             if(attacksRes.ok) {
                 const attackText = await attacksRes.text();
                 attacks = parseAttacks(attackText);
@@ -336,16 +255,16 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         isLiveTimerRunning = true;
         setInterval(() => {
             if (lastKnownEvent) {
-                const nowKyiv = getKyivDate();
-                const diffMs = nowKyiv - lastKnownEvent.date;
+                const now = getKyivDate();
+                const diffMs = now - lastKnownEvent.date;
                 const diffMins = Math.max(0, Math.floor(diffMs / 60000));
                 const timerEl = document.getElementById('statusTimer');
                 if (timerEl) timerEl.innerText = formatDur(diffMins);
             }
             const markers = document.querySelectorAll('.now-marker');
             if (markers.length > 0) {
-                const nowKyiv = getKyivDate();
-                const minsToday = nowKyiv.getHours() * 60 + nowKyiv.getMinutes();
+                const now = getKyivDate();
+                const minsToday = now.getHours() * 60 + now.getMinutes();
                 markers.forEach(m => m.style.left = (minsToday / 14.4) + '%');
             }
         }, 1000);
@@ -375,21 +294,28 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         rawText.split('\n').forEach(line => {
             const p = line.split('|').map(s => s.trim());
             if (p.length >= 3) {
-                res.push({
-                    date: p[0],
-                    time: p[1],
-                    duration: parseInt(p[2]) || 2,
-                    desc: p[3] || 'Атака'
-                });
+                res.push({ date: p[0], time: p[1], duration: parseInt(p[2]) || 2, desc: p[3] || 'Атака' });
             }
         });
         return res;
     }
 
+    function calculateDayPotential(startMs, endMs) {
+        let score = 0;
+        let current = startMs;
+        while(current < endMs) {
+            const h = new Date(current).getHours();
+            const weight = (h >= 8 && h < 23) ? 1.0 : 0.3;
+            score += weight; 
+            current += 60000;
+        }
+        return score;
+    }
+
     function generateDays(events) {
         if (!events.length) return [];
         const days = {};
-        const nowKyiv = getKyivDate();
+        const now = getKyivDate();
         
         let pointerDate = new Date(events[0].date);
         pointerDate.setHours(0,0,0,0);
@@ -398,6 +324,8 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         let eventIdx = 0;
         const endLimit = new Date(); endLimit.setHours(23,59,59);
 
+        let firstLogTime = events[0].date.getTime();
+
         while (pointerDate <= endLimit) {
             const k = `${pointerDate.getFullYear()}-${String(pointerDate.getMonth()+1).padStart(2,'0')}-${String(pointerDate.getDate()).padStart(2,'0')}`;
             const dStart = new Date(pointerDate);
@@ -405,73 +333,80 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
             const attackData = attacks.find(a => a.date === k);
 
             days[k] = { 
-                date: dStart, segments: [], totalOn: 0, totalOff: 0, 
+                date: dStart, segments: [], 
+                totalOn: 0, totalOff: 0, 
+                effectiveMinutes: 0, potentialWeight: 0, qualityIndex: 0,
                 attack: attackData, hasData: false, outageCount: 0, maxOn: 0 
             };
             
             let pTime = dStart.getTime();
-
+            let potentialStart = (dStart.getTime() < firstLogTime) ? firstLogTime : dStart.getTime();
+            let potentialEnd = (dStart.toDateString() === now.toDateString()) ? now.getTime() : dEnd.getTime();
+            
             if (dEnd.getTime() >= events[0].date.getTime()) {
                 days[k].hasData = true;
+                days[k].potentialWeight = calculateDayPotential(potentialStart, potentialEnd);
+
                 while (eventIdx < events.length && events[eventIdx].date <= dEnd) {
                     const ev = events[eventIdx];
-                    if (ev.date.getTime() > pTime) addSeg(days[k], pTime, ev.date.getTime(), currentState);
+                    if (currentState === 'ON' && ev.type === 'OFF' && ev.date.getTime() >= dStart.getTime()) {
+                        days[k].outageCount++;
+                    }
+                    if (ev.date.getTime() > pTime) {
+                        addSeg(days[k], pTime, ev.date.getTime(), currentState, now);
+                    }
                     currentState = ev.type;
                     pTime = ev.date.getTime();
                     eventIdx++;
                 }
-                const isToday = dStart.toDateString() === nowKyiv.toDateString();
+                const isToday = dStart.toDateString() === now.toDateString();
                 if (isToday) {
-                    if (nowKyiv.getTime() > pTime) addSeg(days[k], pTime, nowKyiv.getTime(), currentState);
-                    addSeg(days[k], nowKyiv.getTime(), dEnd.getTime(), 'FUTURE');
+                    if (now.getTime() > pTime) addSeg(days[k], pTime, now.getTime(), currentState, now);
+                    addSeg(days[k], now.getTime(), dEnd.getTime(), 'FUTURE', now);
                 } else {
-                    addSeg(days[k], pTime, dEnd.getTime(), currentState);
+                    addSeg(days[k], pTime, dEnd.getTime(), currentState, now);
                 }
+
+                let rawIndex = (days[k].potentialWeight > 0) ? (days[k].effectiveMinutes / days[k].potentialWeight) : 0;
+                let penalty = Math.min(days[k].outageCount * 0.06, 0.45);
+                days[k].qualityIndex = rawIndex * (1 - penalty);
             }
             pointerDate.setDate(pointerDate.getDate() + 1);
         }
-        
-        const dayArray = Object.values(days).reverse();
-        
-        // --- NEW IMPACT LOGIC ---
-        // Порівнюємо середнє світло ДО атаки з конкретним днем атаки
-        dayArray.forEach((day, idx) => {
-            if (day.attack && day.hasData) {
-                // Беремо 3 дні ДО атаки (у масиві dayArray вони йдуть ПІСЛЯ поточного індексу, бо reverse)
-                const beforeDays = dayArray.slice(idx + 1, idx + 4).filter(d => d && d.hasData);
-                
-                if (beforeDays.length > 0) {
-                    const avgOnBefore = beforeDays.reduce((s, d) => s + d.totalOn, 0) / beforeDays.length;
-                    
-                    // Якщо в день атаки (або на наступний) світла менше на 30% ніж було "до"
-                    const isTodayBad = day.totalOn < (avgOnBefore * 0.7);
-                    
-                    // Перевіримо і наступний день після атаки (індекс idx - 1)
-                    const nextDay = idx > 0 ? dayArray[idx - 1] : null;
-                    const isNextBad = nextDay && nextDay.hasData && (nextDay.totalOn < (avgOnBefore * 0.7));
-
-                    if (isTodayBad || isNextBad) {
-                        day.impactDetected = true;
-                    }
-                }
-            }
-        });
-
-        return dayArray;
+        return Object.values(days).reverse();
     }
 
-    function addSeg(day, start, end, type) {
-        const mins = Math.floor((end - start) / 60000);
+    function addSeg(day, start, end, type, now) {
+        const diffMs = end - start;
+        const mins = Math.floor(diffMs / 60000);
         if (mins <= 0) return;
         
-        if (type === 'ON') { day.totalOn += mins; if (mins > day.maxOn) day.maxOn = mins; }
-        if (type === 'OFF') { day.totalOff += mins; day.outageCount++; }
+        const isCurrent = (Math.abs(end - now.getTime()) < 60000) && type !== 'FUTURE';
+        
+        let statusText = '';
+        if (type === 'ON') statusText = isCurrent ? 'СВІТЛО Є' : 'СВІТЛО БУЛО';
+        else if (type === 'OFF') statusText = isCurrent ? 'СВІТЛА НЕМАЄ' : 'СВІТЛА НЕ БУЛО';
+        else statusText = 'МАЙБУТНЄ';
+
+        if (type === 'ON') { 
+            day.totalOn += mins; 
+            if (mins > day.maxOn) day.maxOn = mins; 
+
+            let current = start;
+            while(current < end) {
+                const h = new Date(current).getHours();
+                const weight = (h >= 8 && h < 23) ? 1.0 : 0.3;
+                day.effectiveMinutes += weight;
+                current += 60000;
+            }
+        }
+        if (type === 'OFF') { day.totalOff += mins; } 
 
         day.segments.push({
             type, width: mins / 14.4,
             range: `${new Date(start).getHours()}:${String(new Date(start).getMinutes()).padStart(2,'0')} - ${new Date(end).getHours()}:${String(new Date(end).getMinutes()).padStart(2,'0')}`,
             dur: formatDur(mins),
-            status: (type === 'ON' ? 'СВІТЛО БУЛО' : 'СВІТЛА НЕ БУЛО')
+            status: statusText
         });
     }
 
@@ -483,7 +418,6 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         renderStatsOverview(allDays);
         
         const daysInMonth = allDays.filter(d => d.date.getMonth() === viewDate.getMonth() && d.date.getFullYear() === viewDate.getFullYear());
-        
         renderList(daysInMonth);
         renderCalendar(daysInMonth);
         
@@ -492,60 +426,94 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
     }
 
     function renderStatsOverview(days) {
-        if (days.length < 14) { document.getElementById('statsOverview').innerHTML = ''; return; }
-        const validDays = days.filter(d => d.hasData && d.segments.every(s => s.type !== 'FUTURE'));
-        let sum1 = 0, sum2 = 0;
-        const group1 = validDays.slice(0, 7); const group2 = validDays.slice(7, 14);
-        group1.forEach(d => sum1 += d.totalOn); group2.forEach(d => sum2 += d.totalOn);
-        if (group1.length === 0 || group2.length === 0) return;
-        const avg1 = sum1 / group1.length; const avg2 = sum2 / group2.length;
-        const trend = avg2 ? ((avg1 - avg2) / avg2) * 100 : 0;
-        const trendIcon = trend > 0 ? '↗' : '↘'; const trendClass = trend > 0 ? 'trend-up' : 'trend-down';
-        const trendText = trend > 0 ? 'Покращення' : 'Погіршення';
+        const now = getKyivDate();
+        const completedDays = days.filter(d => d.hasData && d.date.toDateString() !== now.toDateString() && d.segments.every(s => s.type !== 'FUTURE'));
+
+        if (completedDays.length < 2) { 
+            document.getElementById('statsOverview').innerHTML = ''; 
+            return; 
+        }
+
+        const maxComparisonDays = 7;
+        const availablePairs = Math.floor(completedDays.length / 2);
+        const daysToCompare = Math.min(availablePairs, maxComparisonDays);
+
+        if (daysToCompare < 1) return;
+
+        const currentPeriod = completedDays.slice(0, daysToCompare);
+        const prevPeriod = completedDays.slice(daysToCompare, daysToCompare * 2);
+
+        const calcWeightedAvg = (periodDays) => {
+            let totalWeightedScore = 0;
+            let totalWeight = 0;
+            periodDays.forEach(d => {
+                const w = d.potentialWeight;
+                totalWeightedScore += d.qualityIndex * w;
+                totalWeight += w;
+            });
+            return totalWeight > 0 ? (totalWeightedScore / totalWeight) : 0;
+        };
+
+        const wAvgNow = calcWeightedAvg(currentPeriod);
+        const wAvgPrev = calcWeightedAvg(prevPeriod);
+        
+        let trend = wAvgPrev ? ((wAvgNow - wAvgPrev) / wAvgPrev) * 100 : 0;
+        
+        let trendIcon = '→'; 
+        let trendClass = 'trend-neutral';
+        let trendText = 'БЕЗ СУТТЄВИХ ЗМІН';
+        
+        if (Math.abs(trend) >= 5) {
+            trendIcon = trend > 0 ? '↗' : '↘'; 
+            trendClass = trend > 0 ? 'trend-up' : 'trend-down';
+            // === SEMANTIC CHANGE: STABILITY INSTEAD OF EASE ===
+            trendText = trend > 0 ? 'БІЛЬШ СТАБІЛЬНО' : 'МЕНШ СТАБІЛЬНО';
+        } else {
+            trend = 0; 
+        }
+        
         const monthDays = days.filter(d => d.date.getMonth() === viewDate.getMonth());
         const best = monthDays.reduce((p,c) => (c.totalOn > (p?.totalOn||0)) ? c : p, null);
-        const worst = monthDays.reduce((p,c) => (c.totalOn < (p?.totalOn||Infinity) && c.hasData) ? c : p, null);
+        const worst = monthDays.reduce((p,c) => (c.totalOff > (p?.totalOff||0) && c.hasData) ? c : p, null);
 
         document.getElementById('statsOverview').innerHTML = `
             <div class="stat-card-mini full-width">
                 <div>
-                    <div class="scm-label">ТЕНДЕНЦІЯ (ТИЖДЕНЬ)</div>
-                    <div class="scm-value ${trendClass}">${trendText} ${Math.abs(trend).toFixed(1)}% ${trendIcon}</div>
-                    <div class="scm-sub" style="color:#888">vs попередній тиждень</div>
+                    <div class="scm-label">ІНДЕКС СТАБІЛЬНОСТІ (ЗВАЖЕНИЙ)</div>
+                    <div class="scm-value ${trendClass}">${trendText} ${Math.abs(trend) < 5 ? '' : Math.abs(trend).toFixed(1) + '%'} ${trendIcon}</div>
+                    <div class="scm-sub" style="color:#888">порівняння: ${daysToCompare} дн. vs ${daysToCompare} дн. (ідекс, а не години)</div>
                 </div>
             </div>
-            ${best ? `<div class="stat-card-mini"><div class="scm-label">КРАЩИЙ ДЕНЬ</div><div class="scm-value" style="color:var(--color-on)">${formatDur(best.totalOn)}</div><div class="scm-sub">${best.date.getDate()}.${String(best.date.getMonth()+1).padStart(2,'0')}</div></div>` : ''}
-            ${worst ? `<div class="stat-card-mini"><div class="scm-label">ГІРШИЙ ДЕНЬ</div><div class="scm-value" style="color:var(--color-off)">${formatDur(worst.totalOff)}</div><div class="scm-sub">${worst.date.getDate()}.${String(worst.date.getMonth()+1).padStart(2,'0')}</div></div>` : ''}
+            ${best ? `<div class="stat-card-mini"><div class="scm-label">НАЙКРАЩИЙ</div><div class="scm-value" style="color:var(--color-on)">${formatDur(best.totalOn)}</div><div class="scm-sub">${best.date.getDate()}.${String(best.date.getMonth()+1).padStart(2,'0')}</div></div>` : ''}
+            ${worst ? `<div class="stat-card-mini"><div class="scm-label">НАЙГІРШИЙ</div><div class="scm-value" style="color:var(--color-off)">${formatDur(worst.totalOff)}</div><div class="scm-sub">${worst.date.getDate()}.${String(worst.date.getMonth()+1).padStart(2,'0')}</div></div>` : ''}
         `;
     }
 
     function renderList(days) {
         let html = '';
-        const nowKyiv = getKyivDate();
+        const now = getKyivDate();
         const names = ["Неділя", "Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота"];
 
         days.forEach((day, idx) => {
             if (day.date.getDay() === 0 && idx !== 0) html += '<div style="margin:20px 0 10px; border-bottom:1px solid #ddd; opacity:0.3"></div>';
-            const isToday = day.date.toDateString() === nowKyiv.toDateString();
+            const isToday = day.date.toDateString() === now.toDateString();
             const dayId = `day-${day.date.getDate()}`;
             if (!day.hasData) return;
 
             let segs = '', dets = '<div class="day-details">';
             if (isToday) {
-                const minsToday = nowKyiv.getHours() * 60 + nowKyiv.getMinutes();
+                const minsToday = now.getHours() * 60 + now.getMinutes();
                 segs += `<div class="now-marker" style="left:${minsToday/14.4}%"></div>`;
             }
 
             day.segments.forEach(s => {
                 const isFut = s.type === 'FUTURE';
-                // FIX: Added onclick back for tooltips
                 segs += `<div class="segment ${s.type.toLowerCase()}" style="width:${s.width}%" ${isFut ? '' : `onclick="showTip(event,'${s.status}','${s.range}','${s.dur}')"`}></div>`;
                 if (!isFut) dets += `<div class="detail-row" style="background:${s.type === 'ON' ? 'var(--color-row-on)' : 'var(--color-row-off)'}"><span>${s.range}</span><span>${s.dur}</span></div>`;
             });
 
             let attackHtml = '';
             if (day.attack) {
-                // FIX: Check for "масован" to apply red style
                 const isMassive = day.attack.desc.toLowerCase().includes('масован');
                 attackHtml = `<div class="attack-badge ${isMassive ? 'massive' : ''}">${blastSvg} <span>${day.attack.desc} (${day.attack.duration}г)</span>`;
                 if (day.impactDetected) attackHtml += `<span class="impact-badge">⚠️</span>`;
@@ -588,19 +556,34 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         for (let i = 0; i < offset; i++) html += '<div class="cal-day empty"></div>';
 
         const dayMap = {}; days.forEach(d => dayMap[d.date.getDate()] = d);
-        const nowKyiv = getKyivDate();
+        const now = getKyivDate();
 
         for (let i = 1; i <= last.getDate(); i++) {
             const data = dayMap[i];
-            const isToday = (nowKyiv.getDate() === i && nowKyiv.getMonth() === viewDate.getMonth() && nowKyiv.getFullYear() === viewDate.getFullYear());
+            const isToday = (now.getDate() === i && now.getMonth() === viewDate.getMonth() && now.getFullYear() === viewDate.getFullYear());
             if (!data || !data.hasData) {
                 html += `<div class="cal-day empty-data"><div class="cal-inner" style="background:transparent; color:#ccc;">${i}</div></div>`;
                 continue;
             }
-            const total = 1440; const onPercent = (data.totalOn / total) * 100;
-            const bgStyle = `background: conic-gradient(var(--color-on) 0% ${onPercent}%, var(--color-off) ${onPercent}% 100%)`;
-            let dot = ''; if (data.attack) dot = `<div class="cal-attack-dot">${warnSvg}</div>`;
 
+            let bgStyle = '';
+            if (isToday) {
+                const totalOnPct = (data.totalOn / 1440) * 100;
+                const totalOffPct = (data.totalOff / 1440) * 100;
+                const recordedPct = totalOnPct + totalOffPct;
+                
+                bgStyle = `background: conic-gradient(
+                    var(--color-on) 0% ${totalOnPct}%, 
+                    var(--color-off) ${totalOnPct}% ${recordedPct}%, 
+                    var(--color-future) ${recordedPct}% 100%
+                )`;
+            } else {
+                const total = 1440; 
+                const onPercent = (data.totalOn / total) * 100;
+                bgStyle = `background: conic-gradient(var(--color-on) 0% ${onPercent}%, var(--color-off) ${onPercent}% 100%)`;
+            }
+
+            let dot = ''; if (data.attack) dot = `<div class="cal-attack-dot">${warnSvg}</div>`;
             html += `<div class="cal-day ${isToday?'cal-today':''}" style="${bgStyle}" onclick="goToDay(${i})"><div class="cal-inner">${i}</div>${dot}</div>`;
         }
         document.getElementById('calendarView').innerHTML = html + '</div>';
@@ -631,17 +614,24 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
 
     function updateStatus(events) {
         if (!events.length) return;
-        const nowKyiv = getKyivDate(); const last = events[events.length - 1]; lastKnownEvent = last;
-        const diff = Math.max(0, Math.floor((nowKyiv - last.date) / 60000));
+        const now = getKyivDate(); const last = events[events.length - 1]; lastKnownEvent = last;
+        const diff = Math.max(0, Math.floor((now - last.date) / 60000));
         const card = document.getElementById('statusCard'); const icon = document.getElementById('statusIcon'); const timer = document.getElementById('statusTimer');
-        if (last.type === 'ON') { card.className = 'status-card good'; icon.innerText = '● СВІТЛО Є'; icon.style.color = 'var(--color-on)'; timer.style.color = 'var(--color-on)'; }
-        else { card.className = 'status-card bad'; icon.innerText = '● СВІТЛА НЕМАЄ'; icon.style.color = 'var(--color-off)'; timer.style.color = 'var(--color-off)'; }
+        
+        if (last.type === 'ON') { 
+            card.className = 'status-card good'; 
+            icon.innerText = '● СВІТЛО Є'; 
+            icon.style.color = 'var(--color-on)'; timer.style.color = 'var(--color-on)'; 
+        } else { 
+            card.className = 'status-card bad'; 
+            icon.innerText = '● СВІТЛА НЕМАЄ'; 
+            icon.style.color = 'var(--color-off)'; timer.style.color = 'var(--color-off)'; 
+        }
         timer.innerText = formatDur(diff); document.getElementById('statusLabel').innerText = `ЗМІНА: ${last.date.toLocaleDateString()} ${last.raw}`;
     }
 
     function formatDur(m) { return m < 60 ? `${m}хв` : `${Math.floor(m/60)}г ${m%60}хв`; }
 
-    // Tooltip Function
     function showTip(e, s, r, d) {
         e.stopPropagation();
         if (tipTimeout) clearTimeout(tipTimeout);
