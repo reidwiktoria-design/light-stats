@@ -13,7 +13,6 @@
 25.01.2026
 01:00 - 08:00 | type:official
 11:30 - 18:30 | type:official
-08:30 - 15:30 | type:official
 
 26.01.2026
 00:00 - 05:00 | type:official
