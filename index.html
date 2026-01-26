@@ -292,6 +292,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
             <div class="view-switcher">
                 <button id="btn-list" class="view-btn active" onclick="switchView('list')">СПИСОК</button>
                 <button id="btn-calendar" class="view-btn" onclick="switchView('calendar')">КАЛЕНДАР</button>
+                <button class="btn-today" onclick="goToToday()">СЬОГОДНІ</button>
             </div>
         </div>
     </div>
@@ -300,7 +301,6 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         <button class="nav-btn" onclick="changeMonth(-1)">←</button>
         <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
             <div id="currentMonthDisplay">...</div>
-            <button class="btn-today" onclick="goToToday()">СЬОГОДНІ</button>
         </div>
         <button class="nav-btn" onclick="changeMonth(1)">→</button>
     </div>
@@ -962,7 +962,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
             icon.style.color = 'var(--color-off)';
         }
         timer.innerText = formatDur(diff); 
-        document.getElementById('statusLabel').innerText = `ЗМІНА: ${last.date.toLocaleDateString()} ${last.raw}`;
+        document.getElementById('statusLabel').innerText = `ОНОВЛЕНО: ${last.date.toLocaleDateString()} ${last.raw}`;
     }
 
     function formatDur(m) { return m < 60 ? `${m}хв` : `${Math.floor(m/60)}г ${m%60}хв`; }
