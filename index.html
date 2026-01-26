@@ -95,15 +95,24 @@ body { margin: 0; padding: 0; min-height: 100svh; font-family: 'Space Grotesk', 
 .sticky-container {
     position: fixed; top: 0; left: 50%; transform: translateX(-50%);
     width: 100%; max-width: 600px; z-index: 1000;
-    padding: 10px 12px 0 12px; padding-top: calc(10px + env(safe-area-inset-top));
+    /* Відступи збігаються з .page (12px), тому контент всередині буде рівним */
+    padding: 10px 12px 0 12px; 
+    padding-top: calc(10px + env(safe-area-inset-top));
     pointer-events: none;
+    box-sizing: border-box; /* Важливо для коректного розрахунку паддінгів */
 }
+
 .glass-bar {
     pointer-events: auto; display: flex; justify-content: space-between; align-items: center; 
     background: rgba(255,255,255,0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     padding: 8px 8px 8px 20px; border-radius: 100px; border: 1px solid var(--border-subtle);
     box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    
+    /* Додано ці два рядки: */
+    width: 100%; 
+    box-sizing: border-box; 
 }
+
 @media (prefers-color-scheme: dark) {
     .glass-bar { background: rgba(28, 28, 30, 0.7); border-color: rgba(255,255,255,0.1); }
 }
