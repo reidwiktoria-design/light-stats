@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
-<title>Моніторинг Світла v6.5 (Smart Scroll)</title>
+<title>Моніторинг Світла v6.8 (Index + Smart)</title>
 
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.PNG">
@@ -167,7 +167,6 @@ h1 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; co
 .status-time { 
     font-size: 56px; font-weight: 700; line-height: 1; 
     font-variant-numeric: tabular-nums; letter-spacing: -2px; 
-    /* color will be set by JS */
 }
 
 .status-label { font-size: 11px; opacity: 0.6; font-family: 'JetBrains Mono', monospace; color: var(--text-main); margin-top: 0px; }
@@ -187,7 +186,7 @@ h1 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; co
     background: var(--bg-card); border-radius: var(--radius-m); padding: 18px; margin-bottom: 12px; 
     border: 1px solid var(--border-subtle); box-shadow: var(--shadow-card); transition: 0.2s;
     cursor: pointer; position: relative; overflow: hidden;
-    scroll-margin-top: 150px; /* Offset for smooth scrolling */
+    scroll-margin-top: 150px; 
 }
 .day-container:active { transform: scale(0.99); }
 .day-container.today { border: 2px solid var(--accent); }
@@ -564,33 +563,81 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
                     addSeg(days[k], pTime, dEnd.getTime(), currentState, now);
                 }
 
+                // --- Calculate Quality Index ---
                 let rawIndex = (days[k].potentialWeight > 0) ? (days[k].effectiveMinutes / days[k].potentialWeight) : 0;
                 let penalty = Math.min(days[k].outageCount * 0.06, 0.45);
                 days[k].qualityIndex = rawIndex * (1 - penalty);
+                // ---------------------------------
 
-                // Accuracy Logic
-                days[k].segments.forEach(seg => {
-                    if (seg.type === 'FUTURE') return;
-                    const [h1, m1] = seg.range.split(' - ')[0].split(':').map(Number);
-                    const [h2, m2] = seg.range.split(' - ')[1].split(':').map(Number);
-                    const sMin = h1*60 + m1;
-                    const eMin = (h2*60 + m2) || 1440; 
-                    for (let m = sMin; m < eMin; m++) {
-                        days[k].schedMinutesTotal++;
-                        let schedIsOff = false;
-                        for (let slot of daySchedule) {
-                            const [sh, sm] = slot.start.split(':').map(Number);
-                            const [eh, em] = slot.end.split(':').map(Number);
-                            const slotStart = sh*60 + sm;
-                            const slotEnd = (eh === 0 && em === 0) ? 1440 : (eh*60 + em);
-                            if (m >= slotStart && m < slotEnd) {
-                                if (slot.type === 'black') schedIsOff = true;
+                // --- NEW ACCURACY LOGIC ---
+                if (daySchedule.length > 0) {
+                    const TOLERANCE_MINS = 30; // Допуск в хвилинах
+
+                    days[k].segments.forEach(seg => {
+                        if (seg.type === 'FUTURE') return;
+                        const [h1, m1] = seg.range.split(' - ')[0].split(':').map(Number);
+                        const [h2, m2] = seg.range.split(' - ')[1].split(':').map(Number);
+                        const sMin = h1*60 + m1;
+                        const eMin = (h2*60 + m2) || 1440; 
+                        
+                        for (let m = sMin; m < eMin; m++) {
+                            days[k].schedMinutesTotal++;
+                            
+                            let isSchedOff = false;
+                            let slotStart = 0;
+                            let slotEnd = 0;
+
+                            // Перевірка чи зараз має бути темно
+                            for (let slot of daySchedule) {
+                                const [sh, sm] = slot.start.split(':').map(Number);
+                                const [eh, em] = slot.end.split(':').map(Number);
+                                const slotS = sh*60 + sm;
+                                const slotE = (eh === 0 && em === 0) ? 1440 : (eh*60 + em);
+                                if (m >= slotS && m < slotE && slot.type === 'black') {
+                                    isSchedOff = true;
+                                    slotStart = slotS;
+                                    slotEnd = slotE;
+                                    break;
+                                }
+                            }
+
+                            const actualOff = (seg.type === 'OFF');
+
+                            // Логіка нарахування балів:
+                            if (isSchedOff && actualOff) {
+                                // Графік каже темно, і реально темно -> +1
+                                days[k].matchMinutes++;
+                            } else if (isSchedOff && !actualOff) {
+                                // Графік каже темно, а світло Є (Бонус!) -> +1
+                                days[k].matchMinutes++;
+                            } else if (!isSchedOff && !actualOff) {
+                                // Графік каже світло, і світло є -> +1
+                                days[k].matchMinutes++;
+                            } else if (!isSchedOff && actualOff) {
+                                // Графік каже світло, а світла НЕМАЄ
+                                // Перевіряємо толерантність (30 хв від початку або кінця найближчого слоту)
+                                // Треба знайти найближчий слот щоб перевірити
+                                let nearestDiff = 9999;
+                                for (let slot of daySchedule) {
+                                    if (slot.type !== 'black') continue;
+                                    const [sh, sm] = slot.start.split(':').map(Number);
+                                    const [eh, em] = slot.end.split(':').map(Number);
+                                    const slotS = sh*60 + sm;
+                                    const slotE = (eh === 0 && em === 0) ? 1440 : (eh*60 + em);
+                                    
+                                    const diffS = Math.abs(m - slotS);
+                                    const diffE = Math.abs(m - slotE);
+                                    nearestDiff = Math.min(nearestDiff, diffS, diffE);
+                                }
+                                
+                                if (nearestDiff <= TOLERANCE_MINS) {
+                                    days[k].matchMinutes++;
+                                }
                             }
                         }
-                        const actualIsOff = (seg.type === 'OFF');
-                        if (schedIsOff === actualIsOff) days[k].matchMinutes++;
-                    }
-                });
+                    });
+                }
+                // ---------------------------
             }
             pointerDate.setDate(pointerDate.getDate() + 1);
         }
@@ -673,15 +720,20 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
             trendText = trend > 0 ? 'КРАЩЕ' : 'ГІРШЕ';
         }
 
-        // Accuracy Calculation
+        // Accuracy Calculation (using Smart Logic)
         let totalMatches = 0; let totalMinutes = 0;
-        currentPeriod.forEach(d => {
-            if (d.schedMinutesTotal > 0) {
-                totalMatches += d.matchMinutes;
-                totalMinutes += d.schedMinutesTotal;
-            }
-        });
-        const accuracy = totalMinutes > 0 ? (totalMatches / totalMinutes) * 100 : 0;
+        // Ми беремо для точності ті самі 7 днів (currentPeriod), або всі дні де є графік
+        // Логічніше показувати точність за той самий період, що й Індекс (останні 7 завершених днів + сьогоднішній, якщо є дані)
+        // Але completedDays не включає "сьогодні". Для точності краще брати дні, де просто є графік.
+        
+        const daysWithSched = days.filter(d => d.hasData && d.schedMinutesTotal > 0).slice(0, 7);
+        let accuracy = 0;
+        
+        if(daysWithSched.length > 0) {
+            let matchSum = 0; let totalSum = 0;
+            daysWithSched.forEach(d => { matchSum += d.matchMinutes; totalSum += d.schedMinutesTotal; });
+            accuracy = totalSum > 0 ? (matchSum / totalSum * 100) : 0;
+        }
         
         document.getElementById('statsOverview').innerHTML = `
             <div class="stat-card-mini full-width">
@@ -693,7 +745,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
                 <div class="stat-split">
                     <div class="scm-label">ТОЧНІСТЬ ГРАФІКА</div>
                     <div class="scm-value" style="color:${accuracy > 80 ? 'var(--color-on)' : 'var(--color-off)'}">${accuracy.toFixed(0)}%</div>
-                    <div class="scm-sub">відповідність плану</div>
+                    <div class="scm-sub">допуск 30 хв (smart)</div>
                 </div>
             </div>
             ${renderBestWorst(days)}
@@ -859,7 +911,6 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         document.querySelectorAll('.day-container.expanded').forEach(el => el.classList.remove('expanded'));
         if (!isAlreadyOpen) {
             element.classList.add('expanded');
-            // Wait for expansion transition (300-400ms) then smooth scroll
             setTimeout(() => {
                 element.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }, 300);
