@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#eef2f9"> 
-<title>Моніторинг Світла v5.1 (Semantic Fix)</title>
+<meta name="color-scheme" content="light dark">
+<title>Моніторинг Світла v6.5 (Smart Scroll)</title>
 
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.PNG">
@@ -14,30 +14,72 @@
 
 <style>
 :root {
+    /* --- Palette --- */
+    --bg-body: #eef2f9;
     --bg-card: #FFFFFF;
     --accent: #254EDB; 
     --color-on: #8DAA91;   
     --color-off: #E07A5F;
-    --color-future: #E5E7EB;
+    --color-future: #e8ecef; 
+    
     --color-neutral: #94a3b8; 
     --color-row-on: #7E9C82; 
     --color-row-off: #CC6A50;
     --text-main: #111111;
     --text-muted: #888888;
+    --border-subtle: rgba(0,0,0,0.05);
+    --shadow-card: 0 4px 12px rgba(0,0,0,0.03);
     
     --radius-l: 24px;
     --radius-m: 16px;
     
-    --attack-massive-bg: #ffebee;
-    --attack-massive-text: #c62828;
+    --attack-bg: #ffebee;
+    --attack-text: #c62828;
+    
+    /* Schedule Colors */
+    --sched-safe: #a3cfbb; 
+    --sched-danger: #f87171; 
+    
+    /* Tooltip */
+    --tooltip-bg: var(--accent);
+    --tooltip-text: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-body: #000000;
+        --bg-card: #1c1c1e;
+        --accent: #58a6ff; 
+        --color-on: #3fb950;   
+        --color-off: #f85149;
+        --color-future: #2c2c2e; 
+        
+        --color-neutral: #8b949e; 
+        --color-row-on: #238636; 
+        --color-row-off: #da3633;
+        --text-main: #f0f6fc;
+        --text-muted: #8b949e;
+        --border-subtle: rgba(255,255,255,0.1);
+        --shadow-card: 0 4px 12px rgba(0,0,0,0.5);
+        
+        --attack-bg: #3c1618;
+        --attack-text: #ff7b72;
+        
+        --sched-safe: #238636;
+        --sched-danger: #da3633;
+        
+        --tooltip-bg: #2d333b;
+        --tooltip-text: #f0f6fc;
+    }
 }
 
 html {
-    background-color: #eef2f9; 
-    background-image: radial-gradient(circle at 50% 0%, #eef2f9 0%, #dce4f2 100%);
-    background-attachment: fixed; background-size: cover;
+    background-color: var(--bg-body); 
     min-height: 100%; padding-top: env(safe-area-inset-top);
     -webkit-font-smoothing: antialiased;
+}
+@media (prefers-color-scheme: light) {
+    html { background-image: radial-gradient(circle at 50% 0%, #eef2f9 0%, #dce4f2 100%); background-attachment: fixed; background-size: cover; }
 }
 
 body { margin: 0; padding: 0; min-height: 100svh; font-family: 'Space Grotesk', sans-serif; color: var(--text-main); }
@@ -49,66 +91,107 @@ body { margin: 0; padding: 0; min-height: 100svh; font-family: 'Space Grotesk', 
     padding-left: 12px; padding-right: 12px;
 }
 
+/* Nav */
 .sticky-container {
     position: fixed; top: 0; left: 50%; transform: translateX(-50%);
     width: 100%; max-width: 600px; z-index: 1000;
     padding: 10px 12px 0 12px; padding-top: calc(10px + env(safe-area-inset-top));
     pointer-events: none;
 }
-
 .glass-bar {
     pointer-events: auto; display: flex; justify-content: space-between; align-items: center; 
-    background: rgba(255,255,255,0.6); backdrop-filter: blur(20px);
-    padding: 8px 8px 8px 20px; border-radius: 100px; border: 1px solid rgba(255,255,255,0.6);
-    box-shadow: 0 10px 20px rgba(37, 78, 219, 0.05);
+    background: rgba(255,255,255,0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    padding: 8px 8px 8px 20px; border-radius: 100px; border: 1px solid var(--border-subtle);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
 }
-
+@media (prefers-color-scheme: dark) {
+    .glass-bar { background: rgba(28, 28, 30, 0.7); border-color: rgba(255,255,255,0.1); }
+}
 h1 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; color: var(--accent); letter-spacing: 0.5px; }
-
-.view-switcher { display: flex; background: rgba(0, 0, 0, 0.05); padding: 3px; border-radius: 100px; }
+.view-switcher { display: flex; background: rgba(120, 120, 128, 0.12); padding: 3px; border-radius: 100px; }
 .view-btn { 
     border: none; background: transparent; padding: 8px 14px; 
-    font-size: 11px; font-weight: 700; cursor: pointer; border-radius: 100px; color: #666; transition: 0.3s;
+    font-size: 11px; font-weight: 700; cursor: pointer; border-radius: 100px; color: var(--text-muted); transition: 0.3s;
 }
-.view-btn.active { background: #FFFFFF; color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.view-btn.active { background: var(--bg-card); color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 
-.month-nav { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; margin-bottom: 20px; }
-.nav-btn { background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--accent); opacity: 0.7; }
-#currentMonthDisplay { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; text-transform: uppercase; }
+/* Nav Buttons */
+.month-nav { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; margin-bottom: 20px; }
+.nav-btn { background: transparent; border: none; font-size: 20px; cursor: pointer; color: var(--accent); opacity: 0.7; padding: 5px 15px; }
+.btn-today {
+    background: rgba(128,128,128,0.1); border: none; padding: 6px 12px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; color: var(--text-muted); cursor: pointer;
+    text-transform: uppercase; font-family: 'JetBrains Mono', monospace; transition: 0.2s;
+}
+.btn-today:active { background: var(--accent); color: #fff; }
+#currentMonthDisplay { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; text-transform: uppercase; color: var(--text-main); }
 
+/* Stats Block */
 .stats-overview { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
 .stat-card-mini {
-    background: #fff; padding: 15px; border-radius: var(--radius-m);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid rgba(255,255,255,1);
+    background: var(--bg-card); padding: 15px; border-radius: var(--radius-m);
+    box-shadow: var(--shadow-card); border: 1px solid var(--border-subtle);
     display: flex; flex-direction: column; justify-content: space-between;
 }
-.stat-card-mini.full-width { grid-column: span 2; flex-direction: row; align-items: center; }
+.stat-card-mini.full-width { grid-column: span 2; flex-direction: row; align-items: center; gap: 15px; }
+.stat-split { flex: 1; display: flex; flex-direction: column; }
+.stat-split:last-child { align-items: flex-end; text-align: right; border-left: 1px solid var(--border-subtle); padding-left: 15px; }
+
 .scm-label { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
 .scm-value { font-size: 14px; font-weight: 700; color: var(--text-main); font-family: 'JetBrains Mono', monospace; }
-.scm-sub { font-size: 10px; margin-top: 4px; font-weight: 600; }
+.scm-sub { font-size: 10px; margin-top: 4px; font-weight: 600; color: var(--text-muted); }
 .trend-up { color: var(--color-on); }
 .trend-down { color: var(--color-off); }
 .trend-neutral { color: var(--color-neutral); }
 
+/* STATUS CARD */
 .status-card { 
-    background: #fff; border: 2px solid var(--accent); border-radius: var(--radius-l); 
-    padding: 24px; margin-bottom: 30px; box-shadow: 0 12px 30px rgba(37, 78, 219, 0.12);
-    display: flex; flex-direction: column; align-items: center; text-align: center; 
+    background: var(--bg-card); border: 2px solid var(--accent); border-radius: var(--radius-l); 
+    padding: 24px; margin-bottom: 30px; box-shadow: var(--shadow-card);
+    display: flex; flex-direction: column; align-items: center; text-align: center;
 }
-.status-card.good { border-color: var(--color-on); box-shadow: 0 12px 30px rgba(141, 170, 145, 0.25); }
-.status-card.bad { border-color: var(--color-off); box-shadow: 0 12px 30px rgba(224, 122, 95, 0.25); }
-.status-icon { font-size: 12px; font-weight: 800; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; margin-bottom: 8px; color: var(--text-muted); letter-spacing: 1px; }
-.status-time { font-size: 56px; font-weight: 700; line-height: 1; margin: 10px 0; font-variant-numeric: tabular-nums; letter-spacing: -2px; color: var(--accent); }
-.status-label { font-size: 11px; opacity: 0.6; font-family: 'JetBrains Mono', monospace; }
+.status-card.good { border-color: var(--color-on); }
+.status-card.bad { border-color: var(--color-off); }
 
+.status-header-text { 
+    font-size: 11px; font-weight: 800; text-transform: uppercase; 
+    letter-spacing: 1px; color: var(--text-muted); margin-bottom: 5px; 
+}
+
+/* Main Status Row: Icon + Timer */
+.status-main-row {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    margin: 5px 0 10px 0;
+}
+.status-icon-big svg { width: 36px; height: 36px; fill: currentColor; }
+.status-time { 
+    font-size: 56px; font-weight: 700; line-height: 1; 
+    font-variant-numeric: tabular-nums; letter-spacing: -2px; 
+    /* color will be set by JS */
+}
+
+.status-label { font-size: 11px; opacity: 0.6; font-family: 'JetBrains Mono', monospace; color: var(--text-main); margin-top: 0px; }
+
+/* Week Header */
+.week-header {
+    margin: 25px 0 10px 0;
+    padding: 0 5px;
+    font-size: 11px; font-weight: 800; color: var(--text-muted); 
+    text-transform: uppercase; letter-spacing: 1px;
+    display: flex; align-items: center; gap: 10px;
+}
+.week-header::after { content: ''; flex: 1; height: 1px; background: var(--border-subtle); }
+
+/* Day Container */
 .day-container { 
-    background: #fff; border-radius: var(--radius-m); padding: 18px; margin-bottom: 12px; 
-    border: 1px solid rgba(255,255,255,1); box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: 0.2s;
+    background: var(--bg-card); border-radius: var(--radius-m); padding: 18px; margin-bottom: 12px; 
+    border: 1px solid var(--border-subtle); box-shadow: var(--shadow-card); transition: 0.2s;
     cursor: pointer; position: relative; overflow: hidden;
+    scroll-margin-top: 150px; /* Offset for smooth scrolling */
 }
 .day-container:active { transform: scale(0.99); }
-.day-container.today { border: 2px solid var(--accent); background: linear-gradient(180deg, #fff 0%, #f4f7ff 100%); }
-.day-container.expanded { border-color: var(--accent); box-shadow: 0 15px 40px rgba(37, 78, 219, 0.1); z-index: 10; }
+.day-container.today { border: 2px solid var(--accent); }
+.day-container.expanded { border-color: var(--accent); z-index: 10; }
 
 .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .day-date { font-size: 18px; font-weight: 700; color: var(--accent); }
@@ -118,55 +201,77 @@ h1 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; co
 .today-badge { font-size: 10px; font-weight: 800; background: var(--accent); color: #fff; padding: 3px 8px; border-radius: 10px; text-transform: uppercase; margin-left: 8px; }
 
 .attack-badge {
-    margin-top: 5px; font-size: 11px; font-weight: 700; color: #333; 
-    background: #f4f4f4; padding: 6px 10px; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px;
-    border-left: 3px solid #333; margin-bottom: 10px;
+    margin-top: 5px; font-size: 11px; font-weight: 700; color: var(--attack-text); 
+    background: var(--attack-bg); padding: 6px 10px; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px;
+    border-left: 3px solid var(--attack-text); margin-bottom: 10px;
 }
-.attack-badge.massive { background: var(--attack-massive-bg); color: var(--attack-massive-text); border-left-color: var(--attack-massive-text); }
-.attack-badge.massive svg { fill: var(--attack-massive-text) !important; }
-.impact-badge { display: inline-block; vertical-align: middle; font-size: 10px; color: #d32f2f; font-weight: 800; margin-left: 10px; background: #ffebee; padding: 2px 6px; border-radius: 4px; }
+.attack-badge svg { fill: var(--attack-text) !important; }
 
-.timeline { height: 24px; display: flex; border-radius: 8px; overflow: hidden; background: #EDEFF2; position: relative; margin-bottom: 12px; }
-.segment { height: 100%; position: relative; }
+/* Timeline Structure */
+.timeline-block { display: flex; flex-direction: column; gap: 3px; margin-bottom: 12px; }
+.timeline-track { position: relative; height: 24px; border-radius: 6px; overflow: hidden; background: var(--color-future); display: flex; }
+.segment { pointer-events: auto; height: 100%; position: relative; }
+.segment.future { 
+    pointer-events: none; 
+    background-image: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 4px,
+        rgba(128,128,128,0.1) 4px,
+        rgba(128,128,128,0.1) 8px
+    );
+}
 .on { background: var(--color-on); }
 .off { background: var(--color-off); }
-.future { background: repeating-linear-gradient(45deg, #eee, #eee 4px, #fafafa 4px, #fafafa 8px); }
-.now-marker { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent); z-index: 5; box-shadow: 0 0 8px rgba(37,78,219,0.8); }
 
-.day-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; padding-top: 10px; border-top: 1px solid #f0f0f0; }
-.stat-box { display: flex; flex-direction: column; background: #f8f9fb; border-radius: 10px; padding: 10px 12px; }
-.stat-label { font-size: 10px; color: #888; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
-.stat-value { font-size: 13px; color: #111; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.schedule-track { position: relative; height: 6px; border-radius: 3px; overflow: hidden; background: transparent; width: 100%; }
+.sched-seg { position: absolute; top: 0; bottom: 0; cursor: help; }
+.sched-green { background: var(--sched-safe); opacity: 0.5; } 
+.sched-red { background: var(--sched-danger); opacity: 0.8; }
+
+.now-marker { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--accent); z-index: 5; box-shadow: 0 0 6px var(--accent); pointer-events: none; }
+
+/* Stats Grid */
+.day-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--border-subtle); }
+.stat-box { display: flex; flex-direction: column; background: var(--border-subtle); border-radius: 10px; padding: 10px 12px; }
+.stat-label { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+.stat-value { font-size: 13px; color: var(--text-main); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
 
 .day-details { max-height: 0; opacity: 0; overflow: hidden; transition: 0.4s ease; }
-.expanded .day-details { max-height: 500px; opacity: 1; margin-top: 15px; padding-top: 5px; border-top: 1px dashed #ddd; }
+.expanded .day-details { max-height: 500px; opacity: 1; margin-top: 15px; padding-top: 5px; border-top: 1px dashed var(--border-subtle); }
 .detail-row { display: flex; justify-content: space-between; padding: 8px 12px; margin-bottom: 4px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #fff; font-weight: 600; }
 
+/* Calendar */
 #calendarGrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-top: 10px; }
-.cal-weekday { text-align: center; font-size: 10px; font-weight: 800; color: #ccc; margin-bottom: 5px; }
+.cal-weekday { text-align: center; font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; }
 .cal-day { 
     aspect-ratio: 1; border-radius: 50%; position: relative; cursor: pointer; 
     display: flex; align-items: center; justify-content: center;
-    background: #fff; transition: transform 0.2s;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.03);
+    background: var(--bg-card); transition: transform 0.2s;
+    box-shadow: var(--shadow-card); border: 1px solid var(--border-subtle);
 }
 .cal-day:active { transform: scale(0.9); }
-.cal-day.empty-data { cursor: default; opacity: 0.4; background: #f9f9f9; box-shadow: none; border: none; }
+.cal-day.empty-data { cursor: default; opacity: 0.4; background: var(--border-subtle); box-shadow: none; border: none; }
 .cal-day.empty { background: transparent; cursor: default; box-shadow: none; border: none; }
-.cal-inner { width: 76%; height: 76%; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--text-main); z-index: 2; }
-.cal-today .cal-inner { color: var(--accent); font-weight: 800; background: #fff; }
+.cal-inner { width: 76%; height: 76%; background: var(--bg-card); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--text-main); z-index: 2; }
+.cal-today .cal-inner { color: var(--accent); font-weight: 800; background: var(--bg-card); }
 .cal-today { box-shadow: 0 0 0 2px var(--accent); }
-.cal-attack-dot { position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-.cal-attack-svg { width: 10px; height: 10px; fill: #d32f2f; }
+.cal-attack-dot { position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: var(--bg-card); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
+/* Tooltip Fixed */
 #tooltip { 
-    position: absolute; background: var(--accent); color: #fff; 
-    padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; 
+    position: absolute; 
+    background: var(--tooltip-bg); color: var(--tooltip-text); 
+    border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px; 
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; 
     border-radius: 8px; pointer-events: none; opacity: 0; z-index: 2000; 
-    box-shadow: 0 5px 20px rgba(37,78,219,0.4); white-space: nowrap; transition: opacity 0.2s, transform 0.2s;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3); white-space: nowrap; transition: opacity 0.2s;
+    display: flex; align-items: center; gap: 8px;
 }
 #tooltip.visible { opacity: 1; }
-footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; font-family: 'JetBrains Mono', monospace; }
+#tooltip svg { width: 14px; height: 14px; fill: currentColor; }
+
+footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
 </style>
 </head>
 <body>
@@ -185,15 +290,23 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
 
     <div class="month-nav">
         <button class="nav-btn" onclick="changeMonth(-1)">←</button>
-        <div id="currentMonthDisplay">...</div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <div id="currentMonthDisplay">...</div>
+            <button class="btn-today" onclick="goToToday()">СЬОГОДНІ</button>
+        </div>
         <button class="nav-btn" onclick="changeMonth(1)">→</button>
     </div>
 
     <div id="statsOverview" class="stats-overview"></div>
 
     <div id="statusCard" class="status-card">
-        <div id="statusIcon">...</div>
-        <div id="statusTimer" class="status-time">--:--</div>
+        <div id="statusText" class="status-header-text">ЗАВАНТАЖЕННЯ...</div>
+        
+        <div class="status-main-row">
+            <div id="statusIcon" class="status-icon-big"></div>
+            <div id="statusTimer" class="status-time">--:--</div>
+        </div>
+        
         <div id="statusLabel" class="status-label"></div>
     </div>
 
@@ -203,47 +316,125 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
     <footer id="footerStats"></footer>
 </div>
 
-<svg style="display:none;">
-    <symbol id="icon-blast" viewBox="0 0 24 24"><path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6-4.8-6 4.8 2.4-7.2-6-4.8h7.6z" /></symbol>
-    <symbol id="icon-warn" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></symbol>
-</svg>
-
 <script>
     let allEvents = [];
     let attacks = [];
+    let schedule = {}; 
     let currentView = 'list';
     let lastKnownEvent = null;
     let tipTimeout = null;
     let isLiveTimerRunning = false;
     
-    // SVG
-    const blastSvg = `<svg style="width:14px;height:14px;fill:#333;vertical-align:middle;" viewBox="0 0 24 24"><path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6-4.8-6 4.8 2.4-7.2-6-4.8h7.6z" /></svg>`;
-    const warnSvg = `<svg style="width:10px;height:10px;fill:#d32f2f;" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>`;
+    // Icons
+    const blastSvg = `<svg style="width:14px;height:14px;vertical-align:middle;" viewBox="0 0 24 24"><path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6-4.8-6 4.8 2.4-7.2-6-4.8h7.6z" /></svg>`;
+    const warnSvg = `<svg style="width:10px;height:10px;fill:var(--color-off);" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>`;
+    const iconClock = `<svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>`;
+    const iconBolt = `<svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>`;
 
     function getKyivDate() { return new Date(); }
 
     let viewDate = getKyivDate();
     viewDate.setHours(0,0,0,0);
 
+    function getWeightedDuration(startMs, endMs) {
+        let weight = 0;
+        let currentH = new Date(startMs);
+        currentH.setMinutes(0,0,0);
+        while(currentH.getTime() < endMs) {
+            const h = currentH.getHours();
+            const nextHTime = currentH.getTime() + 3600000;
+            const segStart = Math.max(startMs, currentH.getTime());
+            const segEnd = Math.min(endMs, nextHTime);
+            if (segEnd > segStart) {
+                const dur = (segEnd - segStart) / 60000;
+                const w = (h >= 8 && h < 23) ? 1.0 : 0.3;
+                weight += dur * w;
+            }
+            currentH.setTime(nextHTime);
+        }
+        return weight;
+    }
+
     async function init() {
         try {
-            const [logsRes, attacksRes] = await Promise.all([
-                fetch('logs.txt?t=' + Date.now()),
-                fetch('attacks.txt?t=' + Date.now()).catch(() => ({ ok: false })) 
+            const now = Date.now();
+            const [logsRes, attacksRes, scheduleRes] = await Promise.all([
+                fetch('logs.txt?t=' + now),
+                fetch('attacks.txt?t=' + now).catch(() => ({ ok: false })),
+                fetch('schedule.txt?t=' + now).catch(() => ({ ok: false }))
             ]);
-
-            if(logsRes.ok) {
-                const logText = await logsRes.text();
-                allEvents = parseLogs(logText);
-            }
-            if(attacksRes.ok) {
-                const attackText = await attacksRes.text();
-                attacks = parseAttacks(attackText);
-            }
+            if(logsRes.ok) allEvents = parseLogs(await logsRes.text());
+            if(attacksRes.ok) attacks = parseAttacks(await attacksRes.text());
+            if(scheduleRes.ok) schedule = parseDtekText(await scheduleRes.text());
 
             updateStatus(allEvents);
             render();
         } catch (e) { console.error("Init Error:", e); }
+    }
+
+    function parseDtekText(text) {
+        const db = {};
+        const lines = text.split('\n');
+        
+        const emergencyStartRegex = /Час початку\s*[–-]\s*(\d{2}:\d{2})\s(\d{2}\.\d{2}\.\d{4})/g;
+        const emergencyEndRegex = /відновлення.*[–-].*?(\d{2}:\d{2})\s(\d{2}\.\d{2}\.\d{4})/g;
+        
+        let matchStart;
+        while ((matchStart = emergencyStartRegex.exec(text)) !== null) {
+            emergencyEndRegex.lastIndex = 0; 
+            const matchEnd = emergencyEndRegex.exec(text); 
+            if (matchEnd) {
+                const sParts = matchStart[2].split('.');
+                const startDt = new Date(`${sParts[2]}-${sParts[1]}-${sParts[0]}T${matchStart[1]}`);
+                const eParts = matchEnd[2].split('.');
+                const endDt = new Date(`${eParts[2]}-${eParts[1]}-${eParts[0]}T${matchEnd[1]}`);
+                addScheduleSegment(db, startDt, endDt, "black");
+            }
+        }
+
+        let currentDateStr = null;
+        lines.forEach(line => {
+            const dateMatch = line.match(/(\d{2}\.\d{2}\.\d{4})/);
+            if (dateMatch && !line.includes("Час початку") && !line.includes("відновлення")) {
+                currentDateStr = dateMatch[1]; return;
+            }
+            if (currentDateStr) {
+                const timeMatch = line.match(/(\d{2}:\d{2})\s*-\s*(\d{2}:\d{2})/);
+                if (timeMatch) {
+                    const parts = currentDateStr.split('.');
+                    const dateIso = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                    let tStart = timeMatch[1]; let tEnd = timeMatch[2];
+                    let startDt = new Date(`${dateIso}T${tStart}`);
+                    let endDt;
+                    if (tEnd === "24:00") endDt = new Date(`${dateIso}T23:59:59`);
+                    else {
+                        endDt = new Date(`${dateIso}T${tEnd}`);
+                        if (endDt < startDt) endDt.setDate(endDt.getDate() + 1);
+                    }
+                    addScheduleSegment(db, startDt, endDt, "black");
+                }
+            }
+        });
+        return db;
+    }
+
+    function addScheduleSegment(db, start, end, type) {
+        let current = new Date(start);
+        while (current < end) {
+            let nextMidnight = new Date(current); nextMidnight.setHours(24, 0, 0, 0);
+            let segEnd = new Date(Math.min(end, nextMidnight));
+            let y = current.getFullYear();
+            let m = String(current.getMonth()+1).padStart(2,'0');
+            let d = String(current.getDate()).padStart(2,'0');
+            let dateKey = `${y}-${m}-${d}`;
+            let sTime = `${String(current.getHours()).padStart(2,'0')}:${String(current.getMinutes()).padStart(2,'0')}`;
+            let eTime = (segEnd.getTime() === nextMidnight.getTime()) ? "24:00" : 
+                        `${String(segEnd.getHours()).padStart(2,'0')}:${String(segEnd.getMinutes()).padStart(2,'0')}`;
+            if (!db[dateKey]) db[dateKey] = [];
+            const exists = db[dateKey].some(s => s.start === sTime && s.end === eTime);
+            if (!exists) { db[dateKey].push({ start: sTime, end: eTime, type: type }); }
+            current = nextMidnight;
+        }
     }
 
     startLiveTimer();
@@ -300,52 +491,58 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         return res;
     }
 
-    function calculateDayPotential(startMs, endMs) {
-        let score = 0;
-        let current = startMs;
-        while(current < endMs) {
-            const h = new Date(current).getHours();
-            const weight = (h >= 8 && h < 23) ? 1.0 : 0.3;
-            score += weight; 
-            current += 60000;
-        }
-        return score;
-    }
-
     function generateDays(events) {
         if (!events.length) return [];
         const days = {};
         const now = getKyivDate();
-        
         let pointerDate = new Date(events[0].date);
         pointerDate.setHours(0,0,0,0);
-        
-        let currentState = events[0].type === 'OFF' ? 'ON' : 'OFF';
+        let currentState = events[0].type === 'OFF' ? 'ON' : 'OFF'; 
         let eventIdx = 0;
         const endLimit = new Date(); endLimit.setHours(23,59,59);
-
         let firstLogTime = events[0].date.getTime();
 
         while (pointerDate <= endLimit) {
-            const k = `${pointerDate.getFullYear()}-${String(pointerDate.getMonth()+1).padStart(2,'0')}-${String(pointerDate.getDate()).padStart(2,'0')}`;
+            const y = pointerDate.getFullYear();
+            const m = String(pointerDate.getMonth()+1).padStart(2,'0');
+            const dStr = String(pointerDate.getDate()).padStart(2,'0');
+            const k = `${y}-${m}-${dStr}`;
             const dStart = new Date(pointerDate);
             const dEnd = new Date(pointerDate); dEnd.setHours(23,59,59);
             const attackData = attacks.find(a => a.date === k);
+            const daySchedule = schedule[k] || [];
 
             days[k] = { 
-                date: dStart, segments: [], 
+                date: dStart, segments: [], scheduleSegments: [],
                 totalOn: 0, totalOff: 0, 
                 effectiveMinutes: 0, potentialWeight: 0, qualityIndex: 0,
-                attack: attackData, hasData: false, outageCount: 0, maxOn: 0 
+                attack: attackData, hasData: false, outageCount: 0, maxOn: 0,
+                matchMinutes: 0, schedMinutesTotal: 0
             };
-            
+
+            if (daySchedule.length) {
+                daySchedule.forEach(slot => {
+                     const [sh, sm] = slot.start.split(':').map(Number);
+                     const [eh, em] = slot.end.split(':').map(Number);
+                     let ehFix = (slot.end === "24:00") ? 24 : eh;
+                     const startMins = sh*60 + sm;
+                     const endMins = ehFix*60 + em;
+                     const width = (endMins - startMins) / 14.4;
+                     const left = startMins / 14.4;
+                     days[k].scheduleSegments.push({ 
+                         left, width, type: slot.type,
+                         startStr: slot.start, endStr: slot.end
+                     });
+                });
+            }
+
             let pTime = dStart.getTime();
             let potentialStart = (dStart.getTime() < firstLogTime) ? firstLogTime : dStart.getTime();
             let potentialEnd = (dStart.toDateString() === now.toDateString()) ? now.getTime() : dEnd.getTime();
             
             if (dEnd.getTime() >= events[0].date.getTime()) {
                 days[k].hasData = true;
-                days[k].potentialWeight = calculateDayPotential(potentialStart, potentialEnd);
+                days[k].potentialWeight = getWeightedDuration(potentialStart, potentialEnd);
 
                 while (eventIdx < events.length && events[eventIdx].date <= dEnd) {
                     const ev = events[eventIdx];
@@ -370,6 +567,30 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
                 let rawIndex = (days[k].potentialWeight > 0) ? (days[k].effectiveMinutes / days[k].potentialWeight) : 0;
                 let penalty = Math.min(days[k].outageCount * 0.06, 0.45);
                 days[k].qualityIndex = rawIndex * (1 - penalty);
+
+                // Accuracy Logic
+                days[k].segments.forEach(seg => {
+                    if (seg.type === 'FUTURE') return;
+                    const [h1, m1] = seg.range.split(' - ')[0].split(':').map(Number);
+                    const [h2, m2] = seg.range.split(' - ')[1].split(':').map(Number);
+                    const sMin = h1*60 + m1;
+                    const eMin = (h2*60 + m2) || 1440; 
+                    for (let m = sMin; m < eMin; m++) {
+                        days[k].schedMinutesTotal++;
+                        let schedIsOff = false;
+                        for (let slot of daySchedule) {
+                            const [sh, sm] = slot.start.split(':').map(Number);
+                            const [eh, em] = slot.end.split(':').map(Number);
+                            const slotStart = sh*60 + sm;
+                            const slotEnd = (eh === 0 && em === 0) ? 1440 : (eh*60 + em);
+                            if (m >= slotStart && m < slotEnd) {
+                                if (slot.type === 'black') schedIsOff = true;
+                            }
+                        }
+                        const actualIsOff = (seg.type === 'OFF');
+                        if (schedIsOff === actualIsOff) days[k].matchMinutes++;
+                    }
+                });
             }
             pointerDate.setDate(pointerDate.getDate() + 1);
         }
@@ -380,9 +601,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         const diffMs = end - start;
         const mins = Math.floor(diffMs / 60000);
         if (mins <= 0) return;
-        
         const isCurrent = (Math.abs(end - now.getTime()) < 60000) && type !== 'FUTURE';
-        
         let statusText = '';
         if (type === 'ON') statusText = isCurrent ? 'СВІТЛО Є' : 'СВІТЛО БУЛО';
         else if (type === 'OFF') statusText = isCurrent ? 'СВІТЛА НЕМАЄ' : 'СВІТЛА НЕ БУЛО';
@@ -391,14 +610,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         if (type === 'ON') { 
             day.totalOn += mins; 
             if (mins > day.maxOn) day.maxOn = mins; 
-
-            let current = start;
-            while(current < end) {
-                const h = new Date(current).getHours();
-                const weight = (h >= 8 && h < 23) ? 1.0 : 0.3;
-                day.effectiveMinutes += weight;
-                current += 60000;
-            }
+            day.effectiveMinutes += getWeightedDuration(start, end);
         }
         if (type === 'OFF') { day.totalOff += mins; } 
 
@@ -428,24 +640,20 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
     function renderStatsOverview(days) {
         const now = getKyivDate();
         const completedDays = days.filter(d => d.hasData && d.date.toDateString() !== now.toDateString() && d.segments.every(s => s.type !== 'FUTURE'));
-
+        
         if (completedDays.length < 2) { 
-            document.getElementById('statsOverview').innerHTML = ''; 
-            return; 
+            document.getElementById('statsOverview').innerHTML = ''; return; 
         }
 
         const maxComparisonDays = 7;
         const availablePairs = Math.floor(completedDays.length / 2);
         const daysToCompare = Math.min(availablePairs, maxComparisonDays);
 
-        if (daysToCompare < 1) return;
-
         const currentPeriod = completedDays.slice(0, daysToCompare);
         const prevPeriod = completedDays.slice(daysToCompare, daysToCompare * 2);
-
+        
         const calcWeightedAvg = (periodDays) => {
-            let totalWeightedScore = 0;
-            let totalWeight = 0;
+            let totalWeightedScore = 0; let totalWeight = 0;
             periodDays.forEach(d => {
                 const w = d.potentialWeight;
                 totalWeightedScore += d.qualityIndex * w;
@@ -458,32 +666,46 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         const wAvgPrev = calcWeightedAvg(prevPeriod);
         
         let trend = wAvgPrev ? ((wAvgNow - wAvgPrev) / wAvgPrev) * 100 : 0;
-        
-        let trendIcon = '→'; 
-        let trendClass = 'trend-neutral';
-        let trendText = 'БЕЗ СУТТЄВИХ ЗМІН';
-        
+        let trendIcon = '→'; let trendClass = 'trend-neutral'; let trendText = 'СТАБІЛЬНО';
         if (Math.abs(trend) >= 5) {
             trendIcon = trend > 0 ? '↗' : '↘'; 
             trendClass = trend > 0 ? 'trend-up' : 'trend-down';
-            // === SEMANTIC CHANGE: STABILITY INSTEAD OF EASE ===
-            trendText = trend > 0 ? 'БІЛЬШ СТАБІЛЬНО' : 'МЕНШ СТАБІЛЬНО';
-        } else {
-            trend = 0; 
+            trendText = trend > 0 ? 'КРАЩЕ' : 'ГІРШЕ';
         }
+
+        // Accuracy Calculation
+        let totalMatches = 0; let totalMinutes = 0;
+        currentPeriod.forEach(d => {
+            if (d.schedMinutesTotal > 0) {
+                totalMatches += d.matchMinutes;
+                totalMinutes += d.schedMinutesTotal;
+            }
+        });
+        const accuracy = totalMinutes > 0 ? (totalMatches / totalMinutes) * 100 : 0;
         
+        document.getElementById('statsOverview').innerHTML = `
+            <div class="stat-card-mini full-width">
+                <div class="stat-split">
+                    <div class="scm-label">ІНДЕКС ЯКОСТІ (7 ДНІВ)</div>
+                    <div class="scm-value ${trendClass}">${trendText} ${Math.abs(trend) < 5 ? '' : Math.abs(trend).toFixed(1) + '%'} ${trendIcon}</div>
+                    <div class="scm-sub">на основі зваженого коефіцієнта</div>
+                </div>
+                <div class="stat-split">
+                    <div class="scm-label">ТОЧНІСТЬ ГРАФІКА</div>
+                    <div class="scm-value" style="color:${accuracy > 80 ? 'var(--color-on)' : 'var(--color-off)'}">${accuracy.toFixed(0)}%</div>
+                    <div class="scm-sub">відповідність плану</div>
+                </div>
+            </div>
+            ${renderBestWorst(days)}
+        `;
+    }
+    
+    function renderBestWorst(days) {
         const monthDays = days.filter(d => d.date.getMonth() === viewDate.getMonth());
         const best = monthDays.reduce((p,c) => (c.totalOn > (p?.totalOn||0)) ? c : p, null);
         const worst = monthDays.reduce((p,c) => (c.totalOff > (p?.totalOff||0) && c.hasData) ? c : p, null);
-
-        document.getElementById('statsOverview').innerHTML = `
-            <div class="stat-card-mini full-width">
-                <div>
-                    <div class="scm-label">ІНДЕКС СТАБІЛЬНОСТІ (ЗВАЖЕНИЙ)</div>
-                    <div class="scm-value ${trendClass}">${trendText} ${Math.abs(trend) < 5 ? '' : Math.abs(trend).toFixed(1) + '%'} ${trendIcon}</div>
-                    <div class="scm-sub" style="color:#888">порівняння: ${daysToCompare} дн. vs ${daysToCompare} дн. (ідекс, а не години)</div>
-                </div>
-            </div>
+        if (!best && !worst) return '';
+        return `
             ${best ? `<div class="stat-card-mini"><div class="scm-label">НАЙКРАЩИЙ</div><div class="scm-value" style="color:var(--color-on)">${formatDur(best.totalOn)}</div><div class="scm-sub">${best.date.getDate()}.${String(best.date.getMonth()+1).padStart(2,'0')}</div></div>` : ''}
             ${worst ? `<div class="stat-card-mini"><div class="scm-label">НАЙГІРШИЙ</div><div class="scm-value" style="color:var(--color-off)">${formatDur(worst.totalOff)}</div><div class="scm-sub">${worst.date.getDate()}.${String(worst.date.getMonth()+1).padStart(2,'0')}</div></div>` : ''}
         `;
@@ -493,12 +715,43 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         let html = '';
         const now = getKyivDate();
         const names = ["Неділя", "Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота"];
-
+        let lastWeekLabel = null;
+        
         days.forEach((day, idx) => {
-            if (day.date.getDay() === 0 && idx !== 0) html += '<div style="margin:20px 0 10px; border-bottom:1px solid #ddd; opacity:0.3"></div>';
+            if (!day.hasData) return;
+            const d = new Date(day.date);
+            const dayNum = d.getDay() || 7; 
+            d.setHours(0,0,0,0);
+            d.setDate(d.getDate() - dayNum + 1);
+            const wStart = d;
+            const wEnd = new Date(d); wEnd.setDate(wEnd.getDate() + 6);
+            
+            let weekLabel = '';
+            const currentD = getKyivDate();
+            const currentDayNum = currentD.getDay() || 7;
+            const currentMon = new Date(currentD); currentMon.setHours(0,0,0,0);
+            currentMon.setDate(currentMon.getDate() - currentDayNum + 1);
+            
+            if (wStart.getTime() === currentMon.getTime()) weekLabel = "ПОТОЧНИЙ ТИЖДЕНЬ";
+            else weekLabel = `ТИЖДЕНЬ ${String(wStart.getDate()).padStart(2,'0')}.${String(wStart.getMonth()+1).padStart(2,'0')} – ${String(wEnd.getDate()).padStart(2,'0')}.${String(wEnd.getMonth()+1).padStart(2,'0')}`;
+            
+            if (weekLabel !== lastWeekLabel) {
+                html += `<div class="week-header">${weekLabel}</div>`; lastWeekLabel = weekLabel;
+            }
+
             const isToday = day.date.toDateString() === now.toDateString();
             const dayId = `day-${day.date.getDate()}`;
-            if (!day.hasData) return;
+
+            let schedHtml = '';
+            day.scheduleSegments.forEach(s => {
+                const cls = s.type === 'black' ? 'sched-red' : 'sched-green'; 
+                const label = s.type === 'black' ? 'ГРАФІК: ВІДКЛЮЧЕННЯ' : 'ГРАФІК: МОЖЛИВЕ СВІТЛО';
+                const desc = s.type === 'black' ? 'Заплановано або екстрено' : 'Світло має бути (сіра зона)';
+                schedHtml += `<div class="sched-seg ${cls}" 
+                    style="left:${s.left}%; width:${s.width}%;"
+                    onclick="showTip(event, '${label}', '${s.startStr} - ${s.endStr}', '${desc}', true)"
+                ></div>`;
+            });
 
             let segs = '', dets = '<div class="day-details">';
             if (isToday) {
@@ -508,18 +761,12 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
 
             day.segments.forEach(s => {
                 const isFut = s.type === 'FUTURE';
-                segs += `<div class="segment ${s.type.toLowerCase()}" style="width:${s.width}%" ${isFut ? '' : `onclick="showTip(event,'${s.status}','${s.range}','${s.dur}')"`}></div>`;
+                segs += `<div class="segment ${s.type.toLowerCase()} ${isFut ? 'future' : ''}" style="width:${s.width}%" ${isFut ? '' : `onclick="showTip(event,'${s.status}','${s.range}','${s.dur}', false)"`}></div>`;
                 if (!isFut) dets += `<div class="detail-row" style="background:${s.type === 'ON' ? 'var(--color-row-on)' : 'var(--color-row-off)'}"><span>${s.range}</span><span>${s.dur}</span></div>`;
             });
 
             let attackHtml = '';
-            if (day.attack) {
-                const isMassive = day.attack.desc.toLowerCase().includes('масован');
-                attackHtml = `<div class="attack-badge ${isMassive ? 'massive' : ''}">${blastSvg} <span>${day.attack.desc} (${day.attack.duration}г)</span>`;
-                if (day.impactDetected) attackHtml += `<span class="impact-badge">⚠️</span>`;
-                attackHtml += `</div>`;
-            }
-
+            if (day.attack) attackHtml = `<div class="attack-badge">${blastSvg} <span>${day.attack.desc} (${day.attack.duration}г)</span></div>`;
             dets += '</div>';
             const total = 1440; const pct = Math.round((day.totalOn / total) * 100);
 
@@ -532,7 +779,10 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
                     <div class="day-name">${names[day.date.getDay()]} <span class="chevron">▼</span></div>
                 </div>
                 ${attackHtml}
-                <div class="timeline" style="margin-top:8px;">${segs}</div>
+                <div class="timeline-block">
+                    <div class="timeline-track">${segs}</div>
+                    <div class="schedule-track">${schedHtml}</div>
+                </div>
                 <div class="day-stats-grid">
                     <div class="stat-box"><div class="stat-label">СВІТЛО БУЛО</div><div class="stat-value" style="color:var(--color-on)">${formatDur(day.totalOn)} (${pct}%)</div></div>
                     <div class="stat-box"><div class="stat-label">СВІТЛА НЕМАЄ</div><div class="stat-value" style="color:var(--color-off)">${formatDur(day.totalOff)}</div></div>
@@ -554,7 +804,6 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         html += '</div><div id="calendarGrid">';
         
         for (let i = 0; i < offset; i++) html += '<div class="cal-day empty"></div>';
-
         const dayMap = {}; days.forEach(d => dayMap[d.date.getDate()] = d);
         const now = getKyivDate();
 
@@ -562,27 +811,21 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
             const data = dayMap[i];
             const isToday = (now.getDate() === i && now.getMonth() === viewDate.getMonth() && now.getFullYear() === viewDate.getFullYear());
             if (!data || !data.hasData) {
-                html += `<div class="cal-day empty-data"><div class="cal-inner" style="background:transparent; color:#ccc;">${i}</div></div>`;
+                html += `<div class="cal-day empty-data"><div class="cal-inner" style="background:transparent; color:var(--text-muted); opacity:0.5;">${i}</div></div>`;
                 continue;
             }
+            const total = 1440;
+            const onP = (data.totalOn / total) * 100;
+            const offP = (data.totalOff / total) * 100;
+            const stop1 = onP; 
+            const stop2 = onP + offP;
 
             let bgStyle = '';
             if (isToday) {
-                const totalOnPct = (data.totalOn / 1440) * 100;
-                const totalOffPct = (data.totalOff / 1440) * 100;
-                const recordedPct = totalOnPct + totalOffPct;
-                
-                bgStyle = `background: conic-gradient(
-                    var(--color-on) 0% ${totalOnPct}%, 
-                    var(--color-off) ${totalOnPct}% ${recordedPct}%, 
-                    var(--color-future) ${recordedPct}% 100%
-                )`;
+                bgStyle = `background: conic-gradient(var(--color-on) 0% ${stop1}%, var(--color-off) ${stop1}% ${stop2}%, var(--color-future) ${stop2}% 100%)`;
             } else {
-                const total = 1440; 
-                const onPercent = (data.totalOn / total) * 100;
-                bgStyle = `background: conic-gradient(var(--color-on) 0% ${onPercent}%, var(--color-off) ${onPercent}% 100%)`;
+                bgStyle = `background: conic-gradient(var(--color-on) 0% ${stop1}%, var(--color-off) ${stop1}% 100%)`;
             }
-
             let dot = ''; if (data.attack) dot = `<div class="cal-attack-dot">${warnSvg}</div>`;
             html += `<div class="cal-day ${isToday?'cal-today':''}" style="${bgStyle}" onclick="goToDay(${i})"><div class="cal-inner">${i}</div>${dot}</div>`;
         }
@@ -596,19 +839,38 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         document.getElementById('listView').style.display = view === 'list' ? 'block' : 'none';
         document.getElementById('calendarView').style.display = view === 'calendar' ? 'block' : 'none';
     }
-
     function changeMonth(delta) { viewDate.setMonth(viewDate.getMonth() + delta); render(); }
+    
+    function goToToday() {
+        viewDate = getKyivDate(); viewDate.setHours(0,0,0,0);
+        switchView('list'); render();
+        setTimeout(() => {
+            const todayEl = document.querySelector('.day-container.today');
+            if (todayEl) {
+                todayEl.scrollIntoView({behavior: 'smooth', block: 'center'});
+                if(!todayEl.classList.contains('expanded')) toggleDay(todayEl);
+            }
+        }, 100);
+    }
+
+    // --- SMART SCROLL LOGIC ---
     function toggleDay(element) {
         const isAlreadyOpen = element.classList.contains('expanded');
         document.querySelectorAll('.day-container.expanded').forEach(el => el.classList.remove('expanded'));
-        if (!isAlreadyOpen) element.classList.add('expanded');
+        if (!isAlreadyOpen) {
+            element.classList.add('expanded');
+            // Wait for expansion transition (300-400ms) then smooth scroll
+            setTimeout(() => {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        }
     }
+    // --------------------------
 
     function goToDay(dayNum) {
         const el = document.getElementById(`day-${dayNum}`);
         if (el) {
-            switchView('list');
-            setTimeout(() => { el.scrollIntoView({behavior: 'smooth', block: 'center'}); toggleDay(el); }, 100);
+            switchView('list'); setTimeout(() => { el.scrollIntoView({behavior: 'smooth', block: 'center'}); toggleDay(el); }, 100);
         }
     }
 
@@ -616,28 +878,44 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
         if (!events.length) return;
         const now = getKyivDate(); const last = events[events.length - 1]; lastKnownEvent = last;
         const diff = Math.max(0, Math.floor((now - last.date) / 60000));
-        const card = document.getElementById('statusCard'); const icon = document.getElementById('statusIcon'); const timer = document.getElementById('statusTimer');
+        
+        const card = document.getElementById('statusCard'); 
+        const icon = document.getElementById('statusIcon');
+        const text = document.getElementById('statusText');
+        const timer = document.getElementById('statusTimer');
         
         if (last.type === 'ON') { 
             card.className = 'status-card good'; 
-            icon.innerText = '● СВІТЛО Є'; 
-            icon.style.color = 'var(--color-on)'; timer.style.color = 'var(--color-on)'; 
+            icon.innerHTML = iconBolt; 
+            text.innerText = 'СВІТЛО Є';
+            
+            // COLORING
+            timer.style.color = 'var(--color-on)';
+            icon.style.color = 'var(--color-on)';
         } else { 
             card.className = 'status-card bad'; 
-            icon.innerText = '● СВІТЛА НЕМАЄ'; 
-            icon.style.color = 'var(--color-off)'; timer.style.color = 'var(--color-off)'; 
+            icon.innerHTML = iconBolt; 
+            text.innerText = 'СВІТЛА НЕМАЄ';
+            
+            // COLORING
+            timer.style.color = 'var(--color-off)';
+            icon.style.color = 'var(--color-off)';
         }
-        timer.innerText = formatDur(diff); document.getElementById('statusLabel').innerText = `ЗМІНА: ${last.date.toLocaleDateString()} ${last.raw}`;
+        timer.innerText = formatDur(diff); 
+        document.getElementById('statusLabel').innerText = `ЗМІНА: ${last.date.toLocaleDateString()} ${last.raw}`;
     }
 
     function formatDur(m) { return m < 60 ? `${m}хв` : `${Math.floor(m/60)}г ${m%60}хв`; }
 
-    function showTip(e, s, r, d) {
+    function showTip(e, s, r, d, isSchedule) {
         e.stopPropagation();
         if (tipTimeout) clearTimeout(tipTimeout);
         const tip = document.getElementById('tooltip');
-        tip.innerHTML = `<strong>${s}</strong><br>${r}<br>${d}`;
+        const icon = isSchedule ? iconClock : iconBolt;
+        
+        tip.innerHTML = `${icon} <div><strong>${s}</strong><br><span style="opacity:0.8">${r}</span><br><span style="font-size:10px; opacity:0.6">${d}</span></div>`;
         tip.classList.add('visible');
+        
         const screenWidth = window.innerWidth;
         const x = e.pageX; const y = e.pageY;
         if (x > screenWidth / 2) { tip.style.left = 'auto'; tip.style.right = (screenWidth - x + 10) + 'px'; tip.style.transform = 'translate(0, -100%)'; }
@@ -647,5 +925,6 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: #aaa; fon
     }
     document.addEventListener('click', () => { document.getElementById('tooltip').classList.remove('visible'); if (tipTimeout) clearTimeout(tipTimeout); });
 </script>
+
 </body>
 </html>
