@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
-<title>S32</title>
+<title>S32 Monitor | Stable</title>
 
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.PNG">
@@ -14,6 +14,8 @@
 
 <style>
 :root {
+    --page-max: 1000px;
+
     /* --- Palette --- */
     --bg-body: #eef2f9;
     --bg-card: #FFFFFF;
@@ -36,18 +38,15 @@
     --attack-bg: #ffebee;
     --attack-text: #c62828;
     
-    /* Schedule Colors */
     --sched-safe: #a3cfbb; 
     --sched-danger: #f87171; 
     
-    /* Tooltip */
     --tooltip-bg: var(--accent);
     --tooltip-text: #fff;
     
-    /* Z-Indexes */
-    --z-nav: 3000;
-    --z-drawer: 2000;
-    --z-tooltip: 4000;
+    --z-tooltip: 5000;
+    --z-nav: 4000;
+    --z-drawer: 3000;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -80,28 +79,43 @@
 
 html {
     background-color: var(--bg-body); 
-    min-height: 100%; padding-top: env(safe-area-inset-top);
+    height: 100%;
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden; 
 }
+
 @media (prefers-color-scheme: light) {
     html { background-image: radial-gradient(circle at 50% 0%, #eef2f9 0%, #dce4f2 100%); background-attachment: fixed; background-size: cover; }
 }
 
-body { margin: 0; padding: 0; min-height: 100svh; font-family: 'Space Grotesk', sans-serif; color: var(--text-main); overflow-x: hidden; }
+body { 
+    margin: 0; padding: 0; min-height: 100svh; width: 100%;
+    font-family: 'Space Grotesk', sans-serif; color: var(--text-main); 
+    overflow-x: hidden; 
+    overscroll-behavior-y: none;
+}
+
+/* --- SCROLL LOCK FIX (Виправлено) --- */
+body.locked {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    left: 0;
+    /* Не використовуємо bottom: 0, щоб уникнути розтягування */
+}
 
 .page { 
-    max-width: 600px; width: 100%; margin: 0 auto; box-sizing: border-box;
+    max-width: var(--page-max); width: 100%; margin: 0 auto; box-sizing: border-box;
     padding-top: calc(70px + env(safe-area-inset-top));
-    padding-bottom: calc(60px + env(safe-area-inset-bottom));
-    padding-left: 12px; padding-right: 12px;
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    padding-left: 16px; padding-right: 16px;
 }
 
 /* Nav */
 .sticky-container {
     position: fixed; top: 0; left: 50%; transform: translateX(-50%);
-    width: 100%; max-width: 600px; z-index: var(--z-nav);
-    padding: 10px 12px 0 12px; 
+    width: 100%; max-width: var(--page-max); z-index: var(--z-nav);
+    padding: 10px 16px 0 16px; 
     padding-top: calc(10px + env(safe-area-inset-top));
     pointer-events: none;
     box-sizing: border-box; 
@@ -110,7 +124,7 @@ body { margin: 0; padding: 0; min-height: 100svh; font-family: 'Space Grotesk', 
 .glass-bar {
     pointer-events: auto; display: flex; justify-content: space-between; align-items: center; 
     background: rgba(255,255,255,0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    padding: 8px 8px 8px 20px; border-radius: 100px; border: 1px solid var(--border-subtle);
+    padding: 6px 6px 6px 16px; border-radius: 100px; border: 1px solid var(--border-subtle);
     box-shadow: 0 10px 20px rgba(0,0,0,0.05);
     width: 100%; box-sizing: border-box; 
 }
@@ -118,13 +132,22 @@ body { margin: 0; padding: 0; min-height: 100svh; font-family: 'Space Grotesk', 
 @media (prefers-color-scheme: dark) {
     .glass-bar { background: rgba(28, 28, 30, 0.7); border-color: rgba(255,255,255,0.1); }
 }
-h1 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; color: var(--accent); letter-spacing: 0.5px; }
-.view-switcher { display: flex; background: rgba(120, 120, 128, 0.12); padding: 3px; border-radius: 100px; }
+h1 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; color: var(--accent); letter-spacing: 0.5px; margin-right: auto; }
+
+.view-switcher { display: flex; background: rgba(120, 120, 128, 0.12); padding: 3px; border-radius: 100px; gap: 2px; }
 .view-btn { 
     border: none; background: transparent; padding: 8px 14px; 
     font-size: 11px; font-weight: 700; cursor: pointer; border-radius: 100px; color: var(--text-muted); transition: 0.3s;
 }
 .view-btn.active { background: var(--bg-card); color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+.btn-icon {
+    width: 32px; height: 32px; border-radius: 50%; border: none; background: transparent; 
+    display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--accent);
+    margin-right: 8px;
+}
+.btn-icon:active { background: rgba(128,128,128,0.1); }
+.btn-icon svg { width: 18px; height: 18px; fill: currentColor; }
 
 /* Nav Buttons */
 .month-nav { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; margin-bottom: 20px; }
@@ -151,9 +174,6 @@ h1 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; co
 .scm-label { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
 .scm-value { font-size: 14px; font-weight: 700; color: var(--text-main); font-family: 'JetBrains Mono', monospace; }
 .scm-sub { font-size: 10px; margin-top: 4px; font-weight: 600; color: var(--text-muted); }
-.trend-up { color: var(--color-on); }
-.trend-down { color: var(--color-off); }
-.trend-neutral { color: var(--color-neutral); }
 
 /* STATUS CARD */
 .status-card { 
@@ -168,8 +188,6 @@ h1 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; co
     font-size: 11px; font-weight: 800; text-transform: uppercase; 
     letter-spacing: 1px; color: var(--text-muted); margin-bottom: 5px; 
 }
-
-/* Main Status Row */
 .status-main-row {
     display: flex; align-items: center; justify-content: center; gap: 12px;
     margin: 5px 0 10px 0;
@@ -179,7 +197,6 @@ h1 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; co
     font-size: 56px; font-weight: 700; line-height: 1; 
     font-variant-numeric: tabular-nums; letter-spacing: -2px; 
 }
-
 .status-label { font-size: 11px; opacity: 0.6; font-family: 'JetBrains Mono', monospace; color: var(--text-main); margin-top: 0px; }
 
 /* Week Header */
@@ -238,7 +255,6 @@ h1 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; co
 .sched-seg { position: absolute; top: 0; bottom: 0; cursor: help; }
 .sched-green { background: var(--sched-safe); opacity: 0.5; } 
 .sched-red { background: var(--sched-danger); opacity: 0.8; }
-
 .now-marker { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--accent); z-index: 5; box-shadow: 0 0 6px var(--accent); pointer-events: none; }
 
 /* Stats Grid */
@@ -251,81 +267,143 @@ h1 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; co
 .expanded .day-details { max-height: 500px; opacity: 1; margin-top: 15px; padding-top: 5px; border-top: 1px dashed var(--border-subtle); }
 .detail-row { display: flex; justify-content: space-between; padding: 8px 12px; margin-bottom: 4px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #fff; font-weight: 600; }
 
-/* --- CALENDAR SIDE DRAWER CSS --- */
-.calendar-drawer {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+/* --- DRAWERS --- */
+.drawer {
+    position: fixed; top: 0; width: 100%; height: 100%;
+    max-width: var(--page-max);
     background-color: var(--bg-body);
     z-index: var(--z-drawer);
-    overflow-y: auto; /* Allows scrolling INSIDE the drawer */
-    transform: translateX(100%); /* Start hidden to the right */
-    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    overflow-y: auto; 
     box-sizing: border-box;
-    padding: 0 20px 40px 20px; 
+    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
     will-change: transform;
-}
-.calendar-drawer.open {
-    transform: translateX(0);
+    padding: 0 20px 40px 20px;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
+.drawer-right { right: auto; left: 50%; transform: translateX(100vw); margin-left: -500px; }
+
+@media (max-width: 1000px) {
+    .drawer-right { left: 0; margin-left: 0; transform: translateX(100%); }
+    .drawer-left { left: 0; margin-left: 0; transform: translateX(-100%); }
+}
+@media (min-width: 1001px) {
+    .drawer-right { left: 50%; margin-left: -500px; transform: translateX(1000px); }
+    .drawer-left { left: 50%; margin-left: -500px; transform: translateX(-1000px); }
+}
+
+.drawer-right.open { transform: translateX(0) !important; margin-left: 0; left: 0; width: 100%; } 
+@media (min-width: 1001px) {
+    .drawer-right.open { left: 50%; margin-left: -500px; transform: translateX(0) !important; }
+}
+
+.drawer-left.open { transform: translateX(0) !important; margin-left: 0; left: 0; width: 100%; }
+@media (min-width: 1001px) {
+    .drawer-left.open { left: 50%; margin-left: -500px; transform: translateX(0) !important; }
+}
+
+/* --- CALENDAR FIXED LAYOUT (Виправлено) --- */
 #calendarGrid { 
-    display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-top: 10px; 
+    display: grid; 
+    grid-template-columns: repeat(7, 1fr); 
+    /* Адаптивний проміжок: менше на телефоні, більше на ПК */
+    gap: clamp(4px, 1.5vw, 12px);
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    
+    /* Контроль ширини: */
+    width: 100%;
+    /* Не дає розповзтись на великому екрані */
+    max-width: 480px; 
+    /* Не дає вийти за межі екрану */
+    box-sizing: border-box;
 }
 
-.cal-weekday { text-align: center; font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; }
+/* Landscape Mode Fix: Щоб календар не був на весь екран по висоті */
+@media (orientation: landscape) and (max-height: 500px) {
+    #calendarGrid {
+        max-width: 60vh; 
+    }
+}
 
-/* Day Container */
+/* Для планшетів та ПК - трохи більше простору, але не гігантський */
+@media (min-width: 768px) {
+    #calendarGrid {
+        max-width: 600px;
+    }
+}
+
+/* Стилі заголовків (ПН, ВТ...) тепер частина сітки */
+.cal-weekday { 
+    text-align: center; 
+    font-size: 10px; 
+    font-weight: 800; 
+    color: var(--text-muted); 
+    margin-bottom: 5px; 
+    align-self: end; /* Притиснути до низу комірки */
+}
+
 .cal-day { 
     aspect-ratio: 1; 
     position: relative; 
     cursor: pointer; 
-    display: flex; align-items: center; justify-content: center;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
     background: transparent; 
-    border-radius: 50%;
-    border: none; box-shadow: none; 
+    border-radius: 50%; 
+    border: none; 
+    box-shadow: none; 
+    width: 100%; /* Заповнює комірку сітки */
 }
 .cal-day:active { transform: scale(0.9); }
-
-/* SVG Ring Container */
-.ring-container {
-    position: absolute;
-    top: 50%; left: 50%;
-    width: 100%; height: 100%; 
-    transform: translate(-50%, -50%) rotate(-90deg);
-    pointer-events: none;
-    z-index: 1; 
-}
-
-/* Day Number Styles */
-.cal-day.empty { background: transparent; cursor: default; box-shadow: none; border: none; }
-
+.ring-container { position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; transform: translate(-50%, -50%) rotate(-90deg); pointer-events: none; z-index: 1; }
+.cal-day.empty { background: transparent; cursor: default; }
 .cal-inner { 
     width: 76%; height: 76%; 
     background: var(--bg-card); 
-    border-radius: 50%; 
-    display: flex; align-items: center; justify-content: center; 
-    font-size: 12px; font-weight: 700; color: var(--text-main); 
-    z-index: 2; 
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+    border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+    /* Адаптивний шрифт цифр */
+    font-size: clamp(10px, 2.5vw, 14px); 
+    font-weight: 700; color: var(--text-main); z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
 }
-
-.cal-today .cal-inner { 
-    color: var(--accent); font-weight: 800; 
-    background: var(--bg-card); 
-}
+.cal-today .cal-inner { color: var(--accent); font-weight: 800; background: var(--bg-card); }
 .cal-today { box-shadow: 0 0 0 2px var(--accent); }
-
-.cal-attack-dot { 
-    position: absolute; top: 0; right: 0; z-index: 3;
-    width: 14px; height: 14px; 
-    background: var(--bg-card); 
-    border-radius: 50%; 
-    display: flex; align-items: center; justify-content: center; 
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-}
-
+.cal-attack-dot { position: absolute; top: 0; right: 0; z-index: 3; width: 14px; height: 14px; background: var(--bg-card); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 .cal-day.empty-data .cal-inner { opacity: 0.5; box-shadow: none; }
+
+/* ANALYTICS (Left Drawer) STYLES */
+.chart-container {
+    background: var(--bg-card); border-radius: var(--radius-m); padding: 20px;
+    margin-bottom: 20px; box-shadow: var(--shadow-card); border: 1px solid var(--border-subtle);
+}
+.chart-header { font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 15px; letter-spacing: 0.5px; }
+
+/* 24h Timeline Chart */
+.timeline-24h { 
+    height: 40px; width: 100%; background: var(--color-future); 
+    border-radius: 8px; position: relative; overflow: hidden; display: flex;
+}
+.t24-seg { height: 100%; }
+.t24-markers { display: flex; justify-content: space-between; margin-top: 6px; padding: 0 2px; }
+.t24-mark { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--text-muted); }
+
+/* Stability Bar Chart */
+.bar-chart { display: flex; align-items: flex-end; justify-content: space-between; height: 120px; gap: 10px; padding-top: 10px; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.bar-track { width: 100%; background: var(--border-subtle); border-radius: 6px 6px 0 0; flex: 1; position: relative; display: flex; align-items: flex-end; overflow: hidden; }
+.bar-fill { 
+    width: 100%; 
+    background: var(--accent); 
+    border-radius: 4px 4px 0 0; 
+    min-height: 4px;
+    transition: height 0.5s ease; 
+    opacity: 0.9; 
+}
+.bar-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-align: center; line-height: 1.1; }
+.bar-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
 
 /* Tooltip Fixed */
 #tooltip { 
@@ -349,6 +427,9 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
     <div id="tooltip"></div>
     <div class="sticky-container">
         <div class="glass-bar">
+            <button class="btn-icon" onclick="switchView('analytics')">
+                <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+            </button>
             <h1>Моніторинг</h1>
             <div class="view-switcher">
                 <button id="btn-list" class="view-btn active" onclick="switchView('list')">СПИСОК</button>
@@ -371,13 +452,11 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         </div>
         
         <div id="daysListContainer"></div>
-        
         <footer id="footerStats"></footer>
     </div>
 
-    <div id="calendarDrawer" class="calendar-drawer">
+    <div id="calendarDrawer" class="drawer drawer-right">
         <div style="height: 80px;"></div>
-        
         <div class="month-nav">
             <button class="nav-btn" onclick="changeMonth(-1)">←</button>
             <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
@@ -385,13 +464,37 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
             </div>
             <button class="nav-btn" onclick="changeMonth(1)">→</button>
         </div>
-        
         <div id="calendarView"></div>
-        
         <div style="margin-top: 40px; text-align: center; font-size: 10px; color: var(--text-muted);">
             Календар відключень
         </div>
     </div>
+
+    <div id="analyticsDrawer" class="drawer drawer-left">
+        <div style="height: 90px;"></div>
+        
+        <div class="chart-container">
+            <div class="chart-header">REAL FEEL (ОСТАННІ 7 ДНІВ)</div>
+            <div id="vikaStats" style="display: flex; gap: 15px; align-items: center;">
+                 </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-header">ЦИКЛ СВІТЛА (HEATMAP)</div>
+            <div style="font-size:10px; color:var(--text-muted); margin-bottom:10px">Ймовірність наявності світла в конкретну годину:</div>
+            <div id="heatmap" style="display: flex; align-items: flex-end; height: 60px; gap: 2px; padding-top:10px;"></div>
+            <div style="display:flex; justify-content: space-between; font-size:9px; color:var(--text-muted); margin-top:4px; font-family:'JetBrains Mono'">
+                <span>00</span><span>06</span><span>12</span><span>18</span><span>23</span>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-header">СТРУКТУРА ВКЛЮЧЕНЬ</div>
+            <div style="font-size:11px; color:var(--text-muted); margin-bottom:10px;">Розподіл за тривалістю (короткі / середні / довгі):</div>
+            <div id="stabilityChart" class="bar-chart"></div>
+        </div>
+    </div>
+
 </div>
 
 <script>
@@ -401,9 +504,8 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
     let lastKnownEvent = null;
     let tipTimeout = null;
     let isLiveTimerRunning = false;
-    
-    // State
-    let isCalendarOpen = false;
+    let currentView = 'list'; 
+    let scrollPosition = 0; 
 
     // Icons
     const blastSvg = `<svg style="width:14px;height:14px;vertical-align:middle;" viewBox="0 0 24 24"><path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6-4.8-6 4.8 2.4-7.2-6-4.8h7.6z" /></svg>`;
@@ -416,6 +518,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
     let viewDate = getKyivDate();
     viewDate.setHours(0,0,0,0);
 
+    // --- Helper Logic ---
     function getWeightedDuration(startMs, endMs) {
         let weight = 0;
         let currentH = new Date(startMs);
@@ -449,6 +552,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
 
             updateStatus(allEvents);
             render();
+            renderAnalytics(allEvents);
         } catch (e) { console.error("Init Error:", e); }
     }
 
@@ -527,9 +631,8 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
             lastDayCheck = currentDay;
             viewDate = getKyivDate();
             viewDate.setHours(0,0,0,0);
-            console.log("New day detected! Refreshing interface...");
+            init();
         }
-        init();
     }, 60000);
 
     function startLiveTimer() {
@@ -606,7 +709,8 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
             days[k] = { 
                 date: dStart, segments: [], scheduleSegments: [],
                 totalOn: 0, totalOff: 0, 
-                effectiveMinutes: 0, potentialWeight: 0, qualityIndex: 0,
+                effectiveMinutes: 0, potentialWeight: 0, 
+                vikaIndex: 0, stabilityFactor: 0,
                 attack: attackData, hasData: false, outageCount: 0, maxOn: 0,
                 matchMinutes: 0, schedMinutesTotal: 0
             };
@@ -654,9 +758,17 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
                 } else {
                     addSeg(days[k], pTime, dEnd.getTime(), currentState, now);
                 }
-                let rawIndex = (days[k].potentialWeight > 0) ? (days[k].effectiveMinutes / days[k].potentialWeight) : 0;
-                let penalty = Math.min(days[k].outageCount * 0.06, 0.45);
-                days[k].qualityIndex = rawIndex * (1 - penalty);
+
+                // --- VIKA'S FORMULA LOGIC ---
+                let baseQuality = (days[k].potentialWeight > 0) 
+                    ? (days[k].effectiveMinutes / days[k].potentialWeight) 
+                    : 0;
+                let stabilityFactor = (days[k].totalOn > 0) 
+                    ? (days[k].maxOn / days[k].totalOn) 
+                    : 0;
+                days[k].stabilityFactor = stabilityFactor;
+                let fragmentPenalty = Math.min(days[k].outageCount * 0.04, 0.35);
+                days[k].vikaIndex = baseQuality * (0.6 + 0.4 * stabilityFactor) * (1 - fragmentPenalty);
 
                 if (daySchedule.length > 0) {
                     const TOLERANCE_MINS = 30; 
@@ -747,6 +859,123 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         document.getElementById('footerStats').innerText = `Оновлено: ${updateTime.toLocaleDateString()} ${updateTime.toLocaleTimeString()}`;
     }
 
+    function renderAnalytics(events) {
+        const days = generateDays(events);
+        const validDays = days.filter(d => d.hasData).slice(0, 7);
+        
+        // --- 1. Average Vika Index (Real Feel) ---
+        let avgVikaIndex = 0;
+        let totalW = 0;
+        validDays.forEach(d => {
+            const w = 1.0; 
+            avgVikaIndex += d.vikaIndex * w;
+            totalW += w;
+        });
+        const finalScore = totalW > 0 ? (avgVikaIndex / totalW) * 100 : 0;
+        
+        let scoreColor = 'var(--color-neutral)';
+        if(finalScore > 50) scoreColor = 'var(--color-on)';
+        if(finalScore < 30) scoreColor = 'var(--color-off)';
+        
+        document.getElementById('vikaStats').innerHTML = `
+            <div>
+                <div style="font-size:36px; font-weight:800; color:${scoreColor}">${finalScore.toFixed(0)}%</div>
+                <div style="font-size:10px; color:var(--text-muted); font-weight:700">ЯКІСТЬ ЖИТТЯ</div>
+            </div>
+            <div style="height:30px; width:1px; background:var(--border-subtle)"></div>
+            <div style="flex:1">
+                 <div style="font-size:10px; margin-bottom:4px; color:var(--text-muted)">ОЦІНКА ВРАХОВУЄ:</div>
+                 <div style="display:flex; flex-wrap:wrap; gap:4px">
+                    <span style="font-size:9px; background:var(--bg-body); padding:3px 6px; border-radius:4px;">Фрагментацію</span>
+                    <span style="font-size:9px; background:var(--bg-body); padding:3px 6px; border-radius:4px;">Час доби</span>
+                    <span style="font-size:9px; background:var(--bg-body); padding:3px 6px; border-radius:4px;">Стабільність</span>
+                 </div>
+            </div>
+        `;
+
+        // --- 2. Heatmap ---
+        renderHeatmap(days);
+
+        // --- 3. Stability Histogram ---
+        const buckets = { short: 0, medium: 0, long: 0 };
+        validDays.forEach(d => {
+            d.segments.forEach(s => {
+                if(s.type === 'ON') {
+                    const mins = Math.round(s.width * 14.4);
+                    if (mins < 60) buckets.short++;
+                    else if (mins < 240) buckets.medium++;
+                    else buckets.long++;
+                }
+            });
+        });
+        
+        const maxVal = Math.max(buckets.short, buckets.medium, buckets.long, 1);
+        const getH = (val) => (val / maxVal) * 100;
+        
+        const barChartEl = document.getElementById('stabilityChart');
+        barChartEl.innerHTML = `
+            <div class="bar-col">
+                <div class="bar-track"><div class="bar-fill" style="height:${getH(buckets.short)}%; background:var(--color-off)"></div></div>
+                <div class="bar-val">${buckets.short}</div>
+                <div class="bar-label">Короткі<br>< 1г</div>
+            </div>
+            <div class="bar-col">
+                <div class="bar-track"><div class="bar-fill" style="height:${getH(buckets.medium)}%; background:var(--accent)"></div></div>
+                <div class="bar-val">${buckets.medium}</div>
+                <div class="bar-label">Середні<br>1-4г</div>
+            </div>
+            <div class="bar-col">
+                <div class="bar-track"><div class="bar-fill" style="height:${getH(buckets.long)}%; background:var(--color-on)"></div></div>
+                <div class="bar-val">${buckets.long}</div>
+                <div class="bar-label">Довгі<br>> 4г</div>
+            </div>
+        `;
+    }
+
+    function renderHeatmap(days) {
+        const validDays = days.filter(d => d.hasData).slice(0, 7);
+        if (!validDays.length) return;
+
+        const hourlyCounts = new Array(24).fill(0);
+        const totalDays = validDays.length;
+
+        validDays.forEach(day => {
+            day.segments.forEach(seg => {
+                if (seg.type !== 'ON') return;
+                const parts = seg.range.split(' - ');
+                if (parts.length !== 2) return;
+                const [startH, startM] = parts[0].split(':').map(Number);
+                const [endH, endM] = parts[1].split(':').map(Number);
+
+                let sMin = startH * 60 + startM;
+                let eMin = endH * 60 + endM;
+                if (eMin < sMin) eMin = 1440; 
+
+                for (let m = sMin; m < eMin; m++) {
+                    const h = Math.floor(m / 60);
+                    if (h >= 0 && h < 24) hourlyCounts[h]++; 
+                }
+            });
+        });
+
+        const container = document.getElementById('heatmap');
+        if (!container) return;
+
+        let html = '';
+        for (let h = 0; h < 24; h++) {
+            const totalPossibleMinutes = 60 * totalDays;
+            const actualMinutes = hourlyCounts[h];
+            const ratio = totalPossibleMinutes > 0 ? (actualMinutes / totalPossibleMinutes) : 0;
+            const pct = Math.round(ratio * 100);
+            
+            let bg = 'var(--color-future)';
+            if (ratio > 0) bg = `rgba(37, 78, 219, ${0.2 + ratio * 0.8})`; 
+            
+            html += `<div style="flex:1; background:${bg}; height:${Math.max(4, pct)}%; border-radius:2px; position:relative;" onclick="showTip(event, '${h}:00 - ${h+1}:00', 'Ймовірність: ${pct}%', 'Середнє за 7 днів', true)"></div>`;
+        }
+        container.innerHTML = html;
+    }
+
     function renderStatsOverview(days) {
         const now = getKyivDate();
         const completedDays = days.filter(d => d.hasData && d.date.toDateString() !== now.toDateString() && d.segments.every(s => s.type !== 'FUTURE'));
@@ -762,9 +991,9 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         const calcWeightedAvg = (periodDays) => {
             let totalWeightedScore = 0; let totalWeight = 0;
             periodDays.forEach(d => {
-                const w = d.potentialWeight;
-                totalWeightedScore += d.qualityIndex * w;
-                totalWeight += w;
+                let simpleIndex = (d.potentialWeight > 0) ? (d.effectiveMinutes / d.potentialWeight) : 0;
+                totalWeightedScore += simpleIndex * d.potentialWeight;
+                totalWeight += d.potentialWeight;
             });
             return totalWeight > 0 ? (totalWeightedScore / totalWeight) : 0;
         };
@@ -787,9 +1016,9 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         document.getElementById('statsOverview').innerHTML = `
             <div class="stat-card-mini full-width">
                 <div class="stat-split">
-                    <div class="scm-label">ІНДЕКС ЯКОСТІ (7 ДНІВ)</div>
+                    <div class="scm-label">ДИНАМІКА (7 ДНІВ)</div>
                     <div class="scm-value ${trendClass}">${trendText} ${Math.abs(trend) < 5 ? '' : Math.abs(trend).toFixed(1) + '%'} ${trendIcon}</div>
-                    <div class="scm-sub">на основі зваженого коефіцієнта</div>
+                    <div class="scm-sub">обсяг світла</div>
                 </div>
                 <div class="stat-split">
                     <div class="scm-label">ТОЧНІСТЬ ГРАФІКА</div>
@@ -852,7 +1081,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
             day.segments.forEach(s => {
                 const isFut = s.type === 'FUTURE';
                 segs += `<div class="segment ${s.type.toLowerCase()} ${isFut ? 'future' : ''}" style="width:${s.width}%" ${isFut ? '' : `onclick="showTip(event,'${s.status}','${s.range}','${s.dur}', false)"`}></div>`;
-                if (!isFut) dets += `<div class="detail-row" style="background:${s.type === 'ON' ? 'var(--color-row-on)' : 'var(--color-row-off)'}"><span>${s.range}</span><span>${s.dur}</span></div>`;
+                if (!isFut) dets += `<div class="detail-row" style="background:${s.type.toUpperCase() === 'ON' ? 'var(--color-row-on)' : 'var(--color-row-off)'}"><span>${s.range}</span><span>${s.dur}</span></div>`;
             });
             let attackHtml = '';
             if (day.attack) attackHtml = `<div class="attack-badge">${blastSvg} <span>${day.attack.desc} (${day.attack.duration}г)</span></div>`;
@@ -888,9 +1117,9 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         const last = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0);
         let offset = first.getDay(); if (offset === 0) offset = 7; offset--;
         
-        let html = '<div style="display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:10px;">';
+        // --- FIX: Тепер заголовки днів є частиною Grid ---
+        let html = '<div id="calendarGrid">';
         ["ПН","ВТ","СР","ЧТ","ПТ","СБ","НД"].forEach(d => html += `<div class="cal-weekday">${d}</div>`);
-        html += '</div><div id="calendarGrid">';
         
         for (let i = 0; i < offset; i++) html += '<div class="cal-day empty"></div>';
         const dayMap = {}; days.forEach(d => dayMap[d.date.getDate()] = d);
@@ -935,35 +1164,63 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         document.getElementById('calendarView').innerHTML = html + '</div>';
     }
 
-    // --- LOGIC FOR SMOOTH DRAWER (APPLE STYLE) ---
+    // --- NAVIGATION & GESTURES ---
     
-    // Switch View purely by buttons (also called by snap logic)
+    // --- SCROLL LOCKING HELPERS (FIXED) ---
+    function lockScroll() {
+        // Запам'ятовуємо позицію скролу
+        scrollPosition = window.scrollY;
+        
+        // Встановлюємо фіксацію, але компенсуємо зсув контенту
+        document.body.style.top = `-${scrollPosition}px`;
+        document.body.classList.add('locked');
+    }
+
+    function unlockScroll() {
+        document.body.classList.remove('locked');
+        document.body.style.top = '';
+        // Миттєво повертаємось на збережену позицію
+        window.scrollTo(0, scrollPosition);
+    }
+
     function switchView(viewName) {
-        const drawer = document.getElementById('calendarDrawer');
-        drawer.style.transform = ''; // Remove inline styles to let CSS class take over
+        const calDrawer = document.getElementById('calendarDrawer');
+        const anaDrawer = document.getElementById('analyticsDrawer');
+        const body = document.body;
+
+        currentView = viewName;
+        
+        // Reset state
+        calDrawer.classList.remove('open');
+        anaDrawer.classList.remove('open');
+        calDrawer.style.transform = '';
+        anaDrawer.style.transform = '';
 
         if (viewName === 'calendar') {
-            isCalendarOpen = true;
-            drawer.classList.add('open');
+            lockScroll(); // Спочатку блокуємо
+            calDrawer.classList.add('open');
+        } else if (viewName === 'analytics') {
+            lockScroll(); // Спочатку блокуємо
+            anaDrawer.classList.add('open');
         } else {
-            isCalendarOpen = false;
-            drawer.classList.remove('open');
+            unlockScroll(); // Розблокуємо
         }
+
         updateButtons();
     }
 
     function updateButtons() {
-        document.getElementById('btn-list').classList.toggle('active', !isCalendarOpen);
-        document.getElementById('btn-calendar').classList.toggle('active', isCalendarOpen);
+        document.getElementById('btn-list').classList.toggle('active', currentView === 'list');
+        document.getElementById('btn-calendar').classList.toggle('active', currentView === 'calendar');
     }
 
-    // GESTURE VARIABLES
-    let startX = 0;
-    let startY = 0;
+    // --- GLOBAL TOUCH HANDLER (Apple Style Drawers) ---
+    let startX = 0, startY = 0;
     let isTracking = false;
     let isDirectionLocked = false;
-    const drawerEl = document.getElementById('calendarDrawer');
-    const EDGE_THRESHOLD = 40; // Pixels from right edge to trigger open
+    let activeDrawer = null; 
+    let initialTransform = 0;
+    const EDGE_THRESHOLD = 40; 
 
     document.addEventListener('touchstart', (e) => {
         const touch = e.touches[0];
@@ -971,95 +1228,140 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         startY = touch.clientY;
         isTracking = false;
         isDirectionLocked = false;
-
-        const screenW = window.innerWidth;
+        activeDrawer = null;
         
-        // Scenario 1: Drawer is CLOSED. Only allow drag if starting from RIGHT EDGE.
-        if (!isCalendarOpen) {
-            if (startX > screenW - EDGE_THRESHOLD) {
-                isTracking = true;
-                drawerEl.style.transition = 'none'; // Disable smooth transition for 1:1 drag
-            }
-        } 
-        // Scenario 2: Drawer is OPEN. Allow drag to close from anywhere.
-        else {
-            isTracking = true;
-            drawerEl.style.transition = 'none';
-        }
-    }, {passive: false}); // passive: false needed to prevent scrolling later if we decide to block it
-
-    document.addEventListener('touchmove', (e) => {
-        if (!isTracking) return;
-
-        const touch = e.touches[0];
-        const currentX = touch.clientX;
-        const currentY = touch.clientY;
-        const diffX = currentX - startX;
-        const diffY = currentY - startY;
-
-        // Direction Locking: If user scrolls vertically first, cancel swipe
-        if (!isDirectionLocked) {
-            if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 5) {
-                isTracking = false; // It's a scroll, stop tracking
-                return;
-            }
-            // If horizontal movement dominates, lock direction and block scroll
-            if (Math.abs(diffX) > 5) {
-                isDirectionLocked = true;
-            }
-        }
-
-        if (isDirectionLocked) {
-             e.preventDefault(); // BLOCK SCROLLING
-        }
-
         const screenW = window.innerWidth;
+        const calDrawer = document.getElementById('calendarDrawer');
+        const anaDrawer = document.getElementById('analyticsDrawer');
 
-        if (!isCalendarOpen) {
-            // Dragging Left (Opening)
-            // diffX is negative. 
-            // 0px drag = 100% translate. -screenW drag = 0% translate.
-            const p = Math.max(0, 100 + (diffX / screenW * 100));
-            drawerEl.style.transform = `translateX(${p}%)`;
-        } else {
-            // Dragging Right (Closing)
-            // diffX is positive.
-            const p = Math.max(0, (diffX / screenW * 100));
-            drawerEl.style.transform = `translateX(${p}%)`;
+        // Logic: Decide which drawer we are interacting with
+        if (currentView === 'list') {
+            // Dragging from Right Edge -> Open Calendar
+            if (startX > screenW - EDGE_THRESHOLD) {
+                activeDrawer = calDrawer;
+                isTracking = true;
+                activeDrawer.style.transition = 'none';
+            }
+            // Dragging from Left Edge -> Open Analytics
+            else if (startX < EDGE_THRESHOLD) {
+                activeDrawer = anaDrawer;
+                isTracking = true;
+                activeDrawer.style.transition = 'none';
+            }
+        } else if (currentView === 'calendar') {
+            // Can only close calendar (swipe right)
+            activeDrawer = calDrawer;
+            isTracking = true;
+            activeDrawer.style.transition = 'none';
+        } else if (currentView === 'analytics') {
+            // Can only close analytics (swipe left)
+            activeDrawer = anaDrawer;
+            isTracking = true;
+            activeDrawer.style.transition = 'none';
         }
     }, {passive: false});
 
+    document.addEventListener('touchmove', (e) => {
+        if (!isTracking || !activeDrawer) return;
+
+        const touch = e.touches[0];
+        const diffX = touch.clientX - startX;
+        const diffY = touch.clientY - startY;
+
+        // Block vertical scroll if horizontal swipe detected
+        if (!isDirectionLocked) {
+            if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 5) {
+                isTracking = false; return;
+            }
+            if (Math.abs(diffX) > 5) isDirectionLocked = true;
+        }
+        if (isDirectionLocked) e.preventDefault();
+
+        const screenW = window.innerWidth;
+        
+        // Logic for transforms based on active drawer
+        if (activeDrawer.id === 'calendarDrawer') {
+            // Right Drawer logic
+            // Closed -> Open (diffX negative)
+            // Open -> Closed (diffX positive)
+            if (currentView === 'list') {
+                const p = Math.max(0, 100 + (diffX / screenW * 100));
+                activeDrawer.style.transform = `translateX(${p}%)`;
+            } else {
+                const p = Math.max(0, (diffX / screenW * 100));
+                activeDrawer.style.transform = `translateX(${p}%)`;
+            }
+        } else {
+            // Left Drawer logic (Analytics)
+            // Closed -> Open (diffX positive)
+            // Open -> Closed (diffX negative)
+            if (currentView === 'list') {
+                const p = Math.min(0, -100 + (diffX / screenW * 100));
+                activeDrawer.style.transform = `translateX(${p}%)`;
+            } else {
+                const p = Math.min(0, (diffX / screenW * 100));
+                activeDrawer.style.transform = `translateX(${p}%)`;
+            }
+        }
+
+    }, {passive: false});
+
     document.addEventListener('touchend', (e) => {
-        if (!isTracking) return;
+        if (!isTracking || !activeDrawer) return;
         isTracking = false;
         
-        // Restore transition for the snap animation
-        drawerEl.style.transition = 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)';
+        activeDrawer.style.transition = 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)';
         
         const endX = e.changedTouches[0].clientX;
         const diff = endX - startX;
         const screenW = window.innerWidth;
-        const threshold = screenW * 0.25; // Drag 25% of screen to trigger
+        const threshold = screenW * 0.25;
 
-        if (!isCalendarOpen) {
-            // Was trying to open (dragged left, diff negative)
-            if (diff < -threshold) {
-                switchView('calendar');
+        // Commit decision
+        if (activeDrawer.id === 'calendarDrawer') {
+            if (currentView === 'list') {
+                if (diff < -threshold) switchView('calendar');
+                else {
+                    activeDrawer.style.transform = '';
+                    // Reset to unlocked if failed to open
+                    if (!activeDrawer.classList.contains('open')) unlockScroll();
+                }
             } else {
-                // Not enough, bounce back
-                drawerEl.style.transform = ''; 
+                if (diff > threshold) switchView('list');
+                else activeDrawer.style.transform = '';
             }
         } else {
-            // Was trying to close (dragged right, diff positive)
-            if (diff > threshold) {
-                switchView('list');
+            // Analytics
+            if (currentView === 'list') {
+                if (diff > threshold) switchView('analytics');
+                else {
+                    activeDrawer.style.transform = '';
+                    if (!activeDrawer.classList.contains('open')) unlockScroll();
+                }
             } else {
-                // Not enough, bounce back open
-                drawerEl.style.transform = ''; 
-                drawerEl.classList.add('open');
+                if (diff < -threshold) switchView('list');
+                else activeDrawer.style.transform = '';
             }
         }
     });
+
+    // --- CALENDAR SWIPE (Inside Drawer) ---
+    // Specifically for #calendarView to switch months
+    const calGrid = document.getElementById('calendarView');
+    let calStartX = 0;
+    
+    // Use capture phase to prioritize grid swipe
+    if (calGrid) {
+        calGrid.addEventListener('touchstart', (e) => { calStartX = e.touches[0].clientX; }, {passive: true});
+        calGrid.addEventListener('touchend', (e) => {
+            const diff = e.changedTouches[0].clientX - calStartX;
+            if (Math.abs(diff) > 50) {
+                // Prevent bubbling to drawer closer
+                e.stopPropagation();
+                changeMonth(diff > 0 ? -1 : 1);
+            }
+        });
+    }
 
 
     function changeMonth(delta) { viewDate.setMonth(viewDate.getMonth() + delta); render(); }
@@ -1125,6 +1427,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
 
     function formatDur(m) { return m < 60 ? `${m}хв` : `${Math.floor(m/60)}г ${m%60}хв`; }
 
+    // Enhanced Tooltip (Hover + Click)
     function showTip(e, s, r, d, isSchedule) {
         e.stopPropagation();
         if (tipTimeout) clearTimeout(tipTimeout);
@@ -1136,14 +1439,48 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         
         const screenWidth = window.innerWidth;
         const x = e.pageX; const y = e.pageY;
+        // Position Check
         if (x > screenWidth / 2) { tip.style.left = 'auto'; tip.style.right = (screenWidth - x + 10) + 'px'; tip.style.transform = 'translate(0, -100%)'; }
         else { tip.style.left = (x + 10) + 'px'; tip.style.right = 'auto'; tip.style.transform = 'translate(0, -100%)'; }
         tip.style.top = (y - 15) + 'px';
-        tipTimeout = setTimeout(() => { tip.classList.remove('visible'); }, 2500);
+        
+        // Auto hide after delay only if triggered by click/touch
+        if (e.type !== 'mouseover') {
+            tipTimeout = setTimeout(() => { tip.classList.remove('visible'); }, 2500);
+        }
     }
-    document.addEventListener('click', () => { document.getElementById('tooltip').classList.remove('visible'); if (tipTimeout) clearTimeout(tipTimeout); });
+    
+    // Global close tooltip on click elsewhere
+    document.addEventListener('click', () => { 
+        document.getElementById('tooltip').classList.remove('visible'); 
+        if (tipTimeout) clearTimeout(tipTimeout); 
+    });
+
+    // Add Hover Listeners for Desktop convenience
+    document.body.addEventListener('mouseover', function(e) {
+        const target = e.target.closest('.sched-seg') || e.target.closest('.segment');
+        if (target && !target.classList.contains('future')) {
+            const onClickAttr = target.getAttribute('onclick');
+            if (onClickAttr) {
+                const parts = onClickAttr.match(/'([^']+)'/g); 
+                const isBool = onClickAttr.includes('true');
+                if (parts && parts.length >= 3) {
+                    const s = parts[0].replace(/'/g, '');
+                    const r = parts[1].replace(/'/g, '');
+                    const d = parts[2].replace(/'/g, '');
+                    showTip(e, s, r, d, isBool);
+                }
+            }
+        }
+    });
+    
+    document.body.addEventListener('mouseout', function(e) {
+         const target = e.target.closest('.sched-seg') || e.target.closest('.segment');
+         if (target) {
+             document.getElementById('tooltip').classList.remove('visible');
+         }
+    });
+
 </script>
-
-
 </body>
 </html>
