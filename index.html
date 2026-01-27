@@ -82,7 +82,6 @@ html {
     background-color: var(--bg-body); 
     min-height: 100%; padding-top: env(safe-area-inset-top);
     -webkit-font-smoothing: antialiased;
-    /* Prevent horizontal scroll on body level */
     overflow-x: hidden; 
 }
 @media (prefers-color-scheme: light) {
@@ -261,10 +260,10 @@ h1 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; co
     z-index: var(--z-drawer);
     overflow-y: auto; /* Allows scrolling INSIDE the drawer */
     transform: translateX(100%); /* Start hidden to the right */
-    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
     box-sizing: border-box;
-    /* Extra padding to avoid content hitting edges */
     padding: 0 20px 40px 20px; 
+    will-change: transform;
 }
 .calendar-drawer.open {
     transform: translateX(0);
@@ -936,13 +935,12 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         document.getElementById('calendarView').innerHTML = html + '</div>';
     }
 
-    // --- SWIPE / DRAWER LOGIC ---
+    // --- LOGIC FOR SMOOTH DRAWER (APPLE STYLE) ---
     
-    // Switch View now just toggles the class
+    // Switch View purely by buttons (also called by snap logic)
     function switchView(viewName) {
         const drawer = document.getElementById('calendarDrawer');
-        // IMPORTANT: Clear inline styles from any previous drag to let CSS class take over
-        drawer.style.transform = ''; 
+        drawer.style.transform = ''; // Remove inline styles to let CSS class take over
 
         if (viewName === 'calendar') {
             isCalendarOpen = true;
@@ -959,81 +957,108 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         document.getElementById('btn-calendar').classList.toggle('active', isCalendarOpen);
     }
 
-    // GESTURES for 1:1 Physics on Drawer
+    // GESTURE VARIABLES
     let startX = 0;
-    let currentX = 0;
-    let isDragging = false;
-    const drawer = document.getElementById('calendarDrawer');
+    let startY = 0;
+    let isTracking = false;
+    let isDirectionLocked = false;
+    const drawerEl = document.getElementById('calendarDrawer');
+    const EDGE_THRESHOLD = 40; // Pixels from right edge to trigger open
 
     document.addEventListener('touchstart', (e) => {
-        startX = e.touches[0].clientX;
-        isDragging = true;
-        // Disable smooth transition during drag
-        drawer.style.transition = 'none';
-    }, {passive: true});
-
-    document.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        currentX = e.touches[0].clientX;
-        const diff = currentX - startX;
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        isTracking = false;
+        isDirectionLocked = false;
 
         const screenW = window.innerWidth;
         
+        // Scenario 1: Drawer is CLOSED. Only allow drag if starting from RIGHT EDGE.
         if (!isCalendarOpen) {
-            // Pulling from Right to Left
-            if (diff < 0) {
-                 const percent = 100 + (diff / screenW * 100);
-                 drawer.style.transform = `translateX(${Math.max(0, percent)}%)`;
+            if (startX > screenW - EDGE_THRESHOLD) {
+                isTracking = true;
+                drawerEl.style.transition = 'none'; // Disable smooth transition for 1:1 drag
             }
-        } else {
-            // Pushing away from Left to Right
-            if (diff > 0) {
-                const percent = (diff / screenW * 100);
-                drawer.style.transform = `translateX(${percent}%)`;
+        } 
+        // Scenario 2: Drawer is OPEN. Allow drag to close from anywhere.
+        else {
+            isTracking = true;
+            drawerEl.style.transition = 'none';
+        }
+    }, {passive: false}); // passive: false needed to prevent scrolling later if we decide to block it
+
+    document.addEventListener('touchmove', (e) => {
+        if (!isTracking) return;
+
+        const touch = e.touches[0];
+        const currentX = touch.clientX;
+        const currentY = touch.clientY;
+        const diffX = currentX - startX;
+        const diffY = currentY - startY;
+
+        // Direction Locking: If user scrolls vertically first, cancel swipe
+        if (!isDirectionLocked) {
+            if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 5) {
+                isTracking = false; // It's a scroll, stop tracking
+                return;
+            }
+            // If horizontal movement dominates, lock direction and block scroll
+            if (Math.abs(diffX) > 5) {
+                isDirectionLocked = true;
             }
         }
-    }, {passive: true});
+
+        if (isDirectionLocked) {
+             e.preventDefault(); // BLOCK SCROLLING
+        }
+
+        const screenW = window.innerWidth;
+
+        if (!isCalendarOpen) {
+            // Dragging Left (Opening)
+            // diffX is negative. 
+            // 0px drag = 100% translate. -screenW drag = 0% translate.
+            const p = Math.max(0, 100 + (diffX / screenW * 100));
+            drawerEl.style.transform = `translateX(${p}%)`;
+        } else {
+            // Dragging Right (Closing)
+            // diffX is positive.
+            const p = Math.max(0, (diffX / screenW * 100));
+            drawerEl.style.transform = `translateX(${p}%)`;
+        }
+    }, {passive: false});
 
     document.addEventListener('touchend', (e) => {
-        isDragging = false;
+        if (!isTracking) return;
+        isTracking = false;
+        
+        // Restore transition for the snap animation
+        drawerEl.style.transition = 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)';
         
         const endX = e.changedTouches[0].clientX;
         const diff = endX - startX;
-
-        // --- CRITICAL FIX: TAP DETECTION ---
-        // If movement is very small (< 10px), treat it as a CLICK, not a SWIPE.
-        // We clean up inline styles and exit so the click handler can do its job.
-        if (Math.abs(diff) < 10) {
-             drawer.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
-             // Revert to current logic state without triggering toggle
-             drawer.style.transform = ''; 
-             return; 
-        }
-        // -----------------------------------
-
-        drawer.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
-        const threshold = 50; // px to trigger switch
+        const screenW = window.innerWidth;
+        const threshold = screenW * 0.25; // Drag 25% of screen to trigger
 
         if (!isCalendarOpen) {
-            // Was closed, did we drag enough left?
+            // Was trying to open (dragged left, diff negative)
             if (diff < -threshold) {
-                isCalendarOpen = true;
-                drawer.classList.add('open');
-                drawer.style.transform = ''; // Clear inline to let class work
+                switchView('calendar');
             } else {
-                drawer.style.transform = ''; // Revert
+                // Not enough, bounce back
+                drawerEl.style.transform = ''; 
             }
         } else {
-            // Was open, did we drag enough right?
+            // Was trying to close (dragged right, diff positive)
             if (diff > threshold) {
-                isCalendarOpen = false;
-                drawer.classList.remove('open');
-                drawer.style.transform = ''; // Clear inline to let class work
+                switchView('list');
             } else {
-                drawer.style.transform = ''; // Revert
+                // Not enough, bounce back open
+                drawerEl.style.transform = ''; 
+                drawerEl.classList.add('open');
             }
         }
-        updateButtons();
     });
 
 
@@ -1041,7 +1066,6 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
     
     function goToToday() {
         viewDate = getKyivDate(); viewDate.setHours(0,0,0,0);
-        // If drawer is open, close it to show list
         switchView('list'); 
         render();
         setTimeout(() => {
@@ -1067,7 +1091,6 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
     function goToDay(dayNum) {
         const el = document.getElementById(`day-${dayNum}`);
         if (el) {
-            // Close drawer, then scroll
             switchView('list'); 
             setTimeout(() => { el.scrollIntoView({behavior: 'smooth', block: 'center'}); toggleDay(el); }, 300);
         }
