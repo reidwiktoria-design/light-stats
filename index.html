@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
-<title>Моніторинг Світла v6.8 (Index + Smart)</title>
+<title>Power Monitoring v6.8 (Index + Smart)</title>
 
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.PNG">
@@ -85,7 +85,7 @@ html {
 body { margin: 0; padding: 0; min-height: 100svh; font-family: 'Space Grotesk', sans-serif; color: var(--text-main); }
 
 .page { 
-    max-width: 1000px; width: 100%; margin: 0 auto; box-sizing: border-box;
+    max-width: 600px; width: 100%; margin: 0 auto; box-sizing: border-box;
     padding-top: calc(70px + env(safe-area-inset-top));
     padding-bottom: calc(60px + env(safe-area-inset-bottom));
     padding-left: 12px; padding-right: 12px;
@@ -94,12 +94,12 @@ body { margin: 0; padding: 0; min-height: 100svh; font-family: 'Space Grotesk', 
 /* Nav */
 .sticky-container {
     position: fixed; top: 0; left: 50%; transform: translateX(-50%);
-    width: 100%; max-width: 1000px; z-index: 1000;
-    /* Відступи збігаються з .page (12px), тому контент всередині буде рівним */
+    width: 100%; max-width: 600px; z-index: 1000;
+    /* Margins match .page (12px), so content aligns perfectly */
     padding: 10px 12px 0 12px; 
     padding-top: calc(10px + env(safe-area-inset-top));
     pointer-events: none;
-    box-sizing: border-box; /* Важливо для коректного розрахунку паддінгів */
+    box-sizing: border-box; /* Important for correct padding calculation */
 }
 
 .glass-bar {
@@ -107,8 +107,6 @@ body { margin: 0; padding: 0; min-height: 100svh; font-family: 'Space Grotesk', 
     background: rgba(255,255,255,0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     padding: 8px 8px 8px 20px; border-radius: 100px; border: 1px solid var(--border-subtle);
     box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-    
-    /* Додано ці два рядки: */
     width: 100%; 
     box-sizing: border-box; 
 }
@@ -249,22 +247,89 @@ h1 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; co
 .expanded .day-details { max-height: 500px; opacity: 1; margin-top: 15px; padding-top: 5px; border-top: 1px dashed var(--border-subtle); }
 .detail-row { display: flex; justify-content: space-between; padding: 8px 12px; margin-bottom: 4px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #fff; font-weight: 600; }
 
-/* Calendar */
-#calendarGrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-top: 10px; }
+/* --- CALENDAR CSS --- */
+
+#calendarGrid { 
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 10px; 
+}
+
 .cal-weekday { text-align: center; font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; }
+
+/* Day Container */
 .cal-day { 
-    aspect-ratio: 1; border-radius: 50%; position: relative; cursor: pointer; 
+    aspect-ratio: 1; 
+    position: relative; 
+    cursor: pointer; 
     display: flex; align-items: center; justify-content: center;
-    background: var(--bg-card); transition: transform 0.2s;
-    box-shadow: var(--shadow-card); border: 1px solid var(--border-subtle);
+    background: transparent; 
+    border-radius: 50%;
+    border: none; box-shadow: none; 
 }
 .cal-day:active { transform: scale(0.9); }
-.cal-day.empty-data { cursor: default; opacity: 0.4; background: var(--border-subtle); box-shadow: none; border: none; }
+
+/* SVG Ring Container */
+.ring-container {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 100%; height: 100%; /* Full width of the cell */
+    transform: translate(-50%, -50%) rotate(-90deg);
+    pointer-events: none;
+    z-index: 1; /* Below the number */
+}
+
+/* Day Number Styles */
 .cal-day.empty { background: transparent; cursor: default; box-shadow: none; border: none; }
-.cal-inner { width: 76%; height: 76%; background: var(--bg-card); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--text-main); z-index: 2; }
-.cal-today .cal-inner { color: var(--accent); font-weight: 800; background: var(--bg-card); }
+
+.cal-inner { 
+    width: 76%; height: 76%; 
+    background: var(--bg-card); /* Background covers center of ring -> donut effect */
+    border-radius: 50%; 
+    display: flex; align-items: center; justify-content: center; 
+    font-size: 12px; font-weight: 700; color: var(--text-main); 
+    z-index: 2; /* Above the ring */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Slight shadow for depth */
+}
+
+.cal-today .cal-inner { 
+    color: var(--accent); font-weight: 800; 
+    background: var(--bg-card); 
+}
 .cal-today { box-shadow: 0 0 0 2px var(--accent); }
-.cal-attack-dot { position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: var(--bg-card); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+.cal-attack-dot { 
+    position: absolute; top: 0; right: 0; z-index: 3;
+    width: 14px; height: 14px; 
+    background: var(--bg-card); 
+    border-radius: 50%; 
+    display: flex; align-items: center; justify-content: center; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+}
+
+/* Style for empty days (faded number) */
+.cal-day.empty-data .cal-inner { opacity: 0.5; box-shadow: none; }
+
+/* --- TRANSITION ANIMATIONS --- */
+
+/* Class toggled by JS */
+.view-anim {
+    animation-duration: 0.35s; 
+    /* Apple-style timing function */
+    animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1); 
+    animation-fill-mode: both;
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.enter-from-right { animation-name: slideInRight; }
+.enter-from-left { animation-name: slideInLeft; }
 
 /* Tooltip Fixed */
 #tooltip { 
@@ -447,7 +512,27 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
 
     startLiveTimer();
     init();
-    setInterval(init, 60000);
+
+    // --- DAY AUTO-REFRESH ---
+    let lastDayCheck = new Date().getDate();
+
+    setInterval(() => {
+        const now = getKyivDate();
+        const currentDay = now.getDate();
+
+        // If a new day has started (date changed since last check)
+        if (currentDay !== lastDayCheck) {
+            lastDayCheck = currentDay;
+            // Update global view date to "today"
+            viewDate = getKyivDate();
+            viewDate.setHours(0,0,0,0);
+            console.log("New day detected! Refreshing interface...");
+        }
+        
+        // Trigger standard data refresh
+        init();
+    }, 60000);
+
 
     function startLiveTimer() {
         if (isLiveTimerRunning) return;
@@ -580,7 +665,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
 
                 // --- NEW ACCURACY LOGIC ---
                 if (daySchedule.length > 0) {
-                    const TOLERANCE_MINS = 30; // Допуск в хвилинах
+                    const TOLERANCE_MINS = 30; // Tolerance in minutes
 
                     days[k].segments.forEach(seg => {
                         if (seg.type === 'FUTURE') return;
@@ -596,7 +681,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
                             let slotStart = 0;
                             let slotEnd = 0;
 
-                            // Перевірка чи зараз має бути темно
+                            // Check if it should be dark now
                             for (let slot of daySchedule) {
                                 const [sh, sm] = slot.start.split(':').map(Number);
                                 const [eh, em] = slot.end.split(':').map(Number);
@@ -612,20 +697,19 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
 
                             const actualOff = (seg.type === 'OFF');
 
-                            // Логіка нарахування балів:
+                            // Scoring Logic:
                             if (isSchedOff && actualOff) {
-                                // Графік каже темно, і реально темно -> +1
+                                // Schedule says dark, and it IS dark -> +1
                                 days[k].matchMinutes++;
                             } else if (isSchedOff && !actualOff) {
-                                // Графік каже темно, а світло Є (Бонус!) -> +1
+                                // Schedule says dark, but there IS light (Bonus!) -> +1
                                 days[k].matchMinutes++;
                             } else if (!isSchedOff && !actualOff) {
-                                // Графік каже світло, і світло є -> +1
+                                // Schedule says light, and there IS light -> +1
                                 days[k].matchMinutes++;
                             } else if (!isSchedOff && actualOff) {
-                                // Графік каже світло, а світла НЕМАЄ
-                                // Перевіряємо толерантність (30 хв від початку або кінця найближчого слоту)
-                                // Треба знайти найближчий слот щоб перевірити
+                                // Schedule says light, but NO light
+                                // Check tolerance (30 min from start or end of nearest slot)
                                 let nearestDiff = 9999;
                                 for (let slot of daySchedule) {
                                     if (slot.type !== 'black') continue;
@@ -731,9 +815,9 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
 
         // Accuracy Calculation (using Smart Logic)
         let totalMatches = 0; let totalMinutes = 0;
-        // Ми беремо для точності ті самі 7 днів (currentPeriod), або всі дні де є графік
-        // Логічніше показувати точність за той самий період, що й Індекс (останні 7 завершених днів + сьогоднішній, якщо є дані)
-        // Але completedDays не включає "сьогодні". Для точності краще брати дні, де просто є графік.
+        // We take the same 7 days (currentPeriod) for accuracy, or all days with a schedule
+        // It's more logical to show accuracy for the same period as the Index (last 7 completed days + today if data exists)
+        // But completedDays does not include "today". For accuracy, it is better to take days where there is simply a schedule.
         
         const daysWithSched = days.filter(d => d.hasData && d.schedMinutesTotal > 0).slice(0, 7);
         let accuracy = 0;
@@ -855,51 +939,125 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         document.getElementById('listView').innerHTML = html || '<div style="text-align:center; padding:50px; opacity:0.3;">Немає даних</div>';
     }
 
-    function renderCalendar(days) {
-        const first = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
-        const last = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0);
-        let offset = first.getDay(); if (offset === 0) offset = 7; offset--;
-        
-        let html = '<div style="display:grid; grid-template-columns:repeat(7,1fr); gap:10px; margin-bottom:5px;">';
-        ["ПН","ВТ","СР","ЧТ","ПТ","СБ","НД"].forEach(d => html += `<div class="cal-weekday">${d}</div>`);
-        html += '</div><div id="calendarGrid">';
-        
-        for (let i = 0; i < offset; i++) html += '<div class="cal-day empty"></div>';
-        const dayMap = {}; days.forEach(d => dayMap[d.date.getDate()] = d);
-        const now = getKyivDate();
+function renderCalendar(days) {
+    const first = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
+    const last = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0);
+    let offset = first.getDay(); if (offset === 0) offset = 7; offset--;
+    
+    let html = '<div style="display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:10px;">';
+    ["ПН","ВТ","СР","ЧТ","ПТ","СБ","НД"].forEach(d => html += `<div class="cal-weekday">${d}</div>`);
+    html += '</div><div id="calendarGrid">';
+    
+    for (let i = 0; i < offset; i++) html += '<div class="cal-day empty"></div>';
+    const dayMap = {}; days.forEach(d => dayMap[d.date.getDate()] = d);
+    const now = getKyivDate();
 
-        for (let i = 1; i <= last.getDate(); i++) {
-            const data = dayMap[i];
-            const isToday = (now.getDate() === i && now.getMonth() === viewDate.getMonth() && now.getFullYear() === viewDate.getFullYear());
-            if (!data || !data.hasData) {
-                html += `<div class="cal-day empty-data"><div class="cal-inner" style="background:transparent; color:var(--text-muted); opacity:0.5;">${i}</div></div>`;
-                continue;
-            }
-            const total = 1440;
-            const onP = (data.totalOn / total) * 100;
-            const offP = (data.totalOff / total) * 100;
-            const stop1 = onP; 
-            const stop2 = onP + offP;
+    // Ring Geometry
+    // R=15.9155 -> Circumference = 100.
+    // Ideal for percentages (50% = 50 length)
+    const trackPath = 'd="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"';
 
-            let bgStyle = '';
-            if (isToday) {
-                bgStyle = `background: conic-gradient(var(--color-on) 0% ${stop1}%, var(--color-off) ${stop1}% ${stop2}%, var(--color-future) ${stop2}% 100%)`;
-            } else {
-                bgStyle = `background: conic-gradient(var(--color-on) 0% ${stop1}%, var(--color-off) ${stop1}% 100%)`;
-            }
-            let dot = ''; if (data.attack) dot = `<div class="cal-attack-dot">${warnSvg}</div>`;
-            html += `<div class="cal-day ${isToday?'cal-today':''}" style="${bgStyle}" onclick="goToDay(${i})"><div class="cal-inner">${i}</div>${dot}</div>`;
+    for (let i = 1; i <= last.getDate(); i++) {
+        const data = dayMap[i];
+        
+        // --- DAY WITHOUT DATA (But draw a grey ring) ---
+        if (!data || !data.hasData) {
+            html += `
+            <div class="cal-day empty-data">
+                <svg class="ring-container" viewBox="0 0 36 36">
+                    <path ${trackPath} fill="none" stroke="var(--border-subtle)" stroke-width="4" opacity="0.3" />
+                </svg>
+                <div class="cal-inner">${i}</div>
+            </div>`;
+            continue;
         }
-        document.getElementById('calendarView').innerHTML = html + '</div>';
+
+        const isToday = (now.getDate() === i && now.getMonth() === viewDate.getMonth() && now.getFullYear() === viewDate.getFullYear());
+        
+        const total = 1440; 
+        let pctOn = (data.totalOn / total) * 100;
+        let pctOff = (data.totalOff / total) * 100;
+        
+        // Normalize to prevent overflow beyond 100%
+        if (pctOn + pctOff > 100) {
+            const scale = 100 / (pctOn + pctOff);
+            pctOn *= scale;
+            pctOff *= scale;
+        }
+
+        const c = 100; 
+        
+        // Green (starts from 0)
+        const dashOn = `${pctOn} ${c}`;
+        
+        // Red (starts after Green)
+        // stroke-dashoffset must be negative, equal to the length of the green segment
+        const dashOff = `${pctOff} ${c}`;
+        const offsetOff = -pctOn; 
+
+        // stroke-width="4" — thick lines, partially covered by the inner circle (donut effect)
+        const svg = `
+        <svg class="ring-container" viewBox="0 0 36 36">
+            <path ${trackPath} fill="none" stroke="var(--border-subtle)" stroke-width="4" opacity="0.5" />
+            
+            <path ${trackPath} 
+                  fill="none" stroke="var(--color-on)" stroke-width="4" 
+                  stroke-dasharray="${dashOn}" stroke-dashoffset="0" stroke-linecap="round" />
+            
+            <path ${trackPath} 
+                  fill="none" stroke="var(--color-off)" stroke-width="4" 
+                  stroke-dasharray="${dashOff}" stroke-dashoffset="${offsetOff}" stroke-linecap="round" />
+        </svg>
+        `;
+        
+        let dot = ''; 
+        if (data.attack) dot = `<div class="cal-attack-dot">${warnSvg}</div>`;
+        const todayClass = isToday ? 'cal-today' : '';
+
+        html += `
+            <div class="cal-day ${todayClass}" onclick="goToDay(${i})">
+                ${svg}
+                <div class="cal-inner">${i}</div>
+                ${dot}
+            </div>`;
     }
+    document.getElementById('calendarView').innerHTML = html + '</div>';
+}
 
     function switchView(view) {
+        if (currentView === view) return; // If we are already here - do nothing
+        
         currentView = view;
+        
+        // Buttons
         document.getElementById('btn-list').classList.toggle('active', view === 'list');
         document.getElementById('btn-calendar').classList.toggle('active', view === 'calendar');
-        document.getElementById('listView').style.display = view === 'list' ? 'block' : 'none';
-        document.getElementById('calendarView').style.display = view === 'calendar' ? 'block' : 'none';
+        
+        const listEl = document.getElementById('listView');
+        const calEl = document.getElementById('calendarView');
+        
+        // Reset old animations
+        listEl.classList.remove('view-anim', 'enter-from-left', 'enter-from-right');
+        calEl.classList.remove('view-anim', 'enter-from-left', 'enter-from-right');
+
+        if (view === 'calendar') {
+            // Hide list
+            listEl.style.display = 'none';
+            
+            // Show calendar with animation from right
+            calEl.style.display = 'block';
+            calEl.classList.add('view-anim', 'enter-from-right');
+            
+        } else {
+            // Hide calendar
+            calEl.style.display = 'none';
+            
+            // Show list with animation from left
+            listEl.style.display = 'block';
+            listEl.classList.add('view-anim', 'enter-from-left');
+        }
     }
+
     function changeMonth(delta) { viewDate.setMonth(viewDate.getMonth() + delta); render(); }
     
     function goToToday() {
@@ -962,7 +1120,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
             icon.style.color = 'var(--color-off)';
         }
         timer.innerText = formatDur(diff); 
-        document.getElementById('statusLabel').innerText = `ОНОВЛЕНО: ${last.date.toLocaleDateString()} ${last.raw}`;
+        document.getElementById('statusLabel').innerText = `ЗМІНА: ${last.date.toLocaleDateString()} ${last.raw}`;
     }
 
     function formatDur(m) { return m < 60 ? `${m}хв` : `${Math.floor(m/60)}г ${m%60}хв`; }
@@ -984,6 +1142,37 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         tipTimeout = setTimeout(() => { tip.classList.remove('visible'); }, 2500);
     }
     document.addEventListener('click', () => { document.getElementById('tooltip').classList.remove('visible'); if (tipTimeout) clearTimeout(tipTimeout); });
+
+    // --- SWIPE LOGIC ---
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const minSwipeDistance = 50; // Minimum swipe distance in pixels
+
+    document.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, {passive: true});
+
+    document.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, {passive: true});
+
+    function handleSwipe() {
+        const distance = touchEndX - touchStartX;
+        
+        // Swipe LEFT (finger moves ←) -> go to Calendar
+        if (distance < -minSwipeDistance) {
+            if (currentView === 'list') switchView('calendar');
+        }
+        
+        // Swipe RIGHT (finger moves →) -> go to List
+        if (distance > minSwipeDistance) {
+            // Check to avoid triggering when scrolling months in calendar
+            // But since months are switched by buttons, this is safe.
+            if (currentView === 'calendar') switchView('list');
+        }
+    }
+
 </script>
 
 </body>
