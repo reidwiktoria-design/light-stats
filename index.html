@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
-<title>S32 Monitor | Stable</title>
+<title>S32 Monitor | Live</title>
 
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.PNG">
@@ -12,18 +12,17 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
 <style>
 :root {
     --page-max: 1000px;
-
-    /* --- Palette --- */
     --bg-body: #eef2f9;
     --bg-card: #FFFFFF;
     --accent: #254EDB; 
     --color-on: #8DAA91;   
     --color-off: #E07A5F;
     --color-future: #e8ecef; 
-    
     --color-neutral: #94a3b8; 
     --color-row-on: #7E9C82; 
     --color-row-off: #CC6A50;
@@ -31,19 +30,14 @@
     --text-muted: #888888;
     --border-subtle: rgba(0,0,0,0.05);
     --shadow-card: 0 4px 12px rgba(0,0,0,0.03);
-    
     --radius-l: 24px;
     --radius-m: 16px;
-    
     --attack-bg: #ffebee;
     --attack-text: #c62828;
-    
     --sched-safe: #a3cfbb; 
     --sched-danger: #f87171; 
-    
     --tooltip-bg: var(--accent);
     --tooltip-text: #fff;
-    
     --z-tooltip: 5000;
     --z-nav: 4000;
     --z-drawer: 3000;
@@ -57,7 +51,6 @@
         --color-on: #3fb950;   
         --color-off: #f85149;
         --color-future: #2c2c2e; 
-        
         --color-neutral: #8b949e; 
         --color-row-on: #238636; 
         --color-row-off: #da3633;
@@ -65,13 +58,10 @@
         --text-muted: #8b949e;
         --border-subtle: rgba(255,255,255,0.1);
         --shadow-card: 0 4px 12px rgba(0,0,0,0.5);
-        
         --attack-bg: #3c1618;
         --attack-text: #ff7b72;
-        
         --sched-safe: #238636;
         --sched-danger: #da3633;
-        
         --tooltip-bg: #2d333b;
         --tooltip-text: #f0f6fc;
     }
@@ -94,14 +84,12 @@ body {
     overscroll-behavior-y: none;
 }
 
-/* --- SCROLL LOCK FIX (Виправлено) --- */
 body.locked {
     position: fixed;
     width: 100%;
     height: 100%;
     overflow: hidden;
     left: 0;
-    /* Не використовуємо bottom: 0, щоб уникнути розтягування */
 }
 
 .page { 
@@ -303,85 +291,58 @@ h1 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; co
     .drawer-left.open { left: 50%; margin-left: -500px; transform: translateX(0) !important; }
 }
 
-/* --- CALENDAR FIXED LAYOUT (Виправлено) --- */
+/* --- CALENDAR FIXED LAYOUT --- */
 #calendarGrid { 
     display: grid; 
     grid-template-columns: repeat(7, 1fr); 
-    /* Адаптивний проміжок: менше на телефоні, більше на ПК */
     gap: clamp(4px, 1.5vw, 12px);
     margin-top: 10px;
     margin-left: auto;
     margin-right: auto;
-    
-    /* Контроль ширини: */
     width: 100%;
-    /* Не дає розповзтись на великому екрані */
     max-width: 480px; 
-    /* Не дає вийти за межі екрану */
     box-sizing: border-box;
 }
 
-/* Landscape Mode Fix: Щоб календар не був на весь екран по висоті */
 @media (orientation: landscape) and (max-height: 500px) {
-    #calendarGrid {
-        max-width: 60vh; 
-    }
+    #calendarGrid { max-width: 60vh; }
 }
 
-/* Для планшетів та ПК - трохи більше простору, але не гігантський */
 @media (min-width: 768px) {
-    #calendarGrid {
-        max-width: 600px;
-    }
+    #calendarGrid { max-width: 600px; }
 }
 
-/* Стилі заголовків (ПН, ВТ...) тепер частина сітки */
 .cal-weekday { 
-    text-align: center; 
-    font-size: 10px; 
-    font-weight: 800; 
-    color: var(--text-muted); 
-    margin-bottom: 5px; 
-    align-self: end; /* Притиснути до низу комірки */
+    text-align: center; font-size: 10px; font-weight: 800; 
+    color: var(--text-muted); margin-bottom: 5px; align-self: end; 
 }
 
 .cal-day { 
-    aspect-ratio: 1; 
-    position: relative; 
-    cursor: pointer; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    background: transparent; 
-    border-radius: 50%; 
-    border: none; 
-    box-shadow: none; 
-    width: 100%; /* Заповнює комірку сітки */
+    aspect-ratio: 1; position: relative; cursor: pointer; display: flex; 
+    align-items: center; justify-content: center; background: transparent; 
+    border-radius: 50%; border: none; box-shadow: none; width: 100%; 
 }
 .cal-day:active { transform: scale(0.9); }
 .ring-container { position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; transform: translate(-50%, -50%) rotate(-90deg); pointer-events: none; z-index: 1; }
 .cal-day.empty { background: transparent; cursor: default; }
 .cal-inner { 
-    width: 76%; height: 76%; 
-    background: var(--bg-card); 
-    border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-    /* Адаптивний шрифт цифр */
-    font-size: clamp(10px, 2.5vw, 14px); 
-    font-weight: 700; color: var(--text-main); z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+    width: 76%; height: 76%; background: var(--bg-card); border-radius: 50%; 
+    display: flex; align-items: center; justify-content: center; 
+    font-size: clamp(10px, 2.5vw, 14px); font-weight: 700; color: var(--text-main); 
+    z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
 }
 .cal-today .cal-inner { color: var(--accent); font-weight: 800; background: var(--bg-card); }
 .cal-today { box-shadow: 0 0 0 2px var(--accent); }
 .cal-attack-dot { position: absolute; top: 0; right: 0; z-index: 3; width: 14px; height: 14px; background: var(--bg-card); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 .cal-day.empty-data .cal-inner { opacity: 0.5; box-shadow: none; }
 
-/* ANALYTICS (Left Drawer) STYLES */
+/* ANALYTICS */
 .chart-container {
     background: var(--bg-card); border-radius: var(--radius-m); padding: 20px;
     margin-bottom: 20px; box-shadow: var(--shadow-card); border: 1px solid var(--border-subtle);
 }
 .chart-header { font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 15px; letter-spacing: 0.5px; }
 
-/* 24h Timeline Chart */
 .timeline-24h { 
     height: 40px; width: 100%; background: var(--color-future); 
     border-radius: 8px; position: relative; overflow: hidden; display: flex;
@@ -390,25 +351,18 @@ h1 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin: 0; co
 .t24-markers { display: flex; justify-content: space-between; margin-top: 6px; padding: 0 2px; }
 .t24-mark { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--text-muted); }
 
-/* Stability Bar Chart */
 .bar-chart { display: flex; align-items: flex-end; justify-content: space-between; height: 120px; gap: 10px; padding-top: 10px; }
 .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .bar-track { width: 100%; background: var(--border-subtle); border-radius: 6px 6px 0 0; flex: 1; position: relative; display: flex; align-items: flex-end; overflow: hidden; }
 .bar-fill { 
-    width: 100%; 
-    background: var(--accent); 
-    border-radius: 4px 4px 0 0; 
-    min-height: 4px;
-    transition: height 0.5s ease; 
-    opacity: 0.9; 
+    width: 100%; background: var(--accent); border-radius: 4px 4px 0 0; 
+    min-height: 4px; transition: height 0.5s ease; opacity: 0.9; 
 }
 .bar-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-align: center; line-height: 1.1; }
 .bar-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
 
-/* Tooltip Fixed */
 #tooltip { 
-    position: absolute; 
-    background: var(--tooltip-bg); color: var(--tooltip-text); 
+    position: absolute; background: var(--tooltip-bg); color: var(--tooltip-text); 
     border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px; 
     font-family: 'JetBrains Mono', monospace; font-size: 11px; 
     border-radius: 8px; pointer-events: none; opacity: 0; z-index: var(--z-tooltip); 
@@ -475,8 +429,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         
         <div class="chart-container">
             <div class="chart-header">REAL FEEL (ОСТАННІ 7 ДНІВ)</div>
-            <div id="vikaStats" style="display: flex; gap: 15px; align-items: center;">
-                 </div>
+            <div id="vikaStats" style="display: flex; gap: 15px; align-items: center;"></div>
         </div>
 
         <div class="chart-container">
@@ -494,10 +447,15 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
             <div id="stabilityChart" class="bar-chart"></div>
         </div>
     </div>
-
 </div>
 
 <script>
+    // --- SUPABASE CONFIG ---
+    const SUPABASE_URL = 'https://jribfnztzwekgmjtykbs.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_Pf6YtRbiRx-l0gMOgTjcFQ_ngMm4QB1';
+    
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
     let allEvents = [];
     let attacks = [];
     let schedule = {}; 
@@ -506,8 +464,9 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
     let isLiveTimerRunning = false;
     let currentView = 'list'; 
     let scrollPosition = 0; 
+    let viewDate = getKyivDate();
+    viewDate.setHours(0,0,0,0);
 
-    // Icons
     const blastSvg = `<svg style="width:14px;height:14px;vertical-align:middle;" viewBox="0 0 24 24"><path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6-4.8-6 4.8 2.4-7.2-6-4.8h7.6z" /></svg>`;
     const warnSvg = `<svg style="width:10px;height:10px;fill:var(--color-off);" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>`;
     const iconClock = `<svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>`;
@@ -515,10 +474,72 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
 
     function getKyivDate() { return new Date(); }
 
-    let viewDate = getKyivDate();
-    viewDate.setHours(0,0,0,0);
+    async function init() {
+        try {
+            const { data: eventsData, error: eventsError } = await supabase
+                .from('events')
+                .select('*')
+                .order('event_time', { ascending: true });
+            
+            if (eventsError) throw eventsError;
 
-    // --- Helper Logic ---
+            allEvents = eventsData.map(e => {
+                const d = new Date(e.event_time);
+                const rawTime = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+                return { date: d, type: e.type, raw: rawTime };
+            });
+
+            const { data: attacksData } = await supabase.from('attacks').select('*');
+            if (attacksData) {
+                attacks = attacksData.map(a => {
+                    const d = new Date(a.start_time);
+                    const dateKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                    const timeStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+                    return { date: dateKey, time: timeStr, duration: a.duration_hours, desc: a.description };
+                });
+            }
+
+            const { data: schedData } = await supabase.from('schedule').select('*');
+            schedule = {}; 
+            if (schedData) {
+                schedData.forEach(item => {
+                    addScheduleSegment(schedule, new Date(item.start_time), new Date(item.end_time), item.type);
+                });
+            }
+
+            updateStatus(allEvents);
+            render();
+            renderAnalytics(allEvents);
+        } catch (e) { 
+            console.error("Supabase Error:", e);
+            document.getElementById('statusText').innerText = "НЕМАЄ ДАНИХ";
+            document.getElementById('daysListContainer').innerHTML = '<div style="text-align:center; padding:50px; opacity:0.5;">База даних порожня або недоступна.<br>Додайте події через Supabase.</div>';
+        }
+    }
+
+    function addScheduleSegment(db, start, end, type) {
+        let current = new Date(start);
+        while (current < end) {
+            let nextMidnight = new Date(current); 
+            nextMidnight.setHours(24, 0, 0, 0);
+            let segEnd = new Date(Math.min(end, nextMidnight));
+            
+            let y = current.getFullYear();
+            let m = String(current.getMonth()+1).padStart(2,'0');
+            let d = String(current.getDate()).padStart(2,'0');
+            let dateKey = `${y}-${m}-${d}`;
+            
+            let sTime = `${String(current.getHours()).padStart(2,'0')}:${String(current.getMinutes()).padStart(2,'0')}`;
+            let eTime = (segEnd.getTime() === nextMidnight.getTime()) ? "24:00" : 
+                        `${String(segEnd.getHours()).padStart(2,'0')}:${String(segEnd.getMinutes()).padStart(2,'0')}`;
+            
+            if (!db[dateKey]) db[dateKey] = [];
+            const exists = db[dateKey].some(s => s.start === sTime && s.end === eTime);
+            if (!exists) { db[dateKey].push({ start: sTime, end: eTime, type: type }); }
+            current = nextMidnight;
+        }
+    }
+
     function getWeightedDuration(startMs, endMs) {
         let weight = 0;
         let currentH = new Date(startMs);
@@ -538,99 +559,15 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         return weight;
     }
 
-    async function init() {
-        try {
-            const now = Date.now();
-            const [logsRes, attacksRes, scheduleRes] = await Promise.all([
-                fetch('logs.txt?t=' + now),
-                fetch('attacks.txt?t=' + now).catch(() => ({ ok: false })),
-                fetch('schedule.txt?t=' + now).catch(() => ({ ok: false }))
-            ]);
-            if(logsRes.ok) allEvents = parseLogs(await logsRes.text());
-            if(attacksRes.ok) attacks = parseAttacks(await attacksRes.text());
-            if(scheduleRes.ok) schedule = parseDtekText(await scheduleRes.text());
-
-            updateStatus(allEvents);
-            render();
-            renderAnalytics(allEvents);
-        } catch (e) { console.error("Init Error:", e); }
-    }
-
-    function parseDtekText(text) {
-        const db = {};
-        const lines = text.split('\n');
-        const emergencyStartRegex = /Час початку\s*[–-]\s*(\d{2}:\d{2})\s(\d{2}\.\d{2}\.\d{4})/g;
-        const emergencyEndRegex = /відновлення.*[–-].*?(\d{2}:\d{2})\s(\d{2}\.\d{2}\.\d{4})/g;
-        
-        let matchStart;
-        while ((matchStart = emergencyStartRegex.exec(text)) !== null) {
-            emergencyEndRegex.lastIndex = 0; 
-            const matchEnd = emergencyEndRegex.exec(text); 
-            if (matchEnd) {
-                const sParts = matchStart[2].split('.');
-                const startDt = new Date(`${sParts[2]}-${sParts[1]}-${sParts[0]}T${matchStart[1]}`);
-                const eParts = matchEnd[2].split('.');
-                const endDt = new Date(`${eParts[2]}-${eParts[1]}-${eParts[0]}T${matchEnd[1]}`);
-                addScheduleSegment(db, startDt, endDt, "black");
-            }
-        }
-        let currentDateStr = null;
-        lines.forEach(line => {
-            const dateMatch = line.match(/(\d{2}\.\d{2}\.\d{4})/);
-            if (dateMatch && !line.includes("Час початку") && !line.includes("відновлення")) {
-                currentDateStr = dateMatch[1]; return;
-            }
-            if (currentDateStr) {
-                const timeMatch = line.match(/(\d{2}:\d{2})\s*-\s*(\d{2}:\d{2})/);
-                if (timeMatch) {
-                    const parts = currentDateStr.split('.');
-                    const dateIso = `${parts[2]}-${parts[1]}-${parts[0]}`;
-                    let tStart = timeMatch[1]; let tEnd = timeMatch[2];
-                    let startDt = new Date(`${dateIso}T${tStart}`);
-                    let endDt;
-                    if (tEnd === "24:00") endDt = new Date(`${dateIso}T23:59:59`);
-                    else {
-                        endDt = new Date(`${dateIso}T${tEnd}`);
-                        if (endDt < startDt) endDt.setDate(endDt.getDate() + 1);
-                    }
-                    addScheduleSegment(db, startDt, endDt, "black");
-                }
-            }
-        });
-        return db;
-    }
-
-    function addScheduleSegment(db, start, end, type) {
-        let current = new Date(start);
-        while (current < end) {
-            let nextMidnight = new Date(current); nextMidnight.setHours(24, 0, 0, 0);
-            let segEnd = new Date(Math.min(end, nextMidnight));
-            let y = current.getFullYear();
-            let m = String(current.getMonth()+1).padStart(2,'0');
-            let d = String(current.getDate()).padStart(2,'0');
-            let dateKey = `${y}-${m}-${d}`;
-            let sTime = `${String(current.getHours()).padStart(2,'0')}:${String(current.getMinutes()).padStart(2,'0')}`;
-            let eTime = (segEnd.getTime() === nextMidnight.getTime()) ? "24:00" : 
-                        `${String(segEnd.getHours()).padStart(2,'0')}:${String(segEnd.getMinutes()).padStart(2,'0')}`;
-            if (!db[dateKey]) db[dateKey] = [];
-            const exists = db[dateKey].some(s => s.start === sTime && s.end === eTime);
-            if (!exists) { db[dateKey].push({ start: sTime, end: eTime, type: type }); }
-            current = nextMidnight;
-        }
-    }
-
     startLiveTimer();
     init();
 
-    // --- DAY AUTO-REFRESH ---
     let lastDayCheck = new Date().getDate();
     setInterval(() => {
         const now = getKyivDate();
-        const currentDay = now.getDate();
-        if (currentDay !== lastDayCheck) {
-            lastDayCheck = currentDay;
-            viewDate = getKyivDate();
-            viewDate.setHours(0,0,0,0);
+        if (now.getDate() !== lastDayCheck) {
+            lastDayCheck = now.getDate();
+            viewDate = getKyivDate(); viewDate.setHours(0,0,0,0);
             init();
         }
     }, 60000);
@@ -653,36 +590,6 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
                 markers.forEach(m => m.style.left = (minsToday / 14.4) + '%');
             }
         }, 1000);
-    }
-
-    function parseLogs(rawText) {
-        const lines = rawText.split('\n');
-        const events = [];
-        lines.forEach(line => {
-            const isOn = line.includes('Увімкнули') || line.includes('світло є');
-            const isOff = line.includes('зникло') || line.includes('немає');
-            const dM = line.match(/(\d{2}\.\d{2}\.\d{2,4})/);
-            const tM = line.match(/(\d{2}:\d{2})/);
-            if ((isOn || isOff) && dM && tM) {
-                const p = dM[1].split('.');
-                const y = p[2].length === 2 ? '20'+p[2] : p[2];
-                const dateStr = `${y}-${p[1]}-${p[0]}T${tM[1]}:00`;
-                events.push({ date: new Date(dateStr), type: isOn ? 'ON' : 'OFF', raw: tM[1] });
-            }
-        });
-        return events.sort((a, b) => a.date - b.date);
-    }
-
-    function parseAttacks(rawText) {
-        if (!rawText) return [];
-        const res = [];
-        rawText.split('\n').forEach(line => {
-            const p = line.split('|').map(s => s.trim());
-            if (p.length >= 3) {
-                res.push({ date: p[0], time: p[1], duration: parseInt(p[2]) || 2, desc: p[3] || 'Атака' });
-            }
-        });
-        return res;
     }
 
     function generateDays(events) {
@@ -724,10 +631,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
                      const endMins = ehFix*60 + em;
                      const width = (endMins - startMins) / 14.4;
                      const left = startMins / 14.4;
-                     days[k].scheduleSegments.push({ 
-                         left, width, type: slot.type,
-                         startStr: slot.start, endStr: slot.end
-                     });
+                     days[k].scheduleSegments.push({ left, width, type: slot.type, startStr: slot.start, endStr: slot.end });
                 });
             }
 
@@ -759,13 +663,8 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
                     addSeg(days[k], pTime, dEnd.getTime(), currentState, now);
                 }
 
-                // --- VIKA'S FORMULA LOGIC ---
-                let baseQuality = (days[k].potentialWeight > 0) 
-                    ? (days[k].effectiveMinutes / days[k].potentialWeight) 
-                    : 0;
-                let stabilityFactor = (days[k].totalOn > 0) 
-                    ? (days[k].maxOn / days[k].totalOn) 
-                    : 0;
+                let baseQuality = (days[k].potentialWeight > 0) ? (days[k].effectiveMinutes / days[k].potentialWeight) : 0;
+                let stabilityFactor = (days[k].totalOn > 0) ? (days[k].maxOn / days[k].totalOn) : 0;
                 days[k].stabilityFactor = stabilityFactor;
                 let fragmentPenalty = Math.min(days[k].outageCount * 0.04, 0.35);
                 days[k].vikaIndex = baseQuality * (0.6 + 0.4 * stabilityFactor) * (1 - fragmentPenalty);
@@ -787,10 +686,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
                                 const [eh, em] = slot.end.split(':').map(Number);
                                 const slotS = sh*60 + sm;
                                 const slotE = (eh === 0 && em === 0) ? 1440 : (eh*60 + em);
-                                if (m >= slotS && m < slotE && slot.type === 'black') {
-                                    isSchedOff = true;
-                                    break;
-                                }
+                                if (m >= slotS && m < slotE && slot.type === 'black') { isSchedOff = true; break; }
                             }
                             const actualOff = (seg.type === 'OFF');
                             if (isSchedOff && actualOff) days[k].matchMinutes++;
@@ -863,7 +759,6 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         const days = generateDays(events);
         const validDays = days.filter(d => d.hasData).slice(0, 7);
         
-        // --- 1. Average Vika Index (Real Feel) ---
         let avgVikaIndex = 0;
         let totalW = 0;
         validDays.forEach(d => {
@@ -893,10 +788,8 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
             </div>
         `;
 
-        // --- 2. Heatmap ---
         renderHeatmap(days);
 
-        // --- 3. Stability Histogram ---
         const buckets = { short: 0, medium: 0, long: 0 };
         validDays.forEach(d => {
             d.segments.forEach(s => {
@@ -912,8 +805,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         const maxVal = Math.max(buckets.short, buckets.medium, buckets.long, 1);
         const getH = (val) => (val / maxVal) * 100;
         
-        const barChartEl = document.getElementById('stabilityChart');
-        barChartEl.innerHTML = `
+        document.getElementById('stabilityChart').innerHTML = `
             <div class="bar-col">
                 <div class="bar-track"><div class="bar-fill" style="height:${getH(buckets.short)}%; background:var(--color-off)"></div></div>
                 <div class="bar-val">${buckets.short}</div>
@@ -1117,7 +1009,6 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         const last = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0);
         let offset = first.getDay(); if (offset === 0) offset = 7; offset--;
         
-        // --- FIX: Тепер заголовки днів є частиною Grid ---
         let html = '<div id="calendarGrid">';
         ["ПН","ВТ","СР","ЧТ","ПТ","СБ","НД"].forEach(d => html += `<div class="cal-weekday">${d}</div>`);
         
@@ -1164,14 +1055,9 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         document.getElementById('calendarView').innerHTML = html + '</div>';
     }
 
-    // --- NAVIGATION & GESTURES ---
-    
-    // --- SCROLL LOCKING HELPERS (FIXED) ---
+    // --- NAV & UI LOGIC ---
     function lockScroll() {
-        // Запам'ятовуємо позицію скролу
         scrollPosition = window.scrollY;
-        
-        // Встановлюємо фіксацію, але компенсуємо зсув контенту
         document.body.style.top = `-${scrollPosition}px`;
         document.body.classList.add('locked');
     }
@@ -1179,111 +1065,62 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
     function unlockScroll() {
         document.body.classList.remove('locked');
         document.body.style.top = '';
-        // Миттєво повертаємось на збережену позицію
         window.scrollTo(0, scrollPosition);
     }
 
     function switchView(viewName) {
         const calDrawer = document.getElementById('calendarDrawer');
         const anaDrawer = document.getElementById('analyticsDrawer');
-        const body = document.body;
-
         currentView = viewName;
-        
-        // Reset state
         calDrawer.classList.remove('open');
         anaDrawer.classList.remove('open');
         calDrawer.style.transform = '';
         anaDrawer.style.transform = '';
 
-        if (viewName === 'calendar') {
-            lockScroll(); // Спочатку блокуємо
-            calDrawer.classList.add('open');
-        } else if (viewName === 'analytics') {
-            lockScroll(); // Спочатку блокуємо
-            anaDrawer.classList.add('open');
-        } else {
-            unlockScroll(); // Розблокуємо
-        }
+        if (viewName === 'calendar') { lockScroll(); calDrawer.classList.add('open'); }
+        else if (viewName === 'analytics') { lockScroll(); anaDrawer.classList.add('open'); }
+        else { unlockScroll(); }
 
-        updateButtons();
-    }
-
-    function updateButtons() {
         document.getElementById('btn-list').classList.toggle('active', currentView === 'list');
         document.getElementById('btn-calendar').classList.toggle('active', currentView === 'calendar');
     }
 
-    // --- GLOBAL TOUCH HANDLER (Apple Style Drawers) ---
     let startX = 0, startY = 0;
     let isTracking = false;
     let isDirectionLocked = false;
     let activeDrawer = null; 
-    let initialTransform = 0;
     const EDGE_THRESHOLD = 40; 
 
     document.addEventListener('touchstart', (e) => {
         const touch = e.touches[0];
-        startX = touch.clientX;
-        startY = touch.clientY;
-        isTracking = false;
-        isDirectionLocked = false;
-        activeDrawer = null;
+        startX = touch.clientX; startY = touch.clientY;
+        isTracking = false; isDirectionLocked = false; activeDrawer = null;
         
         const screenW = window.innerWidth;
         const calDrawer = document.getElementById('calendarDrawer');
         const anaDrawer = document.getElementById('analyticsDrawer');
 
-        // Logic: Decide which drawer we are interacting with
         if (currentView === 'list') {
-            // Dragging from Right Edge -> Open Calendar
-            if (startX > screenW - EDGE_THRESHOLD) {
-                activeDrawer = calDrawer;
-                isTracking = true;
-                activeDrawer.style.transition = 'none';
-            }
-            // Dragging from Left Edge -> Open Analytics
-            else if (startX < EDGE_THRESHOLD) {
-                activeDrawer = anaDrawer;
-                isTracking = true;
-                activeDrawer.style.transition = 'none';
-            }
-        } else if (currentView === 'calendar') {
-            // Can only close calendar (swipe right)
-            activeDrawer = calDrawer;
-            isTracking = true;
-            activeDrawer.style.transition = 'none';
-        } else if (currentView === 'analytics') {
-            // Can only close analytics (swipe left)
-            activeDrawer = anaDrawer;
-            isTracking = true;
-            activeDrawer.style.transition = 'none';
-        }
+            if (startX > screenW - EDGE_THRESHOLD) { activeDrawer = calDrawer; isTracking = true; activeDrawer.style.transition = 'none'; }
+            else if (startX < EDGE_THRESHOLD) { activeDrawer = anaDrawer; isTracking = true; activeDrawer.style.transition = 'none'; }
+        } else if (currentView === 'calendar') { activeDrawer = calDrawer; isTracking = true; activeDrawer.style.transition = 'none'; }
+        else if (currentView === 'analytics') { activeDrawer = anaDrawer; isTracking = true; activeDrawer.style.transition = 'none'; }
     }, {passive: false});
 
     document.addEventListener('touchmove', (e) => {
         if (!isTracking || !activeDrawer) return;
-
         const touch = e.touches[0];
         const diffX = touch.clientX - startX;
         const diffY = touch.clientY - startY;
 
-        // Block vertical scroll if horizontal swipe detected
         if (!isDirectionLocked) {
-            if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 5) {
-                isTracking = false; return;
-            }
+            if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 5) { isTracking = false; return; }
             if (Math.abs(diffX) > 5) isDirectionLocked = true;
         }
         if (isDirectionLocked) e.preventDefault();
-
         const screenW = window.innerWidth;
         
-        // Logic for transforms based on active drawer
         if (activeDrawer.id === 'calendarDrawer') {
-            // Right Drawer logic
-            // Closed -> Open (diffX negative)
-            // Open -> Closed (diffX positive)
             if (currentView === 'list') {
                 const p = Math.max(0, 100 + (diffX / screenW * 100));
                 activeDrawer.style.transform = `translateX(${p}%)`;
@@ -1292,9 +1129,6 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
                 activeDrawer.style.transform = `translateX(${p}%)`;
             }
         } else {
-            // Left Drawer logic (Analytics)
-            // Closed -> Open (diffX positive)
-            // Open -> Closed (diffX negative)
             if (currentView === 'list') {
                 const p = Math.min(0, -100 + (diffX / screenW * 100));
                 activeDrawer.style.transform = `translateX(${p}%)`;
@@ -1303,99 +1137,58 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
                 activeDrawer.style.transform = `translateX(${p}%)`;
             }
         }
-
     }, {passive: false});
 
     document.addEventListener('touchend', (e) => {
         if (!isTracking || !activeDrawer) return;
         isTracking = false;
-        
         activeDrawer.style.transition = 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)';
-        
-        const endX = e.changedTouches[0].clientX;
-        const diff = endX - startX;
-        const screenW = window.innerWidth;
-        const threshold = screenW * 0.25;
+        const diff = e.changedTouches[0].clientX - startX;
+        const screenW = window.innerWidth; const threshold = screenW * 0.25;
 
-        // Commit decision
         if (activeDrawer.id === 'calendarDrawer') {
             if (currentView === 'list') {
                 if (diff < -threshold) switchView('calendar');
-                else {
-                    activeDrawer.style.transform = '';
-                    // Reset to unlocked if failed to open
-                    if (!activeDrawer.classList.contains('open')) unlockScroll();
-                }
-            } else {
-                if (diff > threshold) switchView('list');
-                else activeDrawer.style.transform = '';
-            }
+                else { activeDrawer.style.transform = ''; if (!activeDrawer.classList.contains('open')) unlockScroll(); }
+            } else { if (diff > threshold) switchView('list'); else activeDrawer.style.transform = ''; }
         } else {
-            // Analytics
             if (currentView === 'list') {
                 if (diff > threshold) switchView('analytics');
-                else {
-                    activeDrawer.style.transform = '';
-                    if (!activeDrawer.classList.contains('open')) unlockScroll();
-                }
-            } else {
-                if (diff < -threshold) switchView('list');
-                else activeDrawer.style.transform = '';
-            }
+                else { activeDrawer.style.transform = ''; if (!activeDrawer.classList.contains('open')) unlockScroll(); }
+            } else { if (diff < -threshold) switchView('list'); else activeDrawer.style.transform = ''; }
         }
     });
 
-    // --- CALENDAR SWIPE (Inside Drawer) ---
-    // Specifically for #calendarView to switch months
     const calGrid = document.getElementById('calendarView');
     let calStartX = 0;
-    
-    // Use capture phase to prioritize grid swipe
     if (calGrid) {
         calGrid.addEventListener('touchstart', (e) => { calStartX = e.touches[0].clientX; }, {passive: true});
         calGrid.addEventListener('touchend', (e) => {
             const diff = e.changedTouches[0].clientX - calStartX;
-            if (Math.abs(diff) > 50) {
-                // Prevent bubbling to drawer closer
-                e.stopPropagation();
-                changeMonth(diff > 0 ? -1 : 1);
-            }
+            if (Math.abs(diff) > 50) { e.stopPropagation(); changeMonth(diff > 0 ? -1 : 1); }
         });
     }
-
 
     function changeMonth(delta) { viewDate.setMonth(viewDate.getMonth() + delta); render(); }
     
     function goToToday() {
         viewDate = getKyivDate(); viewDate.setHours(0,0,0,0);
-        switchView('list'); 
-        render();
+        switchView('list'); render();
         setTimeout(() => {
             const todayEl = document.querySelector('.day-container.today');
-            if (todayEl) {
-                todayEl.scrollIntoView({behavior: 'smooth', block: 'center'});
-                if(!todayEl.classList.contains('expanded')) toggleDay(todayEl);
-            }
+            if (todayEl) { todayEl.scrollIntoView({behavior: 'smooth', block: 'center'}); if(!todayEl.classList.contains('expanded')) toggleDay(todayEl); }
         }, 300); 
     }
 
     function toggleDay(element) {
         const isAlreadyOpen = element.classList.contains('expanded');
         document.querySelectorAll('.day-container.expanded').forEach(el => el.classList.remove('expanded'));
-        if (!isAlreadyOpen) {
-            element.classList.add('expanded');
-            setTimeout(() => {
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 300);
-        }
+        if (!isAlreadyOpen) { element.classList.add('expanded'); setTimeout(() => { element.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 300); }
     }
 
     function goToDay(dayNum) {
         const el = document.getElementById(`day-${dayNum}`);
-        if (el) {
-            switchView('list'); 
-            setTimeout(() => { el.scrollIntoView({behavior: 'smooth', block: 'center'}); toggleDay(el); }, 300);
-        }
+        if (el) { switchView('list'); setTimeout(() => { el.scrollIntoView({behavior: 'smooth', block: 'center'}); toggleDay(el); }, 300); }
     }
 
     function updateStatus(events) {
@@ -1409,17 +1202,11 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         const timer = document.getElementById('statusTimer');
         
         if (last.type === 'ON') { 
-            card.className = 'status-card good'; 
-            icon.innerHTML = iconBolt; 
-            text.innerText = 'СВІТЛО Є';
-            timer.style.color = 'var(--color-on)';
-            icon.style.color = 'var(--color-on)';
+            card.className = 'status-card good'; icon.innerHTML = iconBolt; text.innerText = 'СВІТЛО Є';
+            timer.style.color = 'var(--color-on)'; icon.style.color = 'var(--color-on)';
         } else { 
-            card.className = 'status-card bad'; 
-            icon.innerHTML = iconBolt; 
-            text.innerText = 'СВІТЛА НЕМАЄ';
-            timer.style.color = 'var(--color-off)';
-            icon.style.color = 'var(--color-off)';
+            card.className = 'status-card bad'; icon.innerHTML = iconBolt; text.innerText = 'СВІТЛА НЕМАЄ';
+            timer.style.color = 'var(--color-off)'; icon.style.color = 'var(--color-off)';
         }
         timer.innerText = formatDur(diff); 
         document.getElementById('statusLabel').innerText = `ЗМІНА: ${last.date.toLocaleDateString()} ${last.raw}`;
@@ -1427,36 +1214,23 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
 
     function formatDur(m) { return m < 60 ? `${m}хв` : `${Math.floor(m/60)}г ${m%60}хв`; }
 
-    // Enhanced Tooltip (Hover + Click)
     function showTip(e, s, r, d, isSchedule) {
         e.stopPropagation();
         if (tipTimeout) clearTimeout(tipTimeout);
         const tip = document.getElementById('tooltip');
         const icon = isSchedule ? iconClock : iconBolt;
-        
         tip.innerHTML = `${icon} <div><strong>${s}</strong><br><span style="opacity:0.8">${r}</span><br><span style="font-size:10px; opacity:0.6">${d}</span></div>`;
         tip.classList.add('visible');
         
-        const screenWidth = window.innerWidth;
-        const x = e.pageX; const y = e.pageY;
-        // Position Check
+        const screenWidth = window.innerWidth; const x = e.pageX; const y = e.pageY;
         if (x > screenWidth / 2) { tip.style.left = 'auto'; tip.style.right = (screenWidth - x + 10) + 'px'; tip.style.transform = 'translate(0, -100%)'; }
         else { tip.style.left = (x + 10) + 'px'; tip.style.right = 'auto'; tip.style.transform = 'translate(0, -100%)'; }
         tip.style.top = (y - 15) + 'px';
-        
-        // Auto hide after delay only if triggered by click/touch
-        if (e.type !== 'mouseover') {
-            tipTimeout = setTimeout(() => { tip.classList.remove('visible'); }, 2500);
-        }
+        if (e.type !== 'mouseover') { tipTimeout = setTimeout(() => { tip.classList.remove('visible'); }, 2500); }
     }
     
-    // Global close tooltip on click elsewhere
-    document.addEventListener('click', () => { 
-        document.getElementById('tooltip').classList.remove('visible'); 
-        if (tipTimeout) clearTimeout(tipTimeout); 
-    });
-
-    // Add Hover Listeners for Desktop convenience
+    document.addEventListener('click', () => { document.getElementById('tooltip').classList.remove('visible'); if (tipTimeout) clearTimeout(tipTimeout); });
+    document.body.addEventListener('mouseout', function(e) { if (e.target.closest('.sched-seg') || e.target.closest('.segment')) document.getElementById('tooltip').classList.remove('visible'); });
     document.body.addEventListener('mouseover', function(e) {
         const target = e.target.closest('.sched-seg') || e.target.closest('.segment');
         if (target && !target.classList.contains('future')) {
@@ -1465,22 +1239,11 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
                 const parts = onClickAttr.match(/'([^']+)'/g); 
                 const isBool = onClickAttr.includes('true');
                 if (parts && parts.length >= 3) {
-                    const s = parts[0].replace(/'/g, '');
-                    const r = parts[1].replace(/'/g, '');
-                    const d = parts[2].replace(/'/g, '');
-                    showTip(e, s, r, d, isBool);
+                    showTip(e, parts[0].replace(/'/g, ''), parts[1].replace(/'/g, ''), parts[2].replace(/'/g, ''), isBool);
                 }
             }
         }
     });
-    
-    document.body.addEventListener('mouseout', function(e) {
-         const target = e.target.closest('.sched-seg') || e.target.closest('.segment');
-         if (target) {
-             document.getElementById('tooltip').classList.remove('visible');
-         }
-    });
-
 </script>
 </body>
 </html>
