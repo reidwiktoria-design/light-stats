@@ -454,7 +454,8 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
     const SUPABASE_URL = 'https://jribfnztzwekgmjtykbs.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_Pf6YtRbiRx-l0gMOgTjcFQ_ngMm4QB1';
     
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // ЗМІНА: Називаємо клієнт 'sb', щоб уникнути конфлікту з бібліотекою
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let allEvents = [];
     let attacks = [];
@@ -476,7 +477,8 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
 
     async function init() {
         try {
-            const { data: eventsData, error: eventsError } = await supabase
+            // ЗМІНА: Використовуємо 'sb' замість 'supabase'
+            const { data: eventsData, error: eventsError } = await sb
                 .from('events')
                 .select('*')
                 .order('event_time', { ascending: true });
@@ -489,7 +491,8 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
                 return { date: d, type: e.type, raw: rawTime };
             });
 
-            const { data: attacksData } = await supabase.from('attacks').select('*');
+            // ЗМІНА: Використовуємо 'sb'
+            const { data: attacksData } = await sb.from('attacks').select('*');
             if (attacksData) {
                 attacks = attacksData.map(a => {
                     const d = new Date(a.start_time);
@@ -499,7 +502,8 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
                 });
             }
 
-            const { data: schedData } = await supabase.from('schedule').select('*');
+            // ЗМІНА: Використовуємо 'sb'
+            const { data: schedData } = await sb.from('schedule').select('*');
             schedule = {}; 
             if (schedData) {
                 schedData.forEach(item => {
