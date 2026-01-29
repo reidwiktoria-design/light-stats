@@ -451,13 +451,11 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         </div>
     </div>
 </div>
-
 <script>
     // --- SUPABASE CONFIG ---
     const SUPABASE_URL = 'https://jribfnztzwekgmjtykbs.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_Pf6YtRbiRx-l0gMOgTjcFQ_ngMm4QB1';
     
-    // Клієнт Supabase
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let allEvents = [];
@@ -581,41 +579,29 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         isLiveTimerRunning = true;
         setInterval(() => {
             const now = getKyivDate();
-            
-            // 1. Оновлення основного таймера
             if (lastKnownEvent) {
                 const diffMs = now - lastKnownEvent.date;
                 const diffMins = Math.max(0, Math.floor(diffMs / 60000));
                 const timerEl = document.getElementById('statusTimer');
                 if (timerEl) timerEl.innerText = formatDur(diffMins);
             }
-
-            // 2. Оновлення маркера (синя лінія)
             const minsToday = now.getHours() * 60 + now.getMinutes();
             const percentToday = minsToday / 14.4;
             const markers = document.querySelectorAll('.now-marker');
             markers.forEach(m => m.style.left = percentToday + '%');
 
-            // 3. Оновлення сегмента "Live"
             const todayContainer = document.querySelector('.day-container.today');
             if (todayContainer) {
                 const segments = todayContainer.querySelectorAll('.segment:not(.future)');
                 const lastSeg = segments[segments.length - 1];
-                
                 if (lastSeg && lastKnownEvent) {
                     const startOfLastEvent = new Date(lastKnownEvent.date);
                     let startMins = startOfLastEvent.getHours() * 60 + startOfLastEvent.getMinutes();
                     if (startOfLastEvent.toDateString() !== now.toDateString()) startMins = 0;
-                    
                     const currentWidth = (minsToday - startMins) / 14.4;
-                    if (currentWidth > 0) {
-                        lastSeg.style.width = currentWidth + '%';
-                    }
-
+                    if (currentWidth > 0) { lastSeg.style.width = currentWidth + '%'; }
                     const futureSeg = todayContainer.querySelector('.segment.future');
-                    if (futureSeg) {
-                        futureSeg.style.width = (100 - percentToday) + '%';
-                    }
+                    if (futureSeg) { futureSeg.style.width = (100 - percentToday) + '%'; }
                 }
             }
         }, 1000);
@@ -631,8 +617,6 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         let eventIdx = 0;
         const endLimit = new Date(); endLimit.setHours(23,59,59);
         let firstLogTime = events[0].date.getTime();
-
-        // FIX: Зберігаємо попередній стан, щоб знати чи перейшло відключення через північ
         let previousStateEnding = null; 
 
         while (pointerDate <= endLimit) {
@@ -670,8 +654,6 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
             let pTime = dStart.getTime();
             let potentialStart = (dStart.getTime() < firstLogTime) ? firstLogTime : dStart.getTime();
             let potentialEnd = (dStart.toDateString() === now.toDateString()) ? now.getTime() : dEnd.getTime();
-            
-            // Якщо день починається з відключення, яке тягнеться з минулого дня, не рахуємо це як нове "outage"
             let isContinuingOutage = (previousStateEnding === 'OFF' && currentState === 'OFF');
 
             if (dEnd.getTime() >= events[0].date.getTime()) {
@@ -680,15 +662,9 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
 
                 while (eventIdx < events.length && events[eventIdx].date <= dEnd) {
                     const ev = events[eventIdx];
-                    
                     if (currentState === 'ON' && ev.type === 'OFF' && ev.date.getTime() >= dStart.getTime()) {
                         days[k].outageCount++;
                     }
-                    // Якщо день почався з відключення (яке не тягнеться), рахуємо його
-                    // Але тут є нюанс: цикл подій обробляє переходи. 
-                    // Якщо перша подія дня - перехід в OFF, outageCount++ спрацює вище.
-                    // Якщо подій немає, а стан OFF - це continuing.
-                    
                     if (ev.date.getTime() > pTime) {
                         addSeg(days[k], pTime, ev.date.getTime(), currentState, now);
                     }
@@ -697,24 +673,10 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
                     eventIdx++;
                 }
 
-                // Логіка для "Continuing Outage": 
-                // Якщо день почався з OFF (currentState був OFF до входу в while),
-                // і це НЕ продовження з вчора (previousStateEnding != OFF), то це +1. 
-                // Але previousStateEnding != OFF і currentState == OFF на початку дня можливе тільки якщо подія сталася рівно о 00:00?
-                // Насправді, простіше: outageCount рахує *переходи* в OFF.
-                // Якщо ми "прокинулися" в стані OFF, це перехід? Ні.
-                // Тож якщо день повністю OFF або починається з OFF, count буде 0, хоча темно.
-                // FIX: Якщо день починається з OFF, і це НЕ продовження з минулого дня - це +1.
                 if (days[k].segments.length > 0 && days[k].segments[0].type === 'OFF' && !isContinuingOutage) {
-                     // Це працює тільки якщо ми додаємо сегменти.
-                     // Але ми вже порахували переходи всередині циклу.
-                     // Якщо день почався з OFF, це означає що перехід був вчора.
-                     // Якщо це "продовження", ми не додаємо. 
-                     // Якщо це початок запису (перший день взагалі) і він почався з OFF -> +1
                      if (!previousStateEnding) days[k].outageCount++; 
                 }
 
-                // Додаємо фінальний сегмент
                 const isToday = dStart.toDateString() === now.toDateString();
                 if (isToday) {
                     if (now.getTime() > pTime) addSeg(days[k], pTime, now.getTime(), currentState, now);
@@ -723,16 +685,13 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
                     addSeg(days[k], pTime, dEnd.getTime(), currentState, now);
                 }
 
-                previousStateEnding = currentState; // Запам'ятовуємо стан на кінець дня
-
-                // Логіка якості
+                previousStateEnding = currentState; 
                 let rawIndex = (days[k].potentialWeight > 0) ? (days[k].effectiveMinutes / days[k].potentialWeight) : 0;
                 let penalty = Math.min(days[k].outageCount * 0.06, 0.45); 
                 days[k].qualityIndex = rawIndex * (1 - penalty);
 
-                // --- STRICT SCHEDULE LOGIC (10 min tolerance, No Bonuses) ---
                 if (daySchedule.length > 0) {
-                    const TOLERANCE_MINS = 10; // СТРОГИЙ ДОПУСК
+                    const TOLERANCE_MINS = 10; 
                     days[k].segments.forEach(seg => {
                         if (seg.type === 'FUTURE') return;
                         const [h1, m1] = seg.range.split(' - ')[0].split(':').map(Number);
@@ -752,21 +711,10 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
                             }
                             const actualOff = (seg.type === 'OFF');
                             
-                            // СТРОГА ЛОГІКА:
-                            if (isSchedOff && actualOff) {
-                                days[k].matchMinutes++; // Темно і Темно -> ОК
-                            } 
-                            else if (isSchedOff && !actualOff) {
-                                // Графік каже Темно, а Світло Є.
-                                // БОНУСІВ НЕМАЄ. Це розсинхрон.
-                                // Нічого не додаємо.
-                            } 
-                            else if (!isSchedOff && !actualOff) {
-                                days[k].matchMinutes++; // Світло і Світло -> ОК
-                            } 
+                            if (isSchedOff && actualOff) { days[k].matchMinutes++; } 
+                            else if (isSchedOff && !actualOff) { } 
+                            else if (!isSchedOff && !actualOff) { days[k].matchMinutes++; } 
                             else if (!isSchedOff && actualOff) {
-                                // Графік каже Світло, а Темно.
-                                // Перевірка допуску 10 хв
                                 let nearestDiff = 9999;
                                 for (let slot of daySchedule) {
                                     if (slot.type !== 'black') continue;
@@ -782,7 +730,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
                     });
                 }
             } else {
-                 previousStateEnding = currentState; // Навіть якщо немає даних, стан проноситься
+                 previousStateEnding = currentState; 
             }
             pointerDate.setDate(pointerDate.getDate() + 1);
         }
@@ -879,7 +827,6 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         const maxVal = Math.max(buckets.short, buckets.medium, buckets.long, 1);
         const getH = (val) => (val / maxVal) * 100;
         
-        // Додані ховери (onmouseover)
         document.getElementById('stabilityChart').innerHTML = `
             <div class="bar-col" onmouseover="showTip(event, 'КОРОТКІ', '< 1 год', 'Нестабільно', true)" onmouseout="hideTip()">
                 <div class="bar-track"><div class="bar-fill" style="height:${getH(buckets.short)}%; background:var(--color-off)"></div></div>
@@ -938,7 +885,6 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
             let bg = 'var(--color-future)';
             if (ratio > 0) bg = `rgba(37, 78, 219, ${0.2 + ratio * 0.8})`; 
             
-            // Додано onmouseover для ховеру
             html += `<div style="flex:1; background:${bg}; height:${Math.max(4, pct)}%; border-radius:2px; position:relative;" 
                      onmouseover="showTip(event, '${h}:00 - ${h+1}:00', 'Ймовірність: ${pct}%', 'Середнє за 7 днів', true)" 
                      onclick="showTip(event, '${h}:00 - ${h+1}:00', 'Ймовірність: ${pct}%', 'Середнє за 7 днів', true)"></div>`;
@@ -1156,9 +1102,7 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         window.scrollTo(0, scrollPosition);
     }
 
-    // FIX: ТУТ НОВА ЛОГІКА КНОПОК
     function switchView(viewName) {
-        // Якщо натиснули на вже активну вкладку, і це не 'list', то повертаємо на 'list'
         if (currentView === viewName && viewName !== 'list') {
             viewName = 'list';
         }
@@ -1314,11 +1258,16 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
          if (tipTimeout) clearTimeout(tipTimeout);
     }
 
+    // ВИПРАВЛЕНО: Додано перевірку на клік для мобільного
     function showTip(e, s, r, d, isSchedule) {
-        // e.stopPropagation(); // Прибираємо, щоб ховер працював коректно
+        // Якщо це тач (клік), блокуємо спливання, щоб батьківський картка дня не реагувала
+        if (e.type === 'click') {
+            e.stopPropagation();
+        }
+
         if (tipTimeout) clearTimeout(tipTimeout);
         const tip = document.getElementById('tooltip');
-        // Якщо це ховер, не показуємо іконки, просто текст
+        
         let content = '';
         if (isSchedule) {
              content = `<div><strong>${s}</strong><br><span style="opacity:0.8">${r}</span><br><span style="font-size:10px; opacity:0.6">${d}</span></div>`;
@@ -1334,17 +1283,20 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
         else { tip.style.left = (x + 10) + 'px'; tip.style.right = 'auto'; tip.style.transform = 'translate(0, -100%)'; }
         tip.style.top = (y - 15) + 'px';
         
+        // Ховаємо автоматично тільки якщо це не ховер
         if (e.type !== 'mouseover') { 
             tipTimeout = setTimeout(() => { tip.classList.remove('visible'); }, 2500); 
         }
     }
     
+    // Закриття тултіпа при кліку в будь-якому місці
     document.addEventListener('click', () => { 
         if (!document.getElementById('tooltip').matches(':hover')) {
              document.getElementById('tooltip').classList.remove('visible'); if (tipTimeout) clearTimeout(tipTimeout); 
         }
     });
     
+    // Глобальний ховер для десктопа
     document.body.addEventListener('mouseover', function(e) {
         const target = e.target.closest('.sched-seg') || e.target.closest('.segment');
         if (target && !target.classList.contains('future')) {
@@ -1358,9 +1310,11 @@ footer { margin-top: 40px; text-align: center; font-size: 10px; color: var(--tex
             }
         }
     });
+    // Прибирання тултіпа при відведенні миші
     document.body.addEventListener('mouseout', function(e) { 
         if (e.target.closest('.sched-seg') || e.target.closest('.segment')) hideTip();
     });
 </script>
+
 </body>
 </html>
